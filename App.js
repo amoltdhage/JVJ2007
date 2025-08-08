@@ -1,16 +1,3 @@
-// // import React from 'react';
-// import { NavigationContainer } from '@react-navigation/native';
-// import BottomTabs from './src/navigation/BottomTabs';
-
-// export default function App() {
-//   return (
-//     <NavigationContainer>
-//       <BottomTabs />
-//     </NavigationContainer>
-//   );
-// }
-
-
 import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -18,6 +5,7 @@ import SplashScreen from './src/screens/SplashScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import SignUpScreen from './src/screens/SignUpScreen';
 import BottomTabs from './src/navigation/BottomTabs';
+import GetTogetherForm from './src/screens/GetTogetherForm';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Stack = createNativeStackNavigator();

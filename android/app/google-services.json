@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "99997475744",
+    "project_id": "jvjreconnect2007",
+    "storage_bucket": "jvjreconnect2007.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:99997475744:android:7c7f4ffc1aba78799b3ac5",
+        "android_client_info": {
+          "package_name": "com.jvjreconnect"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHcyFmOl86cQlXKe0bkitkYquHVvjtf70"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

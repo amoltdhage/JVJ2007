@@ -4,7 +4,7 @@ import HomeScreen from '../screens/HomeScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-
+import HomeStackScreen from './HomeStack';
 const Tab = createBottomTabNavigator();
 
 export default function BottomTabs() {
@@ -33,7 +33,7 @@ export default function BottomTabs() {
           position: 'absolute',
           borderTopLeftRadius: 20,
           borderTopRightRadius: 20,
-          backgroundColor: 'navy',
+          backgroundColor: '#002b5c',
           overflow: 'hidden',
           elevation: 10,
           shadowColor: '#000',
@@ -44,7 +44,8 @@ export default function BottomTabs() {
         headerShown: false,
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
+      {/* <Tab.Screen name="Home" component={HomeScreen} /> */}
+      <Tab.Screen name="Home" component={HomeStackScreen} />
       <Tab.Screen name="Settings" component={SettingsScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
