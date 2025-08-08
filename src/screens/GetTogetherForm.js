@@ -9,7 +9,7 @@ import {
   Alert,
   Modal,
   FlatList,
-  Platform,PermissionsAndroid
+  Platform, PermissionsAndroid
 } from 'react-native';
 import Header from '../components/Header';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
@@ -168,89 +168,89 @@ const GetTogetherForm = ({ navigation }) => {
     setSubmittedData(payload);
   };
 
-//   // Create PDF using react-native-html-to-pdf
-//   const handleDownloadPDF = async () => {
-//   if (!submittedData || submittedData.attending === 'no') return;
-//   setLoadingPDF(true);
+  //   // Create PDF using react-native-html-to-pdf
+  //   const handleDownloadPDF = async () => {
+  //   if (!submittedData || submittedData.attending === 'no') return;
+  //   setLoadingPDF(true);
 
-//   // Format DOB as DD/MM/YYYY for PDF display
-//   const dobFormatted = submittedData.dob
-//     ? new Date(submittedData.dob).toLocaleDateString('en-GB')
-//     : '-';
+  //   // Format DOB as DD/MM/YYYY for PDF display
+  //   const dobFormatted = submittedData.dob
+  //     ? new Date(submittedData.dob).toLocaleDateString('en-GB')
+  //     : '-';
 
-//   const html = `
-//     <html>
-//       <head>
-//         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-//         <style>
-//           body { font-family: Arial, sans-serif; padding: 16px; color: #222;}
-//           .header { text-align: center; background:#002b5c; color:white; padding:12px; border-radius:6px; }
-//           .section { margin-top:12px; padding:10px; border:1px solid #ccc; border-radius:6px; }
-//           .label { font-weight: bold; }
-//           .small { font-size: 12px; color: #555; }
-//         </style>
-//       </head>
-//       <body>
-//         <div class="header">
-//           <h2>${EVENT_INFO.titleBig}</h2>
-//           <div style="font-size:14px">${EVENT_INFO.subtitle}</div>
-//         </div>
+  //   const html = `
+  //     <html>
+  //       <head>
+  //         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  //         <style>
+  //           body { font-family: Arial, sans-serif; padding: 16px; color: #222;}
+  //           .header { text-align: center; background:#002b5c; color:white; padding:12px; border-radius:6px; }
+  //           .section { margin-top:12px; padding:10px; border:1px solid #ccc; border-radius:6px; }
+  //           .label { font-weight: bold; }
+  //           .small { font-size: 12px; color: #555; }
+  //         </style>
+  //       </head>
+  //       <body>
+  //         <div class="header">
+  //           <h2>${EVENT_INFO.titleBig}</h2>
+  //           <div style="font-size:14px">${EVENT_INFO.subtitle}</div>
+  //         </div>
 
-//         <div class="section">
-//           <div class="label">Registration ID:</div>
-//           <div>${submittedData.regId}</div>
-//           <div class="small">Registered at: ${new Date(submittedData.createdAt).toLocaleString()}</div>
-//         </div>
+  //         <div class="section">
+  //           <div class="label">Registration ID:</div>
+  //           <div>${submittedData.regId}</div>
+  //           <div class="small">Registered at: ${new Date(submittedData.createdAt).toLocaleString()}</div>
+  //         </div>
 
-//         <div class="section">
-//           <div class="label">Participant Info</div>
-//           <div><strong>Name:</strong> ${submittedData.fullName}</div>
-//           <div><strong>DOB:</strong> ${dobFormatted}</div>
-//           <div><strong>Mobile:</strong> ${submittedData.mobile}</div>
-//           <div><strong>Village/City:</strong> ${submittedData.village}</div>
-//           <div><strong>Attending:</strong> ${submittedData.attending}</div>
-//           <div><strong>Children:</strong> ${submittedData.children.length}</div>
-//           ${
-//             submittedData.children.length > 0
-//               ? `<div><strong>Children details:</strong><ul>` +
-//                 submittedData.children
-//                   .map((c) => `<li>${c.name} (age ${c.age})</li>`)
-//                   .join('') +
-//                 `</ul></div>`
-//               : ''
-//           }
-//           <div><strong>Comments:</strong> ${submittedData.comments || '-'}</div>
-//         </div>
+  //         <div class="section">
+  //           <div class="label">Participant Info</div>
+  //           <div><strong>Name:</strong> ${submittedData.fullName}</div>
+  //           <div><strong>DOB:</strong> ${dobFormatted}</div>
+  //           <div><strong>Mobile:</strong> ${submittedData.mobile}</div>
+  //           <div><strong>Village/City:</strong> ${submittedData.village}</div>
+  //           <div><strong>Attending:</strong> ${submittedData.attending}</div>
+  //           <div><strong>Children:</strong> ${submittedData.children.length}</div>
+  //           ${
+  //             submittedData.children.length > 0
+  //               ? `<div><strong>Children details:</strong><ul>` +
+  //                 submittedData.children
+  //                   .map((c) => `<li>${c.name} (age ${c.age})</li>`)
+  //                   .join('') +
+  //                 `</ul></div>`
+  //               : ''
+  //           }
+  //           <div><strong>Comments:</strong> ${submittedData.comments || '-'}</div>
+  //         </div>
 
-//         <div class="section">
-//           <div class="label">Event</div>
-//           <div>${EVENT_INFO.dateLine}</div>
-//           <div>${EVENT_INFO.timeLine}</div>
-//           <div>${EVENT_INFO.placeLine}</div>
-//           <div style="margin-top:8px; font-weight:bold; color:#002b5c;">Let's reconnect, relive memories, and celebrate our school bond!</div>
-//         </div>
-//       </body>
-//     </html>
-//   `;
+  //         <div class="section">
+  //           <div class="label">Event</div>
+  //           <div>${EVENT_INFO.dateLine}</div>
+  //           <div>${EVENT_INFO.timeLine}</div>
+  //           <div>${EVENT_INFO.placeLine}</div>
+  //           <div style="margin-top:8px; font-weight:bold; color:#002b5c;">Let's reconnect, relive memories, and celebrate our school bond!</div>
+  //         </div>
+  //       </body>
+  //     </html>
+  //   `;
 
-//   try {
-//     const options = {
-//       html,
-//       fileName: `${submittedData.regId}`,
-//       directory: 'Download', // Saves to Downloads folder on Android for easy access
-//     };
-//     const file = await RNHTMLtoPDF.convert(options);
-//     setLoadingPDF(false);
-//     Alert.alert('PDF Saved', `Saved file at:\n${file.filePath}`);
-//   } catch (err) {
-//     setLoadingPDF(false);
-//     Alert.alert('PDF Error', 'Could not create PDF. Please Contact Admin 9890332831');
-//     console.warn(err);
-//   }
-// };
+  //   try {
+  //     const options = {
+  //       html,
+  //       fileName: `${submittedData.regId}`,
+  //       directory: 'Download', // Saves to Downloads folder on Android for easy access
+  //     };
+  //     const file = await RNHTMLtoPDF.convert(options);
+  //     setLoadingPDF(false);
+  //     Alert.alert('PDF Saved', `Saved file at:\n${file.filePath}`);
+  //   } catch (err) {
+  //     setLoadingPDF(false);
+  //     Alert.alert('PDF Error', 'Could not create PDF. Please Contact Admin 9890332831');
+  //     console.warn(err);
+  //   }
+  // };
 
 
- // Request Android storage permission at runtime
+  // Request Android storage permission at runtime
   async function requestStoragePermission() {
     if (Platform.OS === 'android') {
       try {
@@ -289,7 +289,7 @@ const GetTogetherForm = ({ navigation }) => {
       ? new Date(submittedData.dob).toLocaleDateString('en-GB')
       : '-';
 
-const html = `
+    const html = `
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -330,9 +330,9 @@ const html = `
       letter-spacing: 1px;
     }
     .header .subtitle {
-      font-weight: 400;
-      font-size: 16px;
-      opacity: 0.85;
+      font-weight: 700; /* bold */
+  font-size: 18px;
+  opacity: 0.85;
     }
     .section {
       margin-top: 24px;
@@ -420,15 +420,14 @@ const html = `
       <div class="field"><strong>Village/City:</strong> ${submittedData.village}</div>
       <div class="field"><strong>Attending:</strong> ${submittedData.attending}</div>
       <div class="field"><strong>Children:</strong> ${submittedData.children.length}</div>
-      ${
-        submittedData.children.length > 0
-          ? `<div class="field"><strong>Children details:</strong>
+      ${submittedData.children.length > 0
+        ? `<div class="field"><strong>Children details:</strong>
             <ul class="children-list">` +
-            submittedData.children
-              .map((c) => `<li>${c.name} (age ${c.age})</li>`)
-              .join('') +
-            `</ul></div>`
-          : ''
+        submittedData.children
+          .map((c) => `<li>${c.name} (age ${c.age})</li>`)
+          .join('') +
+        `</ul></div>`
+        : ''
       }
       <div class="field"><strong>Comments:</strong> ${submittedData.comments || '-'}</div>
     </div>
@@ -611,7 +610,7 @@ const html = `
         <Text style={styles.title}>Are you attending?</Text>
 
         {/* Attending radio */}
-        <View style={{ width: '100%', marginBottom: 16 , alignItems:"center" }}>
+        <View style={{ width: '100%', marginBottom: 16, alignItems: "center" }}>
           {errors.attending && <Text style={styles.errorText}>{errors.attending}</Text>}
           <View style={{ flexDirection: 'row', gap: 12 }}>
             <TouchableOpacity
