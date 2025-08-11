@@ -18,7 +18,15 @@
           "client_type": 1,
           "android_info": {
             "package_name": "com.jvjreconnect",
-            "certificate_hash": "231d182378ac83ea137111cc59c083e1fe4fda1f"
+            "certificate_hash": "231D182378AC83EA137111CC59C083E1FE4FDA1F"
+          }
+        },
+        {
+          "client_id": "713389405869-ogqrvhq4p2r7mqrs6egipvdfosesbvul.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jvjreconnect",
+            "certificate_hash": "5B1C2CA90B7EF77E11472952E36E39D4311FC126"
           }
         },
         {

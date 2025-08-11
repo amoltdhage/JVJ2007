@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
-import { googleLogin } from '../Services/API-services/authservice';
+import { googleLogin } from '../Services/authservice';
 import { useDispatch } from 'react-redux';
 
 const LoginScreen = ({ navigation }) => {
@@ -22,15 +22,15 @@ const LoginScreen = ({ navigation }) => {
   const dispatch = useDispatch();
 
   const handleGoogleLogin = async () => {
-    try {
+    // try {
       const user = await googleLogin();
       console.log("user: ", user);
       dispatch(loginAction(user));
       Alert.alert('Login Success', `Welcome ${user.displayName}`);
-    } catch (error) {
-      Alert.alert('Login Failed', error.message);
-      console.error('Google Login Error:', error);
-    }
+    // } catch (error) {
+    //   Alert.alert('Login Failed', error);
+    //   console.error('Google Login Error:', error);
+    // }
   };
 
   const validate = () => {
@@ -44,12 +44,10 @@ const LoginScreen = ({ navigation }) => {
       newErrors.email = 'Invalid email';
       valid = false;
     }
-
     if (!password) {
       newErrors.password = 'Password is required';
       valid = false;
     }
-
     setErrors(newErrors);
     return valid;
   };
@@ -64,7 +62,6 @@ const LoginScreen = ({ navigation }) => {
     <ScrollView contentContainerStyle={styles.container}>
       <StatusBar barStyle="light-content" />
 
-      {/* 🔥 Replaced image with vector icon */}
       <Text style={styles.title}>JVJ Reconnect</Text>
       <Text style={styles.title2}>2007 Batch</Text>
       <MaterialIcon name="person-outline" size={60} color="#00b4db" style={{ marginBottom: 10 }} />

@@ -8,19 +8,18 @@ import BottomTabs from './src/navigation/BottomTabs';
 import { useLoading } from './LoadingContext';
 import { useSelector } from "react-redux";
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import { webclientId } from './src/utils/utils';
-import { configureGoogleSignIn } from './src/Services/API-services/authservice';
 
 
 const Stack = createNativeStackNavigator();
 
+const GOOGLE_WEB_CLIENT_ID = '713389405869-i9nr2ubuu2k26lhr1go48hl9or0bfkbc.apps.googleusercontent.com';
+
 export default function App() {
+  useEffect(() => {
+    GoogleSignin.configure({ webClientId: GOOGLE_WEB_CLIENT_ID });
+  }, [])
   const { isLoading } = useLoading();
   const auth = useSelector((state) => state.auth);
-
-  useEffect(() => {
-    configureGoogleSignIn(webclientId);
-  }, []);
 
   if (isLoading) {
     return (
