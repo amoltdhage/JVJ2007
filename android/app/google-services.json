@@ -1,26 +1,44 @@
 {
   "project_info": {
-    "project_number": "99997475744",
-    "project_id": "jvjreconnect2007",
-    "storage_bucket": "jvjreconnect2007.firebasestorage.app"
+    "project_number": "713389405869",
+    "project_id": "jvvj-reconnect-database",
+    "storage_bucket": "jvvj-reconnect-database.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:99997475744:android:7c7f4ffc1aba78799b3ac5",
+        "mobilesdk_app_id": "1:713389405869:android:60e9eec947058bc8ecb824",
         "android_client_info": {
           "package_name": "com.jvjreconnect"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "713389405869-ogqrvhq4p2r7mqrs6egipvdfosesbvul.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jvjreconnect",
+            "certificate_hash": "231d182378ac83ea137111cc59c083e1fe4fda1f"
+          }
+        },
+        {
+          "client_id": "713389405869-i9nr2ubuu2k26lhr1go48hl9or0bfkbc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyAHcyFmOl86cQlXKe0bkitkYquHVvjtf70"
+          "current_key": "AIzaSyDkwmMW1nmdXUBtwA95LpYsS6AwpAj4YD0"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "713389405869-i9nr2ubuu2k26lhr1go48hl9or0bfkbc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

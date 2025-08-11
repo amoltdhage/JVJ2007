@@ -11,12 +11,27 @@ import {
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
+import { googleLogin } from '../Services/API-services/authservice';
+import { useDispatch } from 'react-redux';
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [secureText, setSecureText] = useState(true);
   const [errors, setErrors] = useState({});
+  const dispatch = useDispatch();
+
+  const handleGoogleLogin = async () => {
+    try {
+      const user = await googleLogin();
+      console.log("user: ", user);
+      dispatch(loginAction(user));
+      Alert.alert('Login Success', `Welcome ${user.displayName}`);
+    } catch (error) {
+      Alert.alert('Login Failed', error.message);
+      console.error('Google Login Error:', error);
+    }
+  };
 
   const validate = () => {
     let valid = true;
@@ -41,9 +56,9 @@ const LoginScreen = ({ navigation }) => {
 
   const handleLogin = () => {
     if (validate()) {
-    navigation.replace('Home');
-  }
-};
+      navigation.replace('Home');
+    }
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -56,6 +71,11 @@ const LoginScreen = ({ navigation }) => {
 
       <Text style={styles.title}>Login</Text>
 
+      <TouchableOpacity style={styles.button} onPress={handleGoogleLogin}>
+        <LinearGradient colors={['#00b4db', '#0083b0']} style={styles.gradient}>
+          <Text style={styles.buttonText}>Google</Text>
+        </LinearGradient>
+      </TouchableOpacity>
       {/* Email Field */}
       <View style={styles.inputWrapper}>
         <View style={styles.inputContainer}>
@@ -133,14 +153,14 @@ const styles = StyleSheet.create({
     color: '#00b4db',
     fontWeight: 'bold',
     // marginBottom: 25,
-    textAlign:"center"
+    textAlign: "center"
   },
   title2: {
     fontSize: 28,
     color: '#00b4db',
     fontWeight: 'bold',
     marginBottom: 25,
-    textAlign:"center"
+    textAlign: "center"
   },
   subtitle: {
     fontSize: 16,
@@ -151,7 +171,7 @@ const styles = StyleSheet.create({
   inputWrapper: {
     width: '100%',
     marginBottom: 10,
-    marginTop:20
+    marginTop: 20
   },
   inputContainer: {
     flexDirection: 'row',

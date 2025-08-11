@@ -1,26 +1,25 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SplashScreen from './src/screens/SplashScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import SignUpScreen from './src/screens/SignUpScreen';
 import BottomTabs from './src/navigation/BottomTabs';
-import GetTogetherForm from './src/screens/GetTogetherForm';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useLoading } from './LoadingContext';
+import { useSelector } from "react-redux";
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { webclientId } from './src/utils/utils';
+import { configureGoogleSignIn } from './src/Services/API-services/authservice';
+
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { isLoading } = useLoading();
+  const auth = useSelector((state) => state.auth);
 
   useEffect(() => {
-    const checkLoginStatus = async () => {
-      const token = await AsyncStorage.getItem('userToken');
-      setIsLoggedIn(!!token);
-      setIsLoading(false);
-    };
-    checkLoginStatus();
+    configureGoogleSignIn(webclientId);
   }, []);
 
   if (isLoading) {
@@ -36,11 +35,11 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {isLoggedIn ? (
+        {auth?.isAuthenticated ? (
           <Stack.Screen name="Home" component={BottomTabs} />
         ) : (
           <>
-            <Stack.Screen name="Home" component={BottomTabs} />
+            {/* <Stack.Screen name="Home" component={BottomTabs} /> */}
             <Stack.Screen name="Auth" component={LoginScreen} />
             <Stack.Screen name="SignUp" component={SignUpScreen} />
           </>
@@ -49,5 +48,3 @@ export default function App() {
     </NavigationContainer>
   );
 }
-
-
