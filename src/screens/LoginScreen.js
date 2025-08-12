@@ -40,8 +40,8 @@ const LoginScreen = ({ navigation }) => {
 
   const handleLogin = () => {
     if (validate()) {
-      LoginService({email, password}, navigation);
-      // navigation.replace('Home');
+      console.log()
+      LoginService(email, password);
     }
   };
 

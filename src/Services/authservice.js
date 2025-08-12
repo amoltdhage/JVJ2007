@@ -1,46 +1,67 @@
-import { auth, firestore } from "./firebase";
+import { useDispatch } from 'react-redux';
+import { auth } from './firebase';
+import {
+  loginAction,
+  logoutAction,
+} from '../Redux/Actions/AuthAction/LoginAction';
+import { addCollection, fetchCollection } from './firestoreServices';
 
 export default function AuthenticationService() {
+  const dispatch = useDispatch();
 
-    const SignUpService = async (requestBody) => {
-        try {
-            const userCredential = await auth().createUserWithEmailAndPassword(requestBody.email, requestBody.password);
-            const uid = userCredential.user.uid;
+  const SignUpService = async (requestBody, password) => {
+    try {
+      const userCredential = await auth().createUserWithEmailAndPassword(
+        requestBody.email,
+        password,
+      );
+      const uid = userCredential.user.uid;
+      const responseData = {
+        id: uid,
+        uid,
+        ...requestBody,
+        createdAt: new Date(),
+      };
+      await addCollection('users', uid, responseData);
+      dispatch(loginAction(uid));
+      return { success: true, uid };
+    } catch (error) {
+      logout();
+    }
+  };
 
-            await firestore().collection('users').doc(uid).set({
-                id: uid,
-                uid,
-                ...requestBody,
-                createdAt: firestore.FieldValue.serverTimestamp()
-            });
+  const LoginService = async (email, password) => {
+    try {
+      const userCredential = await auth().signInWithEmailAndPassword(
+        email,
+        password,
+      );
+      const uid = userCredential.user.uid;
 
-            console.log('Signup successful', userCredential);
-            return { success: true, uid };
-        } catch (error) {
-            console.error('Signup error:', error);
-            return { success: false, error: error.message };
-        }
-    };
+      const userDoc = await fetchCollection('users', uid);
+      if (userDoc) {
+        dispatch(loginAction(userDoc.uid));
+        return { success: true, data: userDoc };
+      } else {
+        console.log('No user profile found');
+        logout();
+        return { success: false, error: 'No profile found' };
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      return { success: false, error: error.message };
+    }
+  };
 
-    const LoginService = async (email, password) => {
-        try {
-            const userCredential = await auth().signInWithEmailAndPassword(email, password);
-            const uid = userCredential.user.uid;
+  const logout = async (message = null) => {
+    try {
+      await auth().signOut();
+      dispatch(logoutAction());
+      console.log(message || 'User signed out!');
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
+  };
 
-            // Fetch user profile from Firestore
-            const userDoc = await firestore().collection('users').doc(uid).get();
-            if (userDoc.exists) {
-                console.log('User data:', userDoc.data());
-                return { success: true, data: userDoc.data() };
-            } else {
-                console.log('No user profile found');
-                return { success: false, error: 'No profile found' };
-            }
-        } catch (error) {
-            console.error('Login error:', error);
-            return { success: false, error: error.message };
-        }
-    };
-
-    return { SignUpService, LoginService };
+  return { SignUpService, LoginService, logout };
 }

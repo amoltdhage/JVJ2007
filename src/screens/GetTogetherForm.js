@@ -7,17 +7,19 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
-  Modal,
-  FlatList,
-  Platform,PermissionsAndroid
+  Platform,
+  PermissionsAndroid,
 } from 'react-native';
 import Header from '../components/Header';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import { Picker } from '@react-native-picker/picker';
-import DatePicker from 'react-native-date-picker';  // <--- Added
+import DatePicker from 'react-native-date-picker'; // <--- Added
 import RNFS from 'react-native-fs';
+import { useSelector } from 'react-redux';
+import AuthenticationService from '../Services/authservice';
+import { fetchCollection } from '../Services/firestoreServices';
 const EVENT_INFO = {
   titleBig: 'JVJ 2007 - 10th Batch',
   subtitle: 'Get Together',
@@ -30,19 +32,51 @@ const REG_COUNTER_KEY = 'GT_REG_COUNTER'; // store numeric counter
 const REG_LIST_KEY = 'GT_REGS'; // store list of regs
 
 const GetTogetherForm = ({ navigation }) => {
-  // form state
+  const auth = useSelector(state => state.auth);
+  const { logout } = AuthenticationService();
+
   const [form, setForm] = useState({
     fullName: '',
-    dob: null,           // <--- Changed dobYear to dob (Date object)
+    dob: null,
     mobile: '',
     village: '',
-    attending: '',       // start empty so user must select
+    attending: '',
     childrenCount: '0',
     comments: '',
   });
 
   // children details array of objects { name:'', age:'' }
   const [children, setChildren] = useState([]);
+
+  useEffect(() => {
+    console.log('auth: ', auth);
+    if (auth?.user) getUserData(auth.user);
+    else logout('Session expired');
+  }, []);
+
+  const getUserData = async id => {
+    try {
+      const userData = await fetchCollection('users', id);
+      console.log('userData: ', userData);
+      const formData = {
+        fullName: userData?.fullName
+          ? userData.fullName
+          : `${userData.firstName} ${userData.lastName}`,
+        dob: userData?.dob ? new Date(userData.dob) : null,
+        mobile: userData?.mobile || '',
+        village: userData?.village || '',
+        attending: userData?.attending || '',
+        childrenCount: userData?.childrenCount
+          ? String(userData.childrenCount)
+          : '0',
+        comments: userData?.comments || '',
+      };
+      setForm(formData);
+    } catch (error) {
+      logout('Not able to get your data. Please signup again.');
+      console.error('Error fetching user data:', error);
+    }
+  };
 
   // UI state
   const [errors, setErrors] = useState({});
@@ -53,7 +87,7 @@ const GetTogetherForm = ({ navigation }) => {
 
   useEffect(() => {
     // if childrenCount changes, prepare children array length
-    const count = parseInt(form.childrenCount || '0', 3);
+    const count = parseInt(form.childrenCount || 0, 10);
     const arr = [];
     for (let i = 0; i < count; i++) {
       arr.push(children[i] || { name: '', age: '' });
@@ -63,8 +97,9 @@ const GetTogetherForm = ({ navigation }) => {
   }, [form.childrenCount]);
 
   const handleChange = (name, value) => {
-    setForm((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, [name]: '' }));
+    setForm(prev => ({ ...prev, [name]: value }));
+    console.log('name: ', name, 'value: ', value);
+    setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
   const handleChildChange = (index, field, val) => {
@@ -94,7 +129,7 @@ const GetTogetherForm = ({ navigation }) => {
         newErr.village = 'Village/City required';
       }
       // validate children details if any
-      const count = parseInt(form.childrenCount || '0', 3);
+      const count = parseInt(form.childrenCount || '0', 10);
       for (let i = 0; i < count; i++) {
         if (!children[i] || !children[i].name?.trim()) {
           newErr[`child_name_${i}`] = 'Child name required';
@@ -131,7 +166,10 @@ const GetTogetherForm = ({ navigation }) => {
 
   const handleSubmit = async () => {
     if (!validate()) {
-      Alert.alert('Please fix errors', 'Complete required fields highlighted in red.');
+      Alert.alert(
+        'Please fix errors',
+        'Complete required fields highlighted in red.',
+      );
       return;
     }
 
@@ -141,10 +179,7 @@ const GetTogetherForm = ({ navigation }) => {
       return;
     }
 
-    const regIdLocal = await generateRegId();
-    setRegId(regIdLocal);
-
-    const totalPersons = 1 + parseInt(form.childrenCount || '0', 3);
+    const totalPersons = 1 + parseInt(form.childrenCount || '0', 10);
     const payload = {
       regId: regIdLocal,
       createdAt: new Date().toISOString(),
@@ -168,89 +203,88 @@ const GetTogetherForm = ({ navigation }) => {
     setSubmittedData(payload);
   };
 
-//   // Create PDF using react-native-html-to-pdf
-//   const handleDownloadPDF = async () => {
-//   if (!submittedData || submittedData.attending === 'no') return;
-//   setLoadingPDF(true);
+  //   // Create PDF using react-native-html-to-pdf
+  //   const handleDownloadPDF = async () => {
+  //   if (!submittedData || submittedData.attending === 'no') return;
+  //   setLoadingPDF(true);
 
-//   // Format DOB as DD/MM/YYYY for PDF display
-//   const dobFormatted = submittedData.dob
-//     ? new Date(submittedData.dob).toLocaleDateString('en-GB')
-//     : '-';
+  //   // Format DOB as DD/MM/YYYY for PDF display
+  //   const dobFormatted = submittedData.dob
+  //     ? new Date(submittedData.dob).toLocaleDateString('en-GB')
+  //     : '-';
 
-//   const html = `
-//     <html>
-//       <head>
-//         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-//         <style>
-//           body { font-family: Arial, sans-serif; padding: 16px; color: #222;}
-//           .header { text-align: center; background:#002b5c; color:white; padding:12px; border-radius:6px; }
-//           .section { margin-top:12px; padding:10px; border:1px solid #ccc; border-radius:6px; }
-//           .label { font-weight: bold; }
-//           .small { font-size: 12px; color: #555; }
-//         </style>
-//       </head>
-//       <body>
-//         <div class="header">
-//           <h2>${EVENT_INFO.titleBig}</h2>
-//           <div style="font-size:14px">${EVENT_INFO.subtitle}</div>
-//         </div>
+  //   const html = `
+  //     <html>
+  //       <head>
+  //         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  //         <style>
+  //           body { font-family: Arial, sans-serif; padding: 16px; color: #222;}
+  //           .header { text-align: center; background:#002b5c; color:white; padding:12px; border-radius:6px; }
+  //           .section { margin-top:12px; padding:10px; border:1px solid #ccc; border-radius:6px; }
+  //           .label { font-weight: bold; }
+  //           .small { font-size: 12px; color: #555; }
+  //         </style>
+  //       </head>
+  //       <body>
+  //         <div class="header">
+  //           <h2>${EVENT_INFO.titleBig}</h2>
+  //           <div style="font-size:14px">${EVENT_INFO.subtitle}</div>
+  //         </div>
 
-//         <div class="section">
-//           <div class="label">Registration ID:</div>
-//           <div>${submittedData.regId}</div>
-//           <div class="small">Registered at: ${new Date(submittedData.createdAt).toLocaleString()}</div>
-//         </div>
+  //         <div class="section">
+  //           <div class="label">Registration ID:</div>
+  //           <div>${submittedData.regId}</div>
+  //           <div class="small">Registered at: ${new Date(submittedData.createdAt).toLocaleString()}</div>
+  //         </div>
 
-//         <div class="section">
-//           <div class="label">Participant Info</div>
-//           <div><strong>Name:</strong> ${submittedData.fullName}</div>
-//           <div><strong>DOB:</strong> ${dobFormatted}</div>
-//           <div><strong>Mobile:</strong> ${submittedData.mobile}</div>
-//           <div><strong>Village/City:</strong> ${submittedData.village}</div>
-//           <div><strong>Attending:</strong> ${submittedData.attending}</div>
-//           <div><strong>Children:</strong> ${submittedData.children.length}</div>
-//           ${
-//             submittedData.children.length > 0
-//               ? `<div><strong>Children details:</strong><ul>` +
-//                 submittedData.children
-//                   .map((c) => `<li>${c.name} (age ${c.age})</li>`)
-//                   .join('') +
-//                 `</ul></div>`
-//               : ''
-//           }
-//           <div><strong>Comments:</strong> ${submittedData.comments || '-'}</div>
-//         </div>
+  //         <div class="section">
+  //           <div class="label">Participant Info</div>
+  //           <div><strong>Name:</strong> ${submittedData.fullName}</div>
+  //           <div><strong>DOB:</strong> ${dobFormatted}</div>
+  //           <div><strong>Mobile:</strong> ${submittedData.mobile}</div>
+  //           <div><strong>Village/City:</strong> ${submittedData.village}</div>
+  //           <div><strong>Attending:</strong> ${submittedData.attending}</div>
+  //           <div><strong>Children:</strong> ${submittedData.children.length}</div>
+  //           ${
+  //             submittedData.children.length > 0
+  //               ? `<div><strong>Children details:</strong><ul>` +
+  //                 submittedData.children
+  //                   .map((c) => `<li>${c.name} (age ${c.age})</li>`)
+  //                   .join('') +
+  //                 `</ul></div>`
+  //               : ''
+  //           }
+  //           <div><strong>Comments:</strong> ${submittedData.comments || '-'}</div>
+  //         </div>
 
-//         <div class="section">
-//           <div class="label">Event</div>
-//           <div>${EVENT_INFO.dateLine}</div>
-//           <div>${EVENT_INFO.timeLine}</div>
-//           <div>${EVENT_INFO.placeLine}</div>
-//           <div style="margin-top:8px; font-weight:bold; color:#002b5c;">Let's reconnect, relive memories, and celebrate our school bond!</div>
-//         </div>
-//       </body>
-//     </html>
-//   `;
+  //         <div class="section">
+  //           <div class="label">Event</div>
+  //           <div>${EVENT_INFO.dateLine}</div>
+  //           <div>${EVENT_INFO.timeLine}</div>
+  //           <div>${EVENT_INFO.placeLine}</div>
+  //           <div style="margin-top:8px; font-weight:bold; color:#002b5c;">Let's reconnect, relive memories, and celebrate our school bond!</div>
+  //         </div>
+  //       </body>
+  //     </html>
+  //   `;
 
-//   try {
-//     const options = {
-//       html,
-//       fileName: `${submittedData.regId}`,
-//       directory: 'Download', // Saves to Downloads folder on Android for easy access
-//     };
-//     const file = await RNHTMLtoPDF.convert(options);
-//     setLoadingPDF(false);
-//     Alert.alert('PDF Saved', `Saved file at:\n${file.filePath}`);
-//   } catch (err) {
-//     setLoadingPDF(false);
-//     Alert.alert('PDF Error', 'Could not create PDF. Please Contact Admin 9890332831');
-//     console.warn(err);
-//   }
-// };
+  //   try {
+  //     const options = {
+  //       html,
+  //       fileName: `${submittedData.regId}`,
+  //       directory: 'Download', // Saves to Downloads folder on Android for easy access
+  //     };
+  //     const file = await RNHTMLtoPDF.convert(options);
+  //     setLoadingPDF(false);
+  //     Alert.alert('PDF Saved', `Saved file at:\n${file.filePath}`);
+  //   } catch (err) {
+  //     setLoadingPDF(false);
+  //     Alert.alert('PDF Error', 'Could not create PDF. Please Contact Admin 9890332831');
+  //     console.warn(err);
+  //   }
+  // };
 
-
- // Request Android storage permission at runtime
+  // Request Android storage permission at runtime
   async function requestStoragePermission() {
     if (Platform.OS === 'android') {
       try {
@@ -262,7 +296,7 @@ const GetTogetherForm = ({ navigation }) => {
             buttonNeutral: 'Ask Me Later',
             buttonNegative: 'Cancel',
             buttonPositive: 'OK',
-          }
+          },
         );
         return granted === PermissionsAndroid.RESULTS.GRANTED;
       } catch (err) {
@@ -278,7 +312,10 @@ const GetTogetherForm = ({ navigation }) => {
 
     const hasPermission = await requestStoragePermission();
     if (!hasPermission) {
-      Alert.alert('Permission Denied', 'Storage permission is required to save the PDF.');
+      Alert.alert(
+        'Permission Denied',
+        'Storage permission is required to save the PDF.',
+      );
       return;
     }
 
@@ -289,7 +326,7 @@ const GetTogetherForm = ({ navigation }) => {
       ? new Date(submittedData.dob).toLocaleDateString('en-GB')
       : '-';
 
-const html = `
+    const html = `
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -409,7 +446,9 @@ const html = `
     <div class="section">
       <div class="label">Registration ID</div>
       <div class="field">${submittedData.regId}</div>
-      <div class="small">Registered at: ${new Date(submittedData.createdAt).toLocaleString()}</div>
+      <div class="small">Registered at: ${new Date(
+        submittedData.createdAt,
+      ).toLocaleString()}</div>
     </div>
 
     <div class="section">
@@ -417,20 +456,28 @@ const html = `
       <div class="field"><strong>Name:</strong> ${submittedData.fullName}</div>
       <div class="field"><strong>DOB:</strong> ${dobFormatted}</div>
       <div class="field"><strong>Mobile:</strong> ${submittedData.mobile}</div>
-      <div class="field"><strong>Village/City:</strong> ${submittedData.village}</div>
-      <div class="field"><strong>Attending:</strong> ${submittedData.attending}</div>
-      <div class="field"><strong>Children:</strong> ${submittedData.children.length}</div>
+      <div class="field"><strong>Village/City:</strong> ${
+        submittedData.village
+      }</div>
+      <div class="field"><strong>Attending:</strong> ${
+        submittedData.attending
+      }</div>
+      <div class="field"><strong>Children:</strong> ${
+        submittedData.children.length
+      }</div>
       ${
         submittedData.children.length > 0
           ? `<div class="field"><strong>Children details:</strong>
             <ul class="children-list">` +
             submittedData.children
-              .map((c) => `<li>${c.name} (age ${c.age})</li>`)
+              .map(c => `<li>${c.name} (age ${c.age})</li>`)
               .join('') +
             `</ul></div>`
           : ''
       }
-      <div class="field"><strong>Comments:</strong> ${submittedData.comments || '-'}</div>
+      <div class="field"><strong>Comments:</strong> ${
+        submittedData.comments || '-'
+      }</div>
     </div>
 
     <div class="section">
@@ -453,7 +500,6 @@ const html = `
 </body>
 </html>
 `;
-
 
     try {
       // Create PDF in default cache directory first
@@ -483,12 +529,13 @@ const html = `
       Alert.alert('PDF Saved', `Saved file at:\n${destPath}`);
     } catch (err) {
       setLoadingPDF(false);
-      Alert.alert('PDF Error', 'Could not create PDF. Please Contact Admin 9890332831');
+      Alert.alert(
+        'PDF Error',
+        'Could not create PDF. Please Contact Admin 9890332831',
+      );
       console.warn(err);
     }
   };
-
-
 
   const resetForm = () => {
     setForm({
@@ -512,7 +559,11 @@ const html = `
     if (submittedData.attending === 'no') {
       return (
         <ScrollView contentContainerStyle={styles.container}>
-          <Header title={EVENT_INFO.subtitle} navigation={navigation} showBack />
+          <Header
+            title={EVENT_INFO.subtitle}
+            navigation={navigation}
+            showBack
+          />
           <View style={styles.successInner}>
             <View style={styles.memoryCard}>
               <Text style={styles.bigTitle}>{EVENT_INFO.titleBig}</Text>
@@ -523,14 +574,26 @@ const html = `
                 <Text style={styles.detail}>{EVENT_INFO.placeLine}</Text>
               </View>
               <View style={{ marginTop: 24, alignItems: 'center' }}>
-                <Text style={{ fontSize: 16, fontWeight: '700', color: '#002b5c', textAlign: 'center' }}>
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontWeight: '700',
+                    color: '#002b5c',
+                    textAlign: 'center',
+                  }}
+                >
                   Thank you for your response! We’ll miss you at the event.
                 </Text>
                 <TouchableOpacity
-                  style={[styles.pdfButton, { backgroundColor: '#eee', marginTop: 30 }]}
+                  style={[
+                    styles.pdfButton,
+                    { backgroundColor: '#eee', marginTop: 30 },
+                  ]}
                   onPress={resetForm}
                 >
-                  <Text style={{ color: '#002b5c', fontWeight: '700' }}>Go Back</Text>
+                  <Text style={{ color: '#002b5c', fontWeight: '700' }}>
+                    Go Back
+                  </Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -560,35 +623,75 @@ const html = `
             </View>
 
             <View style={{ marginTop: 12 }}>
-              <Text style={styles.infoText}><Text style={{ fontWeight: '700' }}>Name:</Text> {submittedData.fullName}</Text>
-              <Text style={styles.infoText}><Text style={{ fontWeight: '700' }}>DOB:</Text> {new Date(submittedData.dob).toLocaleDateString('en-GB')}</Text>
-              <Text style={styles.infoText}><Text style={{ fontWeight: '700' }}>Mobile:</Text> {submittedData.mobile}</Text>
-              <Text style={styles.infoText}><Text style={{ fontWeight: '700' }}>Village/City:</Text> {submittedData.village}</Text>
-              <Text style={styles.infoText}><Text style={{ fontWeight: '700' }}>Attending:</Text> {submittedData.attending}</Text>
-              <Text style={styles.infoText}><Text style={{ fontWeight: '700' }}>Children:</Text> {submittedData.children.length}</Text>
-              <Text style={styles.infoText}><Text style={{ fontWeight: '700' }}>Total persons:</Text> {submittedData.totalPersons}</Text>
+              <Text style={styles.infoText}>
+                <Text style={{ fontWeight: '700' }}>Name:</Text>{' '}
+                {submittedData.fullName}
+              </Text>
+              <Text style={styles.infoText}>
+                <Text style={{ fontWeight: '700' }}>DOB:</Text>{' '}
+                {new Date(submittedData.dob).toLocaleDateString('en-GB')}
+              </Text>
+              <Text style={styles.infoText}>
+                <Text style={{ fontWeight: '700' }}>Mobile:</Text>{' '}
+                {submittedData.mobile}
+              </Text>
+              <Text style={styles.infoText}>
+                <Text style={{ fontWeight: '700' }}>Village/City:</Text>{' '}
+                {submittedData.village}
+              </Text>
+              <Text style={styles.infoText}>
+                <Text style={{ fontWeight: '700' }}>Attending:</Text>{' '}
+                {submittedData.attending}
+              </Text>
+              <Text style={styles.infoText}>
+                <Text style={{ fontWeight: '700' }}>Children:</Text>{' '}
+                {submittedData.children.length}
+              </Text>
+              <Text style={styles.infoText}>
+                <Text style={{ fontWeight: '700' }}>Total persons:</Text>{' '}
+                {submittedData.totalPersons}
+              </Text>
             </View>
 
             {submittedData.children.length > 0 && (
               <View style={{ marginTop: 10 }}>
                 <Text style={{ fontWeight: '700' }}>Children Details:</Text>
                 {submittedData.children.map((c, i) => (
-                  <Text key={i} style={styles.infoText}>• {c.name} — age {c.age}</Text>
+                  <Text key={i} style={styles.infoText}>
+                    • {c.name} — age {c.age}
+                  </Text>
                 ))}
               </View>
             )}
 
             <View style={{ marginTop: 12 }}>
-              <Text style={{ fontStyle: 'italic' }}>"{`Let's reconnect, relive memories, and celebrate our school bond!`}"</Text>
+              <Text style={{ fontStyle: 'italic' }}>
+                "
+                {`Let's reconnect, relive memories, and celebrate our school bond!`}
+                "
+              </Text>
             </View>
 
             <View style={{ marginTop: 16, width: '100%' }}>
-              <TouchableOpacity style={styles.pdfButton} onPress={handleDownloadPDF}>
-                <Text style={styles.pdfButtonText}>{loadingPDF ? 'Preparing PDF...' : 'Download PDF'}</Text>
+              <TouchableOpacity
+                style={styles.pdfButton}
+                onPress={handleDownloadPDF}
+              >
+                <Text style={styles.pdfButtonText}>
+                  {loadingPDF ? 'Preparing PDF...' : 'Download PDF'}
+                </Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={[styles.pdfButton, { backgroundColor: '#eee', marginTop: 10 }]} onPress={resetForm}>
-                <Text style={{ color: '#002b5c', fontWeight: '700' }}>Register Another</Text>
+              <TouchableOpacity
+                style={[
+                  styles.pdfButton,
+                  { backgroundColor: '#eee', marginTop: 10 },
+                ]}
+                onPress={resetForm}
+              >
+                <Text style={{ color: '#002b5c', fontWeight: '700' }}>
+                  Register Another
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -607,24 +710,51 @@ const html = `
     <ScrollView contentContainerStyle={styles.container}>
       <Header title="Get-Together Form" navigation={navigation} showBack />
       <View style={styles.inner}>
-        <MaterialIcon name="event" size={56} color="'#002b5c'," style={{ marginBottom: 6 }} />
+        <MaterialIcon
+          name="event"
+          size={56}
+          color="'#002b5c',"
+          style={{ marginBottom: 6 }}
+        />
         <Text style={styles.title}>Are you attending?</Text>
 
         {/* Attending radio */}
-        <View style={{ width: '100%', marginBottom: 16 , alignItems:"center" }}>
-          {errors.attending && <Text style={styles.errorText}>{errors.attending}</Text>}
+        <View style={{ width: '100%', marginBottom: 16, alignItems: 'center' }}>
+          {errors.attending && (
+            <Text style={styles.errorText}>{errors.attending}</Text>
+          )}
           <View style={{ flexDirection: 'row', gap: 12 }}>
             <TouchableOpacity
-              style={form.attending === 'yes' ? styles.radioActive : styles.radioBtn}
+              style={
+                form.attending === 'yes' ? styles.radioActive : styles.radioBtn
+              }
               onPress={() => handleChange('attending', 'yes')}
             >
-              <Text style={form.attending === 'yes' ? styles.radioTextActive : styles.radioText}>Yes</Text>
+              <Text
+                style={
+                  form.attending === 'yes'
+                    ? styles.radioTextActive
+                    : styles.radioText
+                }
+              >
+                Yes
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={form.attending === 'no' ? styles.radioActive : styles.radioBtn}
+              style={
+                form.attending === 'no' ? styles.radioActive : styles.radioBtn
+              }
               onPress={() => handleChange('attending', 'no')}
             >
-              <Text style={form.attending === 'no' ? styles.radioTextActive : styles.radioText}>No</Text>
+              <Text
+                style={
+                  form.attending === 'no'
+                    ? styles.radioTextActive
+                    : styles.radioText
+                }
+              >
+                No
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -640,19 +770,32 @@ const html = `
                   placeholder="Full name"
                   placeholderTextColor="#999"
                   value={form.fullName}
-                  onChangeText={(t) => handleChange('fullName', t)}
+                  onChangeText={t => handleChange('fullName', t)}
                   style={styles.input}
                 />
               </View>
-              {errors.fullName && <Text style={styles.errorText}>{errors.fullName}</Text>}
+              {errors.fullName && (
+                <Text style={styles.errorText}>{errors.fullName}</Text>
+              )}
             </View>
 
             {/* DOB picker */}
             <View style={styles.inputWrapper}>
-              <TouchableOpacity style={styles.inputContainer} onPress={() => setDobPickerOpen(true)}>
-                <MaterialIcon name="calendar-today" size={20} style={styles.icon} />
-                <Text style={[styles.input, { color: form.dob ? '#fff' : '#999' }]}>
-                  {form.dob ? form.dob.toLocaleDateString('en-GB') : 'Select date of birth (DD/MM/YYYY)'}
+              <TouchableOpacity
+                style={styles.inputContainer}
+                onPress={() => setDobPickerOpen(true)}
+              >
+                <MaterialIcon
+                  name="calendar-today"
+                  size={20}
+                  style={styles.icon}
+                />
+                <Text
+                  style={[styles.input, { color: form.dob ? '#fff' : '#999' }]}
+                >
+                  {form.dob
+                    ? form.dob.toLocaleDateString('en-GB')
+                    : 'Select date of birth (DD/MM/YYYY)'}
                 </Text>
               </TouchableOpacity>
               {errors.dob && <Text style={styles.errorText}>{errors.dob}</Text>}
@@ -665,7 +808,7 @@ const html = `
                 minimumDate={new Date(1989, 0, 1)}
                 maximumDate={new Date(1992, 11, 31)}
                 locale="en-GB"
-                onConfirm={(date) => {
+                onConfirm={date => {
                   setDobPickerOpen(false);
                   handleChange('dob', date);
                 }}
@@ -682,39 +825,53 @@ const html = `
                   placeholderTextColor="#999"
                   value={form.mobile}
                   keyboardType="phone-pad"
-                  onChangeText={(t) => handleChange('mobile', t)}
+                  onChangeText={t => handleChange('mobile', t)}
                   style={styles.input}
                 />
               </View>
-              {errors.mobile && <Text style={styles.errorText}>{errors.mobile}</Text>}
+              {errors.mobile && (
+                <Text style={styles.errorText}>{errors.mobile}</Text>
+              )}
             </View>
 
             {/* Village/City */}
             <View style={styles.inputWrapper}>
               <View style={styles.inputContainer}>
-                <MaterialIcon name="location-city" size={20} style={styles.icon} />
+                <MaterialIcon
+                  name="location-city"
+                  size={20}
+                  style={styles.icon}
+                />
                 <TextInput
                   placeholder="Village / City"
                   placeholderTextColor="#999"
                   value={form.village}
-                  onChangeText={(t) => handleChange('village', t)}
+                  onChangeText={t => handleChange('village', t)}
                   style={styles.input}
                 />
               </View>
-              {errors.village && <Text style={styles.errorText}>{errors.village}</Text>}
+              {errors.village && (
+                <Text style={styles.errorText}>{errors.village}</Text>
+              )}
             </View>
 
             {/* Children Count */}
             <View style={styles.inputWrapper}>
               <View style={styles.inputContainer}>
-                <MaterialIcon name="family-restroom" size={20} style={styles.icon} />
+                <MaterialIcon
+                  name="family-restroom"
+                  size={20}
+                  style={styles.icon}
+                />
                 <Picker
                   selectedValue={form.childrenCount}
                   style={{ flex: 1, color: '#fff' }}
-                  onValueChange={(itemValue) => handleChange('childrenCount', itemValue)}
+                  onValueChange={itemValue =>
+                    handleChange('childrenCount', itemValue)
+                  }
                   dropdownIconColor="#fff"
                 >
-                  {[...Array(4).keys()].map((v) => (
+                  {[...Array(4).keys()].map(v => (
                     <Picker.Item key={v} label={`${v}`} value={`${v}`} />
                   ))}
                 </Picker>
@@ -724,7 +881,9 @@ const html = `
             {/* Children details */}
             {children.length > 0 && (
               <View style={{ width: '100%', marginTop: 8 }}>
-                <Text style={{ fontWeight: '600', color: '#fff', marginBottom: 6 }}>
+                <Text
+                  style={{ fontWeight: '600', color: '#fff', marginBottom: 6 }}
+                >
                   Children Details
                 </Text>
                 {children.map((child, i) => (
@@ -734,11 +893,13 @@ const html = `
                         placeholder="Child name"
                         placeholderTextColor="#999"
                         value={child.name}
-                        onChangeText={(t) => handleChildChange(i, 'name', t)}
+                        onChangeText={t => handleChildChange(i, 'name', t)}
                         style={[styles.input, { color: '#fff' }]}
                       />
                       {errors[`child_name_${i}`] && (
-                        <Text style={styles.errorText}>{errors[`child_name_${i}`]}</Text>
+                        <Text style={styles.errorText}>
+                          {errors[`child_name_${i}`]}
+                        </Text>
                       )}
                     </View>
                     <View style={{ width: 70 }}>
@@ -747,11 +908,13 @@ const html = `
                         placeholderTextColor="#999"
                         value={child.age}
                         keyboardType="numeric"
-                        onChangeText={(t) => handleChildChange(i, 'age', t)}
+                        onChangeText={t => handleChildChange(i, 'age', t)}
                         style={[styles.input, { color: '#fff' }]}
                       />
                       {errors[`child_age_${i}`] && (
-                        <Text style={styles.errorText}>{errors[`child_age_${i}`]}</Text>
+                        <Text style={styles.errorText}>
+                          {errors[`child_age_${i}`]}
+                        </Text>
                       )}
                     </View>
                   </View>
@@ -767,7 +930,7 @@ const html = `
                   placeholder="Comments (optional)"
                   placeholderTextColor="#999"
                   value={form.comments}
-                  onChangeText={(t) => handleChange('comments', t)}
+                  onChangeText={t => handleChange('comments', t)}
                   style={[styles.input, { height: 80 }]}
                   multiline
                 />
@@ -783,7 +946,14 @@ const html = `
 
         {/* If attending === 'no' show thank-you message */}
         {form.attending === 'no' && (
-          <View style={{ marginTop: 24, padding: 16, backgroundColor: '#002b5c', borderRadius: 8 }}>
+          <View
+            style={{
+              marginTop: 24,
+              padding: 16,
+              backgroundColor: '#002b5c',
+              borderRadius: 8,
+            }}
+          >
             <Text style={{ color: '#fff', fontSize: 16, textAlign: 'center' }}>
               Thank you for your response! We will miss you at the event.
             </Text>
@@ -854,7 +1024,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   radioTextActive: {
-    color: '#fff',  //#00172D',
+    color: '#fff', //#00172D',
     fontWeight: '600',
   },
   submitBtn: {
@@ -946,15 +1116,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
-
-
-
-
-
-
-
-
-
 
 // import React, { useEffect, useState } from 'react';
 // import {

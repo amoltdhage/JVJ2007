@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SplashScreen from './src/screens/SplashScreen';
@@ -6,14 +6,21 @@ import LoginScreen from './src/screens/LoginScreen';
 import SignUpScreen from './src/screens/SignUpScreen';
 import BottomTabs from './src/navigation/BottomTabs';
 import { useLoading } from './LoadingContext';
-import { useSelector } from "react-redux";
-
+import { useSelector } from 'react-redux';
+import AuthenticationService from './src/Services/authservice';
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   const { isLoading } = useLoading();
-  const auth = useSelector((state) => state.auth);
+  const { logout } = AuthenticationService();
+  const auth = useSelector(state => state.auth);
+
+  useEffect(() => {
+    if (!auth?.isAuthenticated) {
+      logout();
+    }
+  }, []);
 
   if (isLoading) {
     return (

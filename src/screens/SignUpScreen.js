@@ -81,21 +81,25 @@ const SignUpScreen = ({ navigation }) => {
 
   const handleSignUp = () => {
     if (validate()) {
-      // ✅ Simulate signup success
-      // Alert.alert('Success', 'Account created successfully!', [
-      //   {
-      //     text: 'Login Now',
-      //     onPress: () => navigation.navigate('LoginScreen'),
-      //   },
-      // ]);
-      SignUpService(form);
+      const requestBody = {
+        firstName: form.firstName,
+        lastName: form.lastName,
+        email: form.email,
+        mobile: form.mobile,
+      };
+      SignUpService(requestBody, form.password);
     }
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <StatusBar barStyle="light-content" />
-      <MaterialIcon name="person-add-alt" size={60} color="#00b4db" style={{ marginBottom: 10 }} />
+      <MaterialIcon
+        name="person-add-alt"
+        size={60}
+        color="#00b4db"
+        style={{ marginBottom: 10 }}
+      />
       <Text style={styles.title}>Create Account</Text>
 
       {[
@@ -112,10 +116,12 @@ const SignUpScreen = ({ navigation }) => {
               style={styles.input}
               placeholderTextColor="#999"
               value={form[field.name]}
-              onChangeText={(text) => handleChange(field.name, text)}
+              onChangeText={text => handleChange(field.name, text)}
             />
           </View>
-          {errors[field.name] && <Text style={styles.errorText}>{errors[field.name]}</Text>}
+          {errors[field.name] && (
+            <Text style={styles.errorText}>{errors[field.name]}</Text>
+          )}
         </View>
       ))}
 
@@ -129,7 +135,7 @@ const SignUpScreen = ({ navigation }) => {
             style={styles.input}
             placeholderTextColor="#999"
             value={form.password}
-            onChangeText={(text) => handleChange('password', text)}
+            onChangeText={text => handleChange('password', text)}
           />
           <TouchableOpacity onPress={() => setSecureText(!secureText)}>
             <MaterialIcon
@@ -139,7 +145,9 @@ const SignUpScreen = ({ navigation }) => {
             />
           </TouchableOpacity>
         </View>
-        {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
+        {errors.password && (
+          <Text style={styles.errorText}>{errors.password}</Text>
+        )}
       </View>
 
       {/* Confirm Password */}
@@ -152,9 +160,11 @@ const SignUpScreen = ({ navigation }) => {
             style={styles.input}
             placeholderTextColor="#999"
             value={form.confirmPassword}
-            onChangeText={(text) => handleChange('confirmPassword', text)}
+            onChangeText={text => handleChange('confirmPassword', text)}
           />
-          <TouchableOpacity onPress={() => setSecureConfirmText(!secureConfirmText)}>
+          <TouchableOpacity
+            onPress={() => setSecureConfirmText(!secureConfirmText)}
+          >
             <MaterialIcon
               name={secureConfirmText ? 'visibility-off' : 'visibility'}
               size={22}
@@ -162,7 +172,9 @@ const SignUpScreen = ({ navigation }) => {
             />
           </TouchableOpacity>
         </View>
-        {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
+        {errors.confirmPassword && (
+          <Text style={styles.errorText}>{errors.confirmPassword}</Text>
+        )}
       </View>
 
       {/* Submit Button */}
@@ -175,7 +187,8 @@ const SignUpScreen = ({ navigation }) => {
       {/* Already have account */}
       <TouchableOpacity onPress={() => navigation.navigate('Auth')}>
         <Text style={styles.loginText}>
-          Already have an account? <Text style={{ color: '#00b4db', fontWeight: 'bold' }}>Login</Text>
+          Already have an account?{' '}
+          <Text style={{ color: '#00b4db', fontWeight: 'bold' }}>Login</Text>
         </Text>
       </TouchableOpacity>
     </ScrollView>
