@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
+import AuthenticationService from '../Services/authservice';
 
 const SignUpScreen = ({ navigation }) => {
   const [form, setForm] = useState({
@@ -21,6 +22,8 @@ const SignUpScreen = ({ navigation }) => {
     password: '',
     confirmPassword: '',
   });
+
+  const { SignUpService } = AuthenticationService();
 
   const [errors, setErrors] = useState({});
   const [secureText, setSecureText] = useState(true);
@@ -79,12 +82,13 @@ const SignUpScreen = ({ navigation }) => {
   const handleSignUp = () => {
     if (validate()) {
       // ✅ Simulate signup success
-      Alert.alert('Success', 'Account created successfully!', [
-        {
-          text: 'Login Now',
-          onPress: () => navigation.navigate('LoginScreen'),
-        },
-      ]);
+      // Alert.alert('Success', 'Account created successfully!', [
+      //   {
+      //     text: 'Login Now',
+      //     onPress: () => navigation.navigate('LoginScreen'),
+      //   },
+      // ]);
+      SignUpService(form);
     }
   };
 

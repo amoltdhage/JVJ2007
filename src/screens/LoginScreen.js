@@ -7,31 +7,17 @@ import {
   StyleSheet,
   ScrollView,
   StatusBar,
-  Alert,
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
-import { googleLogin } from '../Services/authservice';
-import { useDispatch } from 'react-redux';
+import AuthenticationService from '../Services/authservice';
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [secureText, setSecureText] = useState(true);
   const [errors, setErrors] = useState({});
-  const dispatch = useDispatch();
-
-  const handleGoogleLogin = async () => {
-    // try {
-      const user = await googleLogin();
-      console.log("user: ", user);
-      dispatch(loginAction(user));
-      Alert.alert('Login Success', `Welcome ${user.displayName}`);
-    // } catch (error) {
-    //   Alert.alert('Login Failed', error);
-    //   console.error('Google Login Error:', error);
-    // }
-  };
+  const { LoginService } = AuthenticationService();
 
   const validate = () => {
     let valid = true;
@@ -54,7 +40,8 @@ const LoginScreen = ({ navigation }) => {
 
   const handleLogin = () => {
     if (validate()) {
-      navigation.replace('Home');
+      LoginService({email, password}, navigation);
+      // navigation.replace('Home');
     }
   };
 
@@ -67,12 +54,7 @@ const LoginScreen = ({ navigation }) => {
       <MaterialIcon name="person-outline" size={60} color="#00b4db" style={{ marginBottom: 10 }} />
 
       <Text style={styles.title}>Login</Text>
-
-      <TouchableOpacity style={styles.button} onPress={handleGoogleLogin}>
-        <LinearGradient colors={['#00b4db', '#0083b0']} style={styles.gradient}>
-          <Text style={styles.buttonText}>Google</Text>
-        </LinearGradient>
-      </TouchableOpacity>
+  
       {/* Email Field */}
       <View style={styles.inputWrapper}>
         <View style={styles.inputContainer}>

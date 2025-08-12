@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SplashScreen from './src/screens/SplashScreen';
@@ -7,17 +7,11 @@ import SignUpScreen from './src/screens/SignUpScreen';
 import BottomTabs from './src/navigation/BottomTabs';
 import { useLoading } from './LoadingContext';
 import { useSelector } from "react-redux";
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 
 const Stack = createNativeStackNavigator();
 
-const GOOGLE_WEB_CLIENT_ID = '713389405869-i9nr2ubuu2k26lhr1go48hl9or0bfkbc.apps.googleusercontent.com';
-
 export default function App() {
-  useEffect(() => {
-    GoogleSignin.configure({ webClientId: GOOGLE_WEB_CLIENT_ID });
-  }, [])
   const { isLoading } = useLoading();
   const auth = useSelector((state) => state.auth);
 
