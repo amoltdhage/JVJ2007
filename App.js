@@ -7,20 +7,12 @@ import SignUpScreen from './src/screens/SignUpScreen';
 import BottomTabs from './src/navigation/BottomTabs';
 import { useLoading } from './LoadingContext';
 import { useSelector } from 'react-redux';
-import AuthenticationService from './src/Services/authservice';
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   const { isLoading } = useLoading();
-  const { logout } = AuthenticationService();
   const auth = useSelector(state => state.auth);
-
-  useEffect(() => {
-    if (!auth?.isAuthenticated) {
-      logout();
-    }
-  }, []);
 
   if (isLoading) {
     return (
@@ -39,7 +31,6 @@ export default function App() {
           <Stack.Screen name="Home" component={BottomTabs} />
         ) : (
           <>
-            {/* <Stack.Screen name="Home" component={BottomTabs} /> */}
             <Stack.Screen name="Auth" component={LoginScreen} />
             <Stack.Screen name="SignUp" component={SignUpScreen} />
           </>

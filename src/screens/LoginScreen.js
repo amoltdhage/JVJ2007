@@ -7,6 +7,8 @@ import {
   StyleSheet,
   ScrollView,
   StatusBar,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
@@ -40,80 +42,97 @@ const LoginScreen = ({ navigation }) => {
 
   const handleLogin = () => {
     if (validate()) {
-      console.log()
+      console.log();
       LoginService(email, password);
     }
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <StatusBar barStyle="light-content" />
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      style={{ flex: 1 }}
+    >
+      <ScrollView contentContainerStyle={styles.container}>
+        <StatusBar barStyle="light-content" />
 
-      <Text style={styles.title}>JVJ Reconnect</Text>
-      <Text style={styles.title2}>2007 Batch</Text>
-      <MaterialIcon name="person-outline" size={60} color="#00b4db" style={{ marginBottom: 10 }} />
+        <Text style={styles.title}>JVJ Reconnect</Text>
+        <Text style={styles.title2}>2007 Batch</Text>
+        <MaterialIcon
+          name="person-outline"
+          size={60}
+          color="#00b4db"
+          style={{ marginBottom: 10 }}
+        />
 
-      <Text style={styles.title}>Login</Text>
-  
-      {/* Email Field */}
-      <View style={styles.inputWrapper}>
-        <View style={styles.inputContainer}>
-          <MaterialIcon name="email" size={22} style={styles.icon} />
-          <TextInput
-            placeholder="Email Address"
-            placeholderTextColor="#999"
-            style={styles.input}
-            value={email}
-            onChangeText={(text) => {
-              setEmail(text);
-              setErrors({ ...errors, email: '' });
-            }}
-          />
-        </View>
-        {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
-      </View>
+        <Text style={styles.title}>Login</Text>
 
-      {/* Password Field */}
-      <View style={styles.inputWrapper}>
-        <View style={styles.inputContainer}>
-          <MaterialIcon name="lock" size={22} style={styles.icon} />
-          <TextInput
-            placeholder="Password"
-            placeholderTextColor="#999"
-            style={styles.input}
-            secureTextEntry={secureText}
-            value={password}
-            onChangeText={(text) => {
-              setPassword(text);
-              setErrors({ ...errors, password: '' });
-            }}
-          />
-          <TouchableOpacity onPress={() => setSecureText(!secureText)}>
-            <MaterialIcon
-              name={secureText ? 'visibility-off' : 'visibility'}
-              size={22}
-              style={styles.icon}
+        {/* Email Field */}
+        <View style={styles.inputWrapper}>
+          <View style={styles.inputContainer}>
+            <MaterialIcon name="email" size={22} style={styles.icon} />
+            <TextInput
+              placeholder="Email Address"
+              placeholderTextColor="#999"
+              style={styles.input}
+              value={email}
+              onChangeText={text => {
+                setEmail(text);
+                setErrors({ ...errors, email: '' });
+              }}
             />
-          </TouchableOpacity>
+          </View>
+          {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
         </View>
-        {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
-      </View>
 
-      {/* Login Button */}
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <LinearGradient colors={['#00b4db', '#0083b0']} style={styles.gradient}>
-          <Text style={styles.buttonText}>Login</Text>
-        </LinearGradient>
-      </TouchableOpacity>
+        {/* Password Field */}
+        <View style={styles.inputWrapper}>
+          <View style={styles.inputContainer}>
+            <MaterialIcon name="lock" size={22} style={styles.icon} />
+            <TextInput
+              placeholder="Password"
+              placeholderTextColor="#999"
+              style={styles.input}
+              secureTextEntry={secureText}
+              value={password}
+              onChangeText={text => {
+                setPassword(text);
+                setErrors({ ...errors, password: '' });
+              }}
+            />
+            <TouchableOpacity onPress={() => setSecureText(!secureText)}>
+              <MaterialIcon
+                name={secureText ? 'visibility-off' : 'visibility'}
+                size={22}
+                style={styles.icon}
+              />
+            </TouchableOpacity>
+          </View>
+          {errors.password && (
+            <Text style={styles.errorText}>{errors.password}</Text>
+          )}
+        </View>
 
-      {/* SignUp Link */}
-      <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-        <Text style={styles.loginText}>
-          Don't have an account?{' '}
-          <Text style={{ color: '#00b4db', fontWeight: 'bold' }}>Sign Up</Text>
-        </Text>
-      </TouchableOpacity>
-    </ScrollView>
+        {/* Login Button */}
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+          <LinearGradient
+            colors={['#00b4db', '#0083b0']}
+            style={styles.gradient}
+          >
+            <Text style={styles.buttonText}>Login</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+
+        {/* SignUp Link */}
+        <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+          <Text style={styles.loginText}>
+            Don't have an account?{' '}
+            <Text style={{ color: '#00b4db', fontWeight: 'bold' }}>
+              Sign Up
+            </Text>
+          </Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -132,14 +151,14 @@ const styles = StyleSheet.create({
     color: '#00b4db',
     fontWeight: 'bold',
     // marginBottom: 25,
-    textAlign: "center"
+    textAlign: 'center',
   },
   title2: {
     fontSize: 28,
     color: '#00b4db',
     fontWeight: 'bold',
     marginBottom: 25,
-    textAlign: "center"
+    textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
@@ -150,7 +169,7 @@ const styles = StyleSheet.create({
   inputWrapper: {
     width: '100%',
     marginBottom: 10,
-    marginTop: 20
+    marginTop: 20,
   },
   inputContainer: {
     flexDirection: 'row',

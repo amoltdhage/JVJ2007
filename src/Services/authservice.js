@@ -20,13 +20,16 @@ export default function AuthenticationService() {
         id: uid,
         uid,
         ...requestBody,
-        createdAt: new Date(),
+        createdAt: new Date().toISOString(),
+        isPaid: false,
+        isAllowAnother: false,
+        attending: true
       };
       await addCollection('users', uid, responseData);
       dispatch(loginAction(uid));
       return { success: true, uid };
     } catch (error) {
-      logout();
+      console.log("error", error);
     }
   };
 
@@ -43,12 +46,11 @@ export default function AuthenticationService() {
         dispatch(loginAction(userDoc.uid));
         return { success: true, data: userDoc };
       } else {
-        console.log('No user profile found');
-        logout();
+        console.log("error: ", error);
         return { success: false, error: 'No profile found' };
       }
     } catch (error) {
-      console.error('Login error:', error);
+      console.log("error: ", error);
       return { success: false, error: error.message };
     }
   };

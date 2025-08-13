@@ -8,6 +8,8 @@ import {
   ScrollView,
   StatusBar,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
@@ -92,106 +94,118 @@ const SignUpScreen = ({ navigation }) => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <StatusBar barStyle="light-content" />
-      <MaterialIcon
-        name="person-add-alt"
-        size={60}
-        color="#00b4db"
-        style={{ marginBottom: 10 }}
-      />
-      <Text style={styles.title}>Create Account</Text>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      style={{ flex: 1 }}
+    >
+      <ScrollView contentContainerStyle={styles.container}>
+        <StatusBar barStyle="light-content" />
+        <MaterialIcon
+          name="person-add-alt"
+          size={60}
+          color="#00b4db"
+          style={{ marginBottom: 10 }}
+        />
+        <Text style={styles.title}>Create Account</Text>
 
-      {[
-        { name: 'firstName', placeholder: 'First Name', icon: 'person' },
-        { name: 'lastName', placeholder: 'Last Name', icon: 'person-outline' },
-        { name: 'email', placeholder: 'Email Address', icon: 'email' },
-        { name: 'mobile', placeholder: 'Mobile Number', icon: 'phone' },
-      ].map((field, index) => (
-        <View key={index} style={styles.inputWrapper}>
+        {[
+          { name: 'firstName', placeholder: 'First Name', icon: 'person' },
+          {
+            name: 'lastName',
+            placeholder: 'Last Name',
+            icon: 'person-outline',
+          },
+          { name: 'email', placeholder: 'Email Address', icon: 'email' },
+          { name: 'mobile', placeholder: 'Mobile Number', icon: 'phone' },
+        ].map((field, index) => (
+          <View key={index} style={styles.inputWrapper}>
+            <View style={styles.inputContainer}>
+              <MaterialIcon name={field.icon} size={22} style={styles.icon} />
+              <TextInput
+                placeholder={field.placeholder}
+                style={styles.input}
+                placeholderTextColor="#999"
+                value={form[field.name]}
+                onChangeText={text => handleChange(field.name, text)}
+              />
+            </View>
+            {errors[field.name] && (
+              <Text style={styles.errorText}>{errors[field.name]}</Text>
+            )}
+          </View>
+        ))}
+
+        {/* Password */}
+        <View style={styles.inputWrapper}>
           <View style={styles.inputContainer}>
-            <MaterialIcon name={field.icon} size={22} style={styles.icon} />
+            <MaterialIcon name="lock" size={22} style={styles.icon} />
             <TextInput
-              placeholder={field.placeholder}
+              placeholder="Password"
+              secureTextEntry={secureText}
               style={styles.input}
               placeholderTextColor="#999"
-              value={form[field.name]}
-              onChangeText={text => handleChange(field.name, text)}
+              value={form.password}
+              onChangeText={text => handleChange('password', text)}
             />
+            <TouchableOpacity onPress={() => setSecureText(!secureText)}>
+              <MaterialIcon
+                name={secureText ? 'visibility-off' : 'visibility'}
+                size={22}
+                style={styles.icon}
+              />
+            </TouchableOpacity>
           </View>
-          {errors[field.name] && (
-            <Text style={styles.errorText}>{errors[field.name]}</Text>
+          {errors.password && (
+            <Text style={styles.errorText}>{errors.password}</Text>
           )}
         </View>
-      ))}
 
-      {/* Password */}
-      <View style={styles.inputWrapper}>
-        <View style={styles.inputContainer}>
-          <MaterialIcon name="lock" size={22} style={styles.icon} />
-          <TextInput
-            placeholder="Password"
-            secureTextEntry={secureText}
-            style={styles.input}
-            placeholderTextColor="#999"
-            value={form.password}
-            onChangeText={text => handleChange('password', text)}
-          />
-          <TouchableOpacity onPress={() => setSecureText(!secureText)}>
-            <MaterialIcon
-              name={secureText ? 'visibility-off' : 'visibility'}
-              size={22}
-              style={styles.icon}
+        {/* Confirm Password */}
+        <View style={styles.inputWrapper}>
+          <View style={styles.inputContainer}>
+            <MaterialIcon name="lock-outline" size={22} style={styles.icon} />
+            <TextInput
+              placeholder="Confirm Password"
+              secureTextEntry={secureConfirmText}
+              style={styles.input}
+              placeholderTextColor="#999"
+              value={form.confirmPassword}
+              onChangeText={text => handleChange('confirmPassword', text)}
             />
-          </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setSecureConfirmText(!secureConfirmText)}
+            >
+              <MaterialIcon
+                name={secureConfirmText ? 'visibility-off' : 'visibility'}
+                size={22}
+                style={styles.icon}
+              />
+            </TouchableOpacity>
+          </View>
+          {errors.confirmPassword && (
+            <Text style={styles.errorText}>{errors.confirmPassword}</Text>
+          )}
         </View>
-        {errors.password && (
-          <Text style={styles.errorText}>{errors.password}</Text>
-        )}
-      </View>
 
-      {/* Confirm Password */}
-      <View style={styles.inputWrapper}>
-        <View style={styles.inputContainer}>
-          <MaterialIcon name="lock-outline" size={22} style={styles.icon} />
-          <TextInput
-            placeholder="Confirm Password"
-            secureTextEntry={secureConfirmText}
-            style={styles.input}
-            placeholderTextColor="#999"
-            value={form.confirmPassword}
-            onChangeText={text => handleChange('confirmPassword', text)}
-          />
-          <TouchableOpacity
-            onPress={() => setSecureConfirmText(!secureConfirmText)}
+        {/* Submit Button */}
+        <TouchableOpacity style={styles.button} onPress={handleSignUp}>
+          <LinearGradient
+            colors={['#00b4db', '#0083b0']}
+            style={styles.gradient}
           >
-            <MaterialIcon
-              name={secureConfirmText ? 'visibility-off' : 'visibility'}
-              size={22}
-              style={styles.icon}
-            />
-          </TouchableOpacity>
-        </View>
-        {errors.confirmPassword && (
-          <Text style={styles.errorText}>{errors.confirmPassword}</Text>
-        )}
-      </View>
+            <Text style={styles.buttonText}>Sign Up</Text>
+          </LinearGradient>
+        </TouchableOpacity>
 
-      {/* Submit Button */}
-      <TouchableOpacity style={styles.button} onPress={handleSignUp}>
-        <LinearGradient colors={['#00b4db', '#0083b0']} style={styles.gradient}>
-          <Text style={styles.buttonText}>Sign Up</Text>
-        </LinearGradient>
-      </TouchableOpacity>
-
-      {/* Already have account */}
-      <TouchableOpacity onPress={() => navigation.navigate('Auth')}>
-        <Text style={styles.loginText}>
-          Already have an account?{' '}
-          <Text style={{ color: '#00b4db', fontWeight: 'bold' }}>Login</Text>
-        </Text>
-      </TouchableOpacity>
-    </ScrollView>
+        {/* Already have account */}
+        <TouchableOpacity onPress={() => navigation.navigate('Auth')}>
+          <Text style={styles.loginText}>
+            Already have an account?{' '}
+            <Text style={{ color: '#00b4db', fontWeight: 'bold' }}>Login</Text>
+          </Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
