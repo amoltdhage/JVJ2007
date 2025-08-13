@@ -2,6 +2,8 @@
 #
 .DS_Store
 
+android/app/release/app-release.apk
+
 # Xcode
 #
 build/
