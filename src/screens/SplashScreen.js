@@ -3,14 +3,20 @@ import React, { useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-const SplashScreen = ({ navigation }) => {
+const SplashScreen = ({ navigation, isComponent }) => {
   useEffect(() => {
-    const timer = setTimeout(() => {
-      navigation.replace('Auth'); // Navigate to login/signup
-    }, 3000); // 3 seconds delay
-
-    return () => clearTimeout(timer);
+    navigateFunction();
   }, []);
+
+  const navigateFunction = () => {
+    if (!isComponent) {
+      const timer = setTimeout(() => {
+        navigation.replace('Auth'); // Navigate to login/signup
+      }, 3000); // 3 seconds delay
+
+      return () => clearTimeout(timer);
+    } else return null;
+  };
 
   return (
     <View style={styles.container}>

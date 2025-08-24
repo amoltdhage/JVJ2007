@@ -14,6 +14,7 @@ import {
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
 import AuthenticationService from '../Services/authservice';
+import { useLoading } from '../../LoadingContext';
 
 const SignUpScreen = ({ navigation }) => {
   const [form, setForm] = useState({
@@ -25,6 +26,7 @@ const SignUpScreen = ({ navigation }) => {
     confirmPassword: '',
   });
 
+  const {isLoading} = useLoading();
   const { SignUpService } = AuthenticationService();
 
   const [errors, setErrors] = useState({});
@@ -126,7 +128,20 @@ const SignUpScreen = ({ navigation }) => {
                 style={styles.input}
                 placeholderTextColor="#999"
                 value={form[field.name]}
-                onChangeText={text => handleChange(field.name, text)}
+                onChangeText={text => {
+                  if (field?.name === 'mobile') {
+                    text = text.replace(/[^0-9]/g, '');
+                  }
+                  handleChange(field.name, text);
+                }}
+                keyboardType={
+                  field?.name === 'mobile'
+                    ? 'numeric'
+                    : field?.name === 'email'
+                    ? 'email-address'
+                    : 'default'
+                }
+                maxLength={field?.name === 'mobile' ? 10 : 100}
               />
             </View>
             {errors[field.name] && (
@@ -193,7 +208,11 @@ const SignUpScreen = ({ navigation }) => {
             colors={['#00b4db', '#0083b0']}
             style={styles.gradient}
           >
-            <Text style={styles.buttonText}>Sign Up</Text>
+            {isLoading ? (
+              <ActivityIndicator size="large" color="#f3f6f7ff" />
+            ) : (
+              <Text style={styles.buttonText}>Sign Up</Text>
+            )}
           </LinearGradient>
         </TouchableOpacity>
 

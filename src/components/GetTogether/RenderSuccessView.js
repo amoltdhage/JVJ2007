@@ -1,14 +1,4 @@
-import {
-  Alert,
-  Image,
-  Linking,
-  Pressable,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View
-} from 'react-native';
+import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import Header from '../Header';
 import { useSelector } from 'react-redux';
 import { invitePdf } from '../invitePdf';
@@ -17,12 +7,14 @@ import FileViewer from 'react-native-file-viewer';
 import Share from 'react-native-share';
 import { useNavigation } from '@react-navigation/native';
 import { updateCollection } from '../../Services/firestoreServices';
+import { EVENT_INFO } from '../../utils/utils';
+import NotAttendingComponent from './NotAttendingComponent';
 
 export default function RenderSuccessView({
   userDetail,
-  EVENT_INFO,
   styles,
   getUserData,
+  setOpenAllowForm,
 }) {
   const navigation = useNavigation();
   const auth = useSelector(state => state.auth);
@@ -34,47 +26,8 @@ export default function RenderSuccessView({
   };
 
   if (userDetail?.attending === '' || !userDetail) return null;
-  if (userDetail.attending === false) {
-    return (
-      <ScrollView contentContainerStyle={styles.container}>
-        <Header title={EVENT_INFO.subtitle} navigation={navigation} showBack />
-        <View style={styles.successInner}>
-          <View style={styles.memoryCard}>
-            <Text style={styles.bigTitle}>{EVENT_INFO.titleBig}</Text>
-            <Text style={styles.subtitle}>{EVENT_INFO.subtitle}</Text>
-            <View style={styles.detailBox}>
-              <Text style={styles.detail}>{EVENT_INFO.dateLine}</Text>
-              <Text style={styles.detail}>{EVENT_INFO.timeLine}</Text>
-              <Text style={styles.detail}>{EVENT_INFO.placeLine}</Text>
-            </View>
-            <View style={{ marginTop: 24, alignItems: 'center' }}>
-              <Text
-                style={{
-                  fontSize: 16,
-                  fontWeight: '700',
-                  color: '#d7daddff',
-                  textAlign: 'center',
-                }}
-              >
-                Thank you for your response! We’ll miss you at the event.
-              </Text>
-              <TouchableOpacity
-                style={[
-                  styles.pdfButton,
-                  { backgroundColor: '#eee', marginTop: 30 },
-                ]}
-                onPress={resetForm}
-              >
-                <Text style={{ color: '#002b5c', fontWeight: '700' }}>
-                  Go Back
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </ScrollView>
-    );
-  }
+  if (userDetail.attending === false)
+    return <NotAttendingComponent resetForm={resetForm} styles={styles} />;
 
   const handleDownloadPDF = async type => {
     let pdfPath = null;
@@ -208,82 +161,27 @@ export default function RenderSuccessView({
                 Let's reconnect, relive memories, and celebrate our school bond!
               </Text>
             </View>
-            {[1, true].includes(userDetail?.isPaid) ? (
-              <View style={{ marginTop: 16, width: '100%' }}>
-                <TouchableOpacity
-                  style={styles.pdfButton}
-                  onPress={() => handleDownloadPDF('view')}
-                >
-                  <Text style={styles.pdfButtonText}>View PDF</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[styles.pdfButton, { marginTop: 10 }]}
-                  onPress={() => handleDownloadPDF('share')}
-                >
-                  <Text style={styles.pdfButtonText}>Share PDF</Text>
-                </TouchableOpacity>
-                {userDetail?.isAllowAnother === true ? (
-                  <TouchableOpacity
-                    style={[
-                      styles.pdfButton,
-                      { backgroundColor: '#eee', marginTop: 10 },
-                    ]}
-                    onPress={resetForm}
-                  >
-                    <Text style={{ color: '#002b5c', fontWeight: '700' }}>
-                      Register Another
-                    </Text>
-                  </TouchableOpacity>
-                ) : null}
-              </View>
-            ) : (
-              <View
-                style={{ marginTop: 16, width: '100%', alignItems: 'center' }}
+            <View style={{ marginTop: 16, width: '100%' }}>
+              <TouchableOpacity
+                style={styles.pdfButton}
+                onPress={() => handleDownloadPDF('view')}
               >
-                <Pressable>
-                  <Image
-                    source={require('../../assets/images/QR-code.jpg')}
-                    style={{ width: 250, height: 250, marginBottom: 15 }}
-                    resizeMode="contain"
-                  />
-                </Pressable>
-                <Text
-                  style={{
-                    textAlign: 'center',
-                    fontSize: 14,
-                    color: '#f4f4f4',
-                    marginBottom: 15,
-                    paddingHorizontal: 20,
-                    lineHeight: 20,
-                  }}
-                >
-                  Pay here using this QR code. You will get the invitation PDF
-                  within 24 hours. If you do not receive it by then, please
-                  WhatsApp us on{' '}
-                  <TouchableWithoutFeedback
-                    onPress={() => Linking.openURL('tel:9890332831')}
-                  >
-                    <Text
-                      style={{
-                        fontWeight: 'bold',
-                        color: '#fff',
-                        textDecorationLine: 'underline',
-                      }}
-                    >
-                      9890332831
-                    </Text>
-                  </TouchableWithoutFeedback>
-                  .
-                </Text>
+                <Text style={styles.pdfButtonText}>View PDF</Text>
+              </TouchableOpacity>
+              {userDetail?.isAllowAnother === true ? (
                 <TouchableOpacity
-                  style={styles.pdfButton}
-                  onPress={() => resetForm()}
+                  style={[
+                    styles.pdfButton,
+                    { backgroundColor: '#eee', marginTop: 10 },
+                  ]}
+                  onPress={() => setOpenAllowForm(true)}
                 >
-                  <Text style={styles.pdfButtonText}>Edit your details</Text>
+                  <Text style={{ color: '#002b5c', fontWeight: '700' }}>
+                    Register Another
+                  </Text>
                 </TouchableOpacity>
-              </View>
-            )}
+              ) : null}
+            </View>
           </View>
         </View>
       </ScrollView>

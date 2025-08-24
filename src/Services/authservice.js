@@ -5,12 +5,15 @@ import {
   logoutAction,
 } from '../Redux/Actions/AuthAction/LoginAction';
 import { addCollection, fetchCollection } from './firestoreServices';
+import { useLoading } from '../../LoadingContext';
 
 export default function AuthenticationService() {
   const dispatch = useDispatch();
+  const {startLoading, stopLoading} = useLoading();
 
   const SignUpService = async (requestBody, password) => {
     try {
+      startLoading();
       const userCredential = await auth().createUserWithEmailAndPassword(
         requestBody.email,
         password,
@@ -30,11 +33,14 @@ export default function AuthenticationService() {
       return { success: true, uid };
     } catch (error) {
       console.log("error", error);
+    } finally {
+      stopLoading();
     }
   };
 
   const LoginService = async (email, password) => {
     try {
+      startLoading();
       const userCredential = await auth().signInWithEmailAndPassword(
         email,
         password,
@@ -52,6 +58,8 @@ export default function AuthenticationService() {
     } catch (error) {
       console.log("error: ", error);
       return { success: false, error: error.message };
+    } finally {
+      stopLoading();
     }
   };
 
@@ -62,6 +70,8 @@ export default function AuthenticationService() {
       console.log(message || 'User signed out!');
     } catch (error) {
       console.error('Sign out error:', error);
+    } finally {
+      stopLoading();
     }
   };
 

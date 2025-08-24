@@ -9,12 +9,15 @@ import {
   StatusBar,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
 import AuthenticationService from '../Services/authservice';
+import { useLoading } from '../../LoadingContext';
 
 const LoginScreen = ({ navigation }) => {
+  const { isLoading } = useLoading();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [secureText, setSecureText] = useState(true);
@@ -42,7 +45,6 @@ const LoginScreen = ({ navigation }) => {
 
   const handleLogin = () => {
     if (validate()) {
-      console.log();
       LoginService(email, password);
     }
   };
@@ -79,6 +81,7 @@ const LoginScreen = ({ navigation }) => {
                 setEmail(text);
                 setErrors({ ...errors, email: '' });
               }}
+              keyboardType='email-address'
             />
           </View>
           {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
@@ -115,10 +118,14 @@ const LoginScreen = ({ navigation }) => {
         {/* Login Button */}
         <TouchableOpacity style={styles.button} onPress={handleLogin}>
           <LinearGradient
-            colors={['#00b4db', '#0083b0']}
-            style={styles.gradient}
-          >
-            <Text style={styles.buttonText}>Login</Text>
+              colors={['#00b4db', '#0083b0']}
+              style={styles.gradient}
+            >
+          {isLoading ? (
+            <ActivityIndicator size="large" color="#f3f6f7ff" />
+          ) : (
+              <Text style={styles.buttonText}>Login</Text>
+          )}
           </LinearGradient>
         </TouchableOpacity>
 

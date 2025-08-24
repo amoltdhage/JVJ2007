@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   TouchableOpacity,
   Alert,
@@ -11,7 +10,6 @@ import {
 } from 'react-native';
 import Header from '../components/Header';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import DatePicker from 'react-native-date-picker';
 import { useSelector } from 'react-redux';
 import AuthenticationService from '../Services/authservice';
 import {
@@ -24,20 +22,15 @@ import RenderSuccessView from '../components/GetTogether/RenderSuccessView';
 import ChildrenInput from '../components/GetTogether/ChildrenInput';
 import DatePickerComponent from '../components/GetTogether/DatePickerComponent';
 import { GetTogetherFormStyles } from '../styles/GetTogetherFormStyles';
-import { setDoc } from '@react-native-firebase/firestore';
-
-const EVENT_INFO = {
-  titleBig: 'JVJ 2007 - 10th Batch',
-  subtitle: 'Get Together',
-  dateLine: '📅 25th October 2025, Saturday',
-  timeLine: '⏰ 10:00 AM - 4:30 PM',
-  placeLine: '📍 Janta Vidyalaya, Jamod',
-};
+import { useLoading } from '../../LoadingContext';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const GetTogetherForm = ({ navigation }) => {
+  const { isLoading, startLoading, stopLoading } = useLoading();
   const auth = useSelector(state => state.auth);
   const { logout } = AuthenticationService();
   const [userDetail, setUserDetail] = useState(null);
+  const [openAllowForm, setOpenAllowForm] = useState(false);
 
   const [form, setForm] = useState({
     fullName: '',
@@ -64,38 +57,54 @@ const GetTogetherForm = ({ navigation }) => {
 
   const getUserData = async id => {
     try {
+      startLoading();
       const userData = await fetchCollection('users', id);
-      const formData = {
-        fullName: userData?.fullNamef
-          ? userData.fullName
-          : `${userData.firstName} ${userData.lastName}`,
-        dob: userData?.dob ? new Date(userData.dob) : null,
-        mobile: userData?.mobile || '',
-        village: userData?.village || '',
-        attending:
-          userData?.attending === true
-            ? true
-            : userData?.attending === false
-            ? false
-            : true,
-        childrenCount: userData?.childrenCount
-          ? String(userData.childrenCount)
-          : '0',
-        comments: userData?.comments || '',
-        updatedAt: new Date().toISOString() || null,
-        users: userData?.users || null,
-        gender: userData?.gender || '',
-        isTeacher: userData?.isTeacher || false,
-      };
+      if (openAllowForm !== true) {
+        const formData = {
+          fullName: userData?.fullNamef
+            ? userData.fullName
+            : `${userData.firstName} ${userData.lastName}`,
+          dob: userData?.dob ? new Date(userData.dob) : null,
+          mobile: userData?.mobile || '',
+          village: userData?.village || '',
+          attending:
+            userData?.attending === true
+              ? true
+              : userData?.attending === false
+              ? false
+              : true,
+          childrenCount: userData?.childrenCount
+            ? String(userData.childrenCount)
+            : '0',
+          comments: userData?.comments || '',
+          updatedAt: new Date().toISOString() || null,
+          users: userData?.users || null,
+          gender: userData?.gender || '',
+          isTeacher: userData?.isTeacher || false,
+        };
+        setForm(formData);
+        const childrenData = userData?.children?.length
+          ? userData?.children
+          : [];
+        setChildren(childrenData);
+      }
       setUserDetail(userData);
-      setForm(formData);
-      const childrenData = userData?.children?.length ? userData?.children : [];
-      setChildren(childrenData);
     } catch (error) {
       logout('Not able to get your data. Please login again.');
       console.error('Error fetching user data:', error);
+    } finally {
+      stopLoading();
     }
   };
+
+  // if (isLoading) {
+  //   return (
+  //     <View style={styles.container}>
+  //       <Ionicons name="school-outline" size={100} color="#4B9CD3" />
+  //       <Text style={styles.title}>School Gate</Text>
+  //     </View>
+  //   );
+  // }
 
   useEffect(() => {
     // if childrenCount changes, prepare children array length
@@ -114,16 +123,15 @@ const GetTogetherForm = ({ navigation }) => {
       getUserData(auth.user);
     }
     setForm(prev => ({ ...prev, [name]: value }));
-    console.log('name: ', name, 'value: ', value);
     setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
   useEffect(() => {
-    if(form?.gender === "male") {
-      setForm({...form, childrenCount: "0"});
+    if (form?.gender === 'male') {
+      setForm({ ...form, childrenCount: '0' });
       setChildren([]);
     }
-  }, [form?.gender])
+  }, [form?.gender]);
 
   const handleChildChange = (index, field, val) => {
     const cloned = [...children];
@@ -133,29 +141,19 @@ const GetTogetherForm = ({ navigation }) => {
 
   const validate = () => {
     const newErr = {};
-    if (form?.attending === false) {
+    if (form?.attending === false)
       newErr.attending = 'Please select if you are attending';
-    } else if (form?.attending === true) {
-      if (!form.fullName.trim()) {
-        newErr.fullName = 'Full name is required';
-      }
-      if (!form.dob) {
-        newErr.dob = 'Date of birth is required';
-      }
-      if (!form.mobile.trim()) {
-        newErr.mobile = 'Mobile number required';
-      } else if (!/^\d{10}$/.test(form.mobile)) {
+    else if (form?.attending === true) {
+      if (!form.fullName.trim()) newErr.fullName = 'Full name is required';
+      if (!form.dob) newErr.dob = 'Date of birth is required';
+      if (!form.mobile.trim()) newErr.mobile = 'Mobile number required';
+      else if (!/^\d{10}$/.test(form.mobile))
         newErr.mobile = 'Mobile must be 10 digits';
-      }
-      if (!form.village.trim()) {
-        newErr.village = 'Village/City required';
-      }
-      if (!form.gender) {
-        newErr.gender = 'Village/City required';
-      }
-      if (form.isTeacher === '') {
+      if (!form.village.trim()) newErr.village = 'Village/City required';
+      if (!form.gender) newErr.gender = 'Village/City required';
+      if (form.isTeacher === '')
         newErr.isTeacher = 'Teacher / Student required';
-      }
+
       // validate children details if any
       const count = parseInt(form.childrenCount || '0', 10);
       for (let i = 0; i < count; i++) {
@@ -200,25 +198,37 @@ const GetTogetherForm = ({ navigation }) => {
       );
       return;
     }
-    await updateCollection('users', auth?.user, {
+    const updatedData = {
       ...form,
       dob: form.dob.toISOString(),
       totalPersons,
       children: childrenData,
-    });
-    getUserData(auth.user)
+    };
+    if (openAllowForm) {
+      await updateCollection('users', auth?.user, {
+        ...userDetail,
+        users: updatedData,
+      });
+    } else {
+      await updateCollection('users', auth?.user, {
+        ...userDetail,
+        ...updatedData,
+      });
+    }
+    getUserData(auth.user);
+    setOpenAllowForm(false);
   };
 
   if (
-    userDetail?.attending === true ||
-    userDetail?.attending === false
+    (userDetail?.attending === true || userDetail?.attending === false) &&
+    !openAllowForm
   )
     return (
       <RenderSuccessView
         userDetail={userDetail}
-        EVENT_INFO={EVENT_INFO}
         styles={styles}
         getUserData={getUserData}
+        setOpenAllowForm={setOpenAllowForm}
       />
     );
 
@@ -244,42 +254,46 @@ const GetTogetherForm = ({ navigation }) => {
             {errors.attending ? (
               <Text style={styles.errorText}>{errors.attending}</Text>
             ) : null}
-            <View style={{ flexDirection: 'row', gap: 12 }}>
-              <TouchableOpacity
-                style={
-                  form.attending === true ? styles.radioActive : styles.radioBtn
-                }
-                onPress={() => handleChange('attending', true)}
-              >
-                <Text
+            {!openAllowForm ? (
+              <View style={{ flexDirection: 'row', gap: 12 }}>
+                <TouchableOpacity
                   style={
                     form.attending === true
-                      ? styles.radioTextActive
-                      : styles.radioText
+                      ? styles.radioActive
+                      : styles.radioBtn
                   }
+                  onPress={() => handleChange('attending', true)}
                 >
-                  Yes
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={
-                  form.attending === false
-                    ? styles.radioActive
-                    : styles.radioBtn
-                }
-                onPress={() => handleChange('attending', false)}
-              >
-                <Text
+                  <Text
+                    style={
+                      form.attending === true
+                        ? styles.radioTextActive
+                        : styles.radioText
+                    }
+                  >
+                    Yes
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
                   style={
                     form.attending === false
-                      ? styles.radioTextActive
-                      : styles.radioText
+                      ? styles.radioActive
+                      : styles.radioBtn
                   }
+                  onPress={() => handleChange('attending', false)}
                 >
-                  No
-                </Text>
-              </TouchableOpacity>
-            </View>
+                  <Text
+                    style={
+                      form.attending === false
+                        ? styles.radioTextActive
+                        : styles.radioText
+                    }
+                  >
+                    No
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ) : null}
           </View>
           {/* Show full form only if attending === 'yes' */}
           {form.attending === true ? (
@@ -327,10 +341,13 @@ const GetTogetherForm = ({ navigation }) => {
               <InputField
                 label="Mobile"
                 value={form.mobile}
-                onChange={handleChange}
+                onChange={text => {
+                  text = text.replace(/[^0-9]/g, '');
+                  handleChange('mobile', text);
+                }}
                 name="mobile"
                 iconName="phone"
-                keyboardType="phone-pad"
+                keyboardType="numeric"
                 maxLength={10}
               />
 
