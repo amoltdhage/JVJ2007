@@ -26,7 +26,7 @@ const SignUpScreen = ({ navigation }) => {
     confirmPassword: '',
   });
 
-  const {isLoading} = useLoading();
+  const { isLoading } = useLoading();
   const { SignUpService } = AuthenticationService();
 
   const [errors, setErrors] = useState({});
@@ -97,7 +97,9 @@ const SignUpScreen = ({ navigation }) => {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
       style={{ flex: 1 }}
     >
       <ScrollView contentContainerStyle={styles.container}>

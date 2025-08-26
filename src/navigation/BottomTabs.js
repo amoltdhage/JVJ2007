@@ -1,10 +1,9 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import HomeScreen from '../screens/HomeScreen';
-import SettingsScreen from '../screens/SettingsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import HomeStackScreen from './HomeStack';
+import ChatScreen from '../screens/ChatScreen';
 const Tab = createBottomTabNavigator();
 
 export default function BottomTabs() {
@@ -16,7 +15,7 @@ export default function BottomTabs() {
           let iconName;
 
           if (route.name === 'Home') iconName = 'home';
-          else if (route.name === 'Settings') iconName = 'settings';
+          else if (route.name === 'Chat') iconName = 'chat';
           else if (route.name === 'Profile') iconName = 'person';
 
           const color = focused ? 'yellow' : 'white';
@@ -30,7 +29,7 @@ export default function BottomTabs() {
         tabBarActiveTintColor: 'yellow', // Selected label color
         tabBarInactiveTintColor: 'white', // Unselected label color
         tabBarStyle: {
-          position: 'absolute',
+          // position: 'absolute',
           borderTopLeftRadius: 20,
           borderTopRightRadius: 20,
           backgroundColor: '#002b5c',
@@ -46,7 +45,7 @@ export default function BottomTabs() {
     >
       {/* <Tab.Screen name="Home" component={HomeScreen} /> */}
       <Tab.Screen name="Home" component={HomeStackScreen} />
-      <Tab.Screen name="Settings" component={SettingsScreen} />
+      <Tab.Screen name="Chat" component={ChatScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );

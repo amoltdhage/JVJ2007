@@ -24,24 +24,6 @@ export default function RadioSelectionInputs({
       >
         <TouchableOpacity
           style={
-            form?.[name] === value1
-              ? styles.formRadioActive
-              : styles.formRadioBtn
-          }
-          onPress={() => onChange(name, value1)}
-        >
-          <Text
-            style={
-              form?.[name] === value1
-                ? styles.radioTextActive
-                : styles.radioText
-            }
-          >
-            {label1}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={
             form?.[name] === value2
               ? styles.formRadioActive
               : styles.formRadioBtn
@@ -56,6 +38,24 @@ export default function RadioSelectionInputs({
             }
           >
             {label2}
+          </Text>
+        </TouchableOpacity>
+         <TouchableOpacity
+          style={
+            form?.[name] === value1
+              ? styles.formRadioActive
+              : styles.formRadioBtn
+          }
+          onPress={() => onChange(name, value1)}
+        >
+          <Text
+            style={
+              form?.[name] === value1
+                ? styles.radioTextActive
+                : styles.radioText
+            }
+          >
+            {label1}
           </Text>
         </TouchableOpacity>
       </View>

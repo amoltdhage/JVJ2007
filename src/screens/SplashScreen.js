@@ -1,23 +1,9 @@
 // SplashScreen.js
-import React, { useEffect } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-const SplashScreen = ({ navigation, isComponent }) => {
-  useEffect(() => {
-    navigateFunction();
-  }, []);
-
-  const navigateFunction = () => {
-    if (!isComponent) {
-      const timer = setTimeout(() => {
-        navigation.replace('Auth'); // Navigate to login/signup
-      }, 3000); // 3 seconds delay
-
-      return () => clearTimeout(timer);
-    } else return null;
-  };
-
+const SplashScreen = () => {
   return (
     <View style={styles.container}>
       <Ionicons name="school-outline" size={100} color="#4B9CD3" />

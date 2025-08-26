@@ -5,12 +5,12 @@ export const GetTogetherFormStyles = StyleSheet.create({
     flexGrow: 1,
     backgroundColor: '#eef4ff',
     alignItems: 'center',
-    paddingBottom: 80,
   },
   inner: {
     width: '90%',
     paddingVertical: 20,
     alignItems: 'center',
+    // marginBottom: 80
   },
   title: {
     fontSize: 24,

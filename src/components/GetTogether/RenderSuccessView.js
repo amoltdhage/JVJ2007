@@ -29,13 +29,14 @@ export default function RenderSuccessView({
   if (userDetail.attending === false)
     return <NotAttendingComponent resetForm={resetForm} styles={styles} />;
 
-  const handleDownloadPDF = async type => {
+  const handleDownloadPDF = async (type, user) => {
     let pdfPath = null;
+    const childrenData = user ? userDetail?.users?.children : userDetail;
 
     const htmlContent = await invitePdf({
       EVENT_INFO,
-      form: userDetail,
-      children: userDetail?.children,
+      form: user ? { ...user, id: userDetail?.id } : userDetail,
+      children: childrenData,
       auth,
     });
 
@@ -85,106 +86,198 @@ export default function RenderSuccessView({
 
   if (userDetail?.attending === true) {
     return (
-      <ScrollView contentContainerStyle={styles.container}>
-        <Header title={EVENT_INFO.subtitle} navigation={navigation} showBack />
-        <View style={styles.successInner}>
-          <View style={styles.memoryCard}>
-            <Text style={styles.bigTitle}>{EVENT_INFO.titleBig}</Text>
-            <Text style={styles.subtitle}>{EVENT_INFO.subtitle}</Text>
+      <>
+        <ScrollView contentContainerStyle={styles.container}>
+          <Header
+            title={EVENT_INFO.subtitle}
+            navigation={navigation}
+            showBack
+          />
+          <View style={styles.successInner}>
+            <View style={styles.memoryCard}>
+              <Text style={styles.bigTitle}>{EVENT_INFO.titleBig}</Text>
+              <Text style={styles.subtitle}>{EVENT_INFO.subtitle}</Text>
 
-            <View style={styles.detailBox}>
-              <Text style={styles.detail}>{EVENT_INFO.dateLine}</Text>
-              <Text style={styles.detail}>{EVENT_INFO.timeLine}</Text>
-              <Text style={styles.detail}>{EVENT_INFO.placeLine}</Text>
-            </View>
-
-            <View style={styles.regBox}>
-              <Text style={styles.regIdLabel}>Registration ID</Text>
-              <Text style={styles.regId}>
-                {auth?.user ? `${auth.user.slice(0, 15)}` : 'N/A'}
-              </Text>
-            </View>
-
-            <View style={{ marginTop: 12 }}>
-              <Text style={styles.infoText}>
-                <Text style={{ fontWeight: '700' }}>Name:</Text>{' '}
-                {userDetail?.fullName ||
-                  userDetail?.firstName + ' ' + userDetail?.lastName}
-              </Text>
-              <Text style={styles.infoText}>
-                <Text style={{ fontWeight: '700' }}>DOB:</Text>{' '}
-                {new Date(userDetail?.dob).toLocaleDateString('en-GB')}
-              </Text>
-              <Text style={styles.infoText}>
-                <Text style={{ fontWeight: '700' }}>Mobile:</Text>{' '}
-                {userDetail?.mobile}
-              </Text>
-              <Text style={styles.infoText}>
-                <Text style={{ fontWeight: '700' }}>Village/City:</Text>{' '}
-                {userDetail?.village}
-              </Text>
-              <Text style={styles.infoText}>
-                <Text style={{ fontWeight: '700' }}>Attending:</Text>{' '}
-                {userDetail?.attending === true ? 'Yes' : 'No'}
-              </Text>
-              <Text style={styles.infoText}>
-                <Text style={{ fontWeight: '700' }}>Children:</Text>{' '}
-                {userDetail?.children?.length}
-              </Text>
-              <Text style={styles.infoText}>
-                <Text style={{ fontWeight: '700' }}>Total persons:</Text>{' '}
-                {1 + userDetail?.childrenCount}
-              </Text>
-            </View>
-
-            {userDetail?.children?.length > 0 && (
-              <View style={{ marginTop: 10 }}>
-                <Text style={{ fontWeight: '700', color: '#fff' }}>
-                  Children Details:
-                </Text>
-                {userDetail?.children.map((c, i) => (
-                  <Text key={i} style={styles.infoText}>
-                    • {c.name} — age {c.age}
-                  </Text>
-                ))}
+              <View style={styles.detailBox}>
+                <Text style={styles.detail}>{EVENT_INFO.dateLine}</Text>
+                <Text style={styles.detail}>{EVENT_INFO.timeLine}</Text>
+                <Text style={styles.detail}>{EVENT_INFO.placeLine}</Text>
               </View>
-            )}
 
-            <View style={{ marginTop: 12 }}>
-              <Text
-                style={{
-                  fontStyle: 'italic',
-                  color: '#fff',
-                  textAlign: 'center',
-                }}
-              >
-                Let's reconnect, relive memories, and celebrate our school bond!
-              </Text>
-            </View>
-            <View style={{ marginTop: 16, width: '100%' }}>
-              <TouchableOpacity
-                style={styles.pdfButton}
-                onPress={() => handleDownloadPDF('view')}
-              >
-                <Text style={styles.pdfButtonText}>View PDF</Text>
-              </TouchableOpacity>
-              {userDetail?.isAllowAnother === true ? (
-                <TouchableOpacity
-                  style={[
-                    styles.pdfButton,
-                    { backgroundColor: '#eee', marginTop: 10 },
-                  ]}
-                  onPress={() => setOpenAllowForm(true)}
-                >
-                  <Text style={{ color: '#002b5c', fontWeight: '700' }}>
-                    Register Another
+              <View style={styles.regBox}>
+                <Text style={styles.regIdLabel}>Registration ID</Text>
+                <Text style={styles.regId}>
+                  {auth?.user ? `${auth.user.slice(0, 15)}` : 'N/A'}
+                </Text>
+              </View>
+
+              <View style={{ marginTop: 12 }}>
+                <Text style={styles.infoText}>
+                  <Text style={{ fontWeight: '700' }}>Name:</Text>{' '}
+                  {userDetail?.fullName ||
+                    userDetail?.firstName + ' ' + userDetail?.lastName}
+                </Text>
+                <Text style={styles.infoText}>
+                  <Text style={{ fontWeight: '700' }}>DOB:</Text>{' '}
+                  {new Date(userDetail?.dob).toLocaleDateString('en-GB')}
+                </Text>
+                <Text style={styles.infoText}>
+                  <Text style={{ fontWeight: '700' }}>Mobile:</Text>{' '}
+                  {userDetail?.mobile}
+                </Text>
+                <Text style={styles.infoText}>
+                  <Text style={{ fontWeight: '700' }}>Village/City:</Text>{' '}
+                  {userDetail?.village}
+                </Text>
+                <Text style={styles.infoText}>
+                  <Text style={{ fontWeight: '700' }}>Attending:</Text>{' '}
+                  {userDetail?.attending === true ? 'Yes' : 'No'}
+                </Text>
+                {userDetail?.children?.length ? (
+                  <Text style={styles.infoText}>
+                    <Text style={{ fontWeight: '700' }}>Children:</Text>{' '}
+                    {userDetail?.children?.length}
                   </Text>
+                ) : null}
+                <Text style={styles.infoText}>
+                  <Text style={{ fontWeight: '700' }}>Total persons:</Text>{' '}
+                  {1 + Number(userDetail?.childrenCount)}
+                </Text>
+              </View>
+
+              {userDetail?.children?.length > 0 && (
+                <View style={{ marginTop: 10 }}>
+                  <Text style={{ fontWeight: '700', color: '#fff' }}>
+                    Children Details:
+                  </Text>
+                  {userDetail?.children.map((c, i) => (
+                    <Text key={i} style={styles.infoText}>
+                      • {c.name} — age {c.age}
+                    </Text>
+                  ))}
+                </View>
+              )}
+
+              <View style={{ marginTop: 12 }}>
+                <Text
+                  style={{
+                    fontStyle: 'italic',
+                    color: '#fff',
+                    textAlign: 'center',
+                  }}
+                >
+                  Let's reconnect, relive memories, and celebrate our school
+                  bond!
+                </Text>
+              </View>
+              <View style={{ marginTop: 16, width: '100%' }}>
+                <TouchableOpacity
+                  style={styles.pdfButton}
+                  onPress={() => handleDownloadPDF('view')}
+                >
+                  <Text style={styles.pdfButtonText}>View PDF</Text>
                 </TouchableOpacity>
-              ) : null}
+                {userDetail?.isAllowAnother === true && !userDetail?.users ? (
+                  <TouchableOpacity
+                    style={[
+                      styles.pdfButton,
+                      { backgroundColor: '#eee', marginTop: 10 },
+                    ]}
+                    onPress={() => setOpenAllowForm(true)}
+                  >
+                    <Text style={{ color: '#002b5c', fontWeight: '700' }}>
+                      Register Another
+                    </Text>
+                  </TouchableOpacity>
+                ) : null}
+              </View>
             </View>
           </View>
-        </View>
-      </ScrollView>
+
+          {userDetail?.users ? (
+            <View style={[styles.successInner, { marginBottom: 20 }]}>
+              <View style={styles.memoryCard}>
+                <Text style={styles.bigTitle}>{EVENT_INFO.titleBig}</Text>
+                <Text style={styles.subtitle}>{EVENT_INFO.subtitle}</Text>
+
+                <View style={styles.detailBox}>
+                  <Text style={styles.detail}>{EVENT_INFO.dateLine}</Text>
+                  <Text style={styles.detail}>{EVENT_INFO.timeLine}</Text>
+                  <Text style={styles.detail}>{EVENT_INFO.placeLine}</Text>
+                </View>
+
+                <View style={{ marginTop: 12 }}>
+                  <Text style={styles.infoText}>
+                    <Text style={{ fontWeight: '700' }}>Name:</Text>{' '}
+                    {userDetail?.users?.fullName ||
+                      userDetail?.users?.firstName +
+                        ' ' +
+                        userDetail?.users?.lastName}
+                  </Text>
+                  <Text style={styles.infoText}>
+                    <Text style={{ fontWeight: '700' }}>DOB:</Text>{' '}
+                    {new Date(userDetail?.users?.dob).toLocaleDateString(
+                      'en-GB',
+                    )}
+                  </Text>
+                  <Text style={styles.infoText}>
+                    <Text style={{ fontWeight: '700' }}>Mobile:</Text>{' '}
+                    {userDetail?.users?.mobile || userDetail?.mobile}
+                  </Text>
+                  <Text style={styles.infoText}>
+                    <Text style={{ fontWeight: '700' }}>Village/City:</Text>{' '}
+                    {userDetail?.users?.village}
+                  </Text>
+                  {userDetail?.users?.children?.length ? (
+                    <Text style={styles.infoText}>
+                      <Text style={{ fontWeight: '700' }}>Children:</Text>{' '}
+                      {userDetail?.users?.children?.length}
+                    </Text>
+                  ) : null}
+                  <Text style={styles.infoText}>
+                    <Text style={{ fontWeight: '700' }}>Total persons:</Text>{' '}
+                    {1 + Number(userDetail?.users?.childrenCount)}
+                  </Text>
+                </View>
+
+                {userDetail?.children?.length > 0 && (
+                  <View style={{ marginTop: 10 }}>
+                    <Text style={{ fontWeight: '700', color: '#fff' }}>
+                      Children Details:
+                    </Text>
+                    {userDetail?.users?.children.map((c, i) => (
+                      <Text key={i} style={styles.infoText}>
+                        • {c.name} — age {c.age}
+                      </Text>
+                    ))}
+                  </View>
+                )}
+
+                <View style={{ marginTop: 12 }}>
+                  <Text
+                    style={{
+                      fontStyle: 'italic',
+                      color: '#fff',
+                      textAlign: 'center',
+                    }}
+                  >
+                    Let's reconnect, relive memories, and celebrate our school
+                    bond!
+                  </Text>
+                </View>
+                <View style={{ marginTop: 16, width: '100%' }}>
+                  <TouchableOpacity
+                    style={styles.pdfButton}
+                    onPress={() => handleDownloadPDF('view', userDetail?.users)}
+                  >
+                    <Text style={styles.pdfButtonText}>View PDF</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          ) : null}
+        </ScrollView>
+      </>
     );
   }
 }

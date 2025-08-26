@@ -39,6 +39,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     elevation: 4,
+    paddingTop: 30
   },
   leftBtn: {
     padding: 4,

@@ -1,4 +1,6 @@
-export const invitePdf = ({ EVENT_INFO, form, children, auth }) => {
+import { EVENT_INFO } from "../utils/utils";
+
+export const invitePdf = ({ form, children, auth }) => {
   const dobFormatted = form.dob
     ? new Date(form.dob).toLocaleDateString('en-GB')
     : '-';
@@ -115,7 +117,7 @@ export const invitePdf = ({ EVENT_INFO, form, children, auth }) => {
 <body>
   <div class="container">
     <div class="header">
-      <h2>${EVENT_INFO.titleBig}</h2>
+      <h2>${EVENT_INFO.titleBig} ${form?.isTeacher ? "(Teacher)" : ""}</h2>
       <div class="subtitle">${EVENT_INFO.subtitle}</div>
     </div>
 

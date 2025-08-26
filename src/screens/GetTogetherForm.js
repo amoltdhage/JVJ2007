@@ -23,7 +23,7 @@ import ChildrenInput from '../components/GetTogether/ChildrenInput';
 import DatePickerComponent from '../components/GetTogether/DatePickerComponent';
 import { GetTogetherFormStyles } from '../styles/GetTogetherFormStyles';
 import { useLoading } from '../../LoadingContext';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import SplashScreen from './SplashScreen';
 
 const GetTogetherForm = ({ navigation }) => {
   const { isLoading, startLoading, stopLoading } = useLoading();
@@ -53,7 +53,7 @@ const GetTogetherForm = ({ navigation }) => {
   useEffect(() => {
     if (auth?.user) getUserData(auth.user);
     else logout('Session expired');
-  }, []);
+  }, [openAllowForm]);
 
   const getUserData = async id => {
     try {
@@ -61,7 +61,7 @@ const GetTogetherForm = ({ navigation }) => {
       const userData = await fetchCollection('users', id);
       if (openAllowForm !== true) {
         const formData = {
-          fullName: userData?.fullNamef
+          fullName: userData?.fullName
             ? userData.fullName
             : `${userData.firstName} ${userData.lastName}`,
           dob: userData?.dob ? new Date(userData.dob) : null,
@@ -87,6 +87,21 @@ const GetTogetherForm = ({ navigation }) => {
           ? userData?.children
           : [];
         setChildren(childrenData);
+      } else {
+        setForm({
+          fullName: '',
+          dob: null,
+          mobile: '',
+          village: '',
+          attending: true,
+          childrenCount: '0',
+          comments: '',
+          updatedAt: null,
+          users: null,
+          gender: '',
+          isTeacher: false,
+        });
+        setChildren([]);
       }
       setUserDetail(userData);
     } catch (error) {
@@ -96,15 +111,6 @@ const GetTogetherForm = ({ navigation }) => {
       stopLoading();
     }
   };
-
-  // if (isLoading) {
-  //   return (
-  //     <View style={styles.container}>
-  //       <Ionicons name="school-outline" size={100} color="#4B9CD3" />
-  //       <Text style={styles.title}>School Gate</Text>
-  //     </View>
-  //   );
-  // }
 
   useEffect(() => {
     // if childrenCount changes, prepare children array length
@@ -141,7 +147,7 @@ const GetTogetherForm = ({ navigation }) => {
 
   const validate = () => {
     const newErr = {};
-    if (form?.attending === false)
+    if (form?.attending !== true && form?.attending !== false)
       newErr.attending = 'Please select if you are attending';
     else if (form?.attending === true) {
       if (!form.fullName.trim()) newErr.fullName = 'Full name is required';
@@ -150,8 +156,8 @@ const GetTogetherForm = ({ navigation }) => {
       else if (!/^\d{10}$/.test(form.mobile))
         newErr.mobile = 'Mobile must be 10 digits';
       if (!form.village.trim()) newErr.village = 'Village/City required';
-      if (!form.gender) newErr.gender = 'Village/City required';
-      if (form.isTeacher === '')
+      if (!form.gender) newErr.gender = 'Gender required';
+      if (form.isTeacher !== true && form.isTeacher !== false)
         newErr.isTeacher = 'Teacher / Student required';
 
       // validate children details if any
@@ -232,18 +238,24 @@ const GetTogetherForm = ({ navigation }) => {
       />
     );
 
+  if (isLoading) return <SplashScreen />;
+
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={{ flex: 1 }}
     >
-      <ScrollView contentContainerStyle={styles.container}>
-        <Header title="Get-Together Form" navigation={navigation} showBack />
+      <Header title="Get-Together Form" navigation={navigation} showBack />
+      <ScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.inner}>
           <MaterialIcon
             name="event"
             size={56}
-            color="'#002b5c',"
+            color="#002b5c"
             style={{ marginBottom: 6 }}
           />
           <Text style={styles.title}>Are you attending?</Text>
@@ -308,14 +320,14 @@ const GetTogetherForm = ({ navigation }) => {
               />
               <RadioSelectionInputs
                 name="gender"
-                value1="male"
-                value2="female"
+                value1="female"
+                value2="male"
                 onChange={handleChange}
                 errors={errors}
                 label="Gender"
                 form={form}
-                label1="Male"
-                label2="Female"
+                label1="Female"
+                label2="Male"
               />
               {/* DOB picker */}
               <DatePickerComponent
@@ -331,7 +343,7 @@ const GetTogetherForm = ({ navigation }) => {
                 value2={false}
                 onChange={handleChange}
                 errors={errors}
-                label="Teacher / Student"
+                label="Student / Teacher"
                 form={form}
                 label1="Teacher"
                 label2="Student"
@@ -341,9 +353,9 @@ const GetTogetherForm = ({ navigation }) => {
               <InputField
                 label="Mobile"
                 value={form.mobile}
-                onChange={text => {
-                  text = text.replace(/[^0-9]/g, '');
-                  handleChange('mobile', text);
+                onChangeText={text => {
+                  const newText = text.replace(/[^0-9]/g, '');
+                  handleChange('mobile', newText);
                 }}
                 name="mobile"
                 iconName="phone"
