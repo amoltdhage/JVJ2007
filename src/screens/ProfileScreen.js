@@ -9,6 +9,7 @@ import {
   Platform,
   Image,
   Modal,
+  Alert,
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {
@@ -174,6 +175,25 @@ const ProfileScreen = ({ navigation }) => {
     }
   };
 
+  const handleLogout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Logout',
+          onPress: () => logout(),
+          style: 'destructive',
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
   if (isLoading) return <SplashScreen />;
 
   return (
@@ -198,7 +218,7 @@ const ProfileScreen = ({ navigation }) => {
       <Header title="Profile" navigation={navigation} />
       <ScrollView
         style={styles.container}
-        contentContainerStyle={{ paddingTop: 20 }}
+        contentContainerStyle={{ paddingTop: 20, paddingBottom: 30 }}
       >
         <View style={styles.profileImageContainer}>
           {profileImage ? (
@@ -231,11 +251,38 @@ const ProfileScreen = ({ navigation }) => {
         >
           {renderKeyValue(profileData.contactDetails)}
         </ProfileSection>
+        
+        {/* Logout Button */}
+        <TouchableOpacity 
+          style={styles.logoutButton} 
+          onPress={handleLogout}
+        >
+          <MaterialIcons name="logout" size={20} color="#fff" style={{ marginRight: 10 }} />
+          <Text style={styles.logoutButtonText}>Logout</Text>
+        </TouchableOpacity>
       </ScrollView>
     </>
   );
 };
 
-const styles = ProfileStyles;
+// Add logout button styles to your ProfileStyles
+const styles = {
+  ...ProfileStyles,
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#696868ff',
+    padding: 15,
+    borderRadius: 8,
+    marginHorizontal: 20,
+    marginTop: 30,
+  },
+  logoutButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+};
 
 export default ProfileScreen;
