@@ -8,22 +8,22 @@ import {
   Platform,
   KeyboardAvoidingView,
 } from 'react-native';
-import Header from '../components/Header';
+import Header from '../../components/Header';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { useSelector } from 'react-redux';
-import AuthenticationService from '../Services/authservice';
 import {
   fetchCollection,
   updateCollection,
-} from '../Services/firestoreServices';
-import InputField from '../components/InputField';
-import RadioSelectionInputs from '../components/RadioSelectionInputs';
-import RenderSuccessView from '../components/GetTogether/RenderSuccessView';
-import ChildrenInput from '../components/GetTogether/ChildrenInput';
-import DatePickerComponent from '../components/GetTogether/DatePickerComponent';
-import { GetTogetherFormStyles } from '../styles/GetTogetherFormStyles';
-import { useLoading } from '../../LoadingContext';
-import SplashScreen from './SplashScreen';
+} from '../../Services/firestoreServices';
+import InputField from '../../components/InputField';
+import RadioSelectionInputs from '../../components/RadioSelectionInputs';
+import RenderSuccessView from '../../components/GetTogether/RenderSuccessView';
+import ChildrenInput from '../../components/GetTogether/ChildrenInput';
+import DatePickerComponent from '../../components/GetTogether/DatePickerComponent';
+import { GetTogetherFormStyles } from '../../styles/GetTogetherFormStyles';
+import { useLoading } from '../../../LoadingContext';
+import SplashScreen from '../SplashScreen';
+import AuthenticationService from '../../Services/authservice';
 
 const GetTogetherForm = ({ navigation }) => {
   const { isLoading, startLoading, stopLoading } = useLoading();

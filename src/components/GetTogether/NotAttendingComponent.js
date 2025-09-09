@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import Header from '../Header';
+import Header from '../../components/Header';
 import { EVENT_INFO } from '../../utils/utils';
 import { useNavigation } from '@react-navigation/native';
 

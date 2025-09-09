@@ -1,9 +1,9 @@
 
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Dimensions, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import CountdownTimer from '../components/CountdownTimer'; // adjust path as needed
-import Header from '../components/Header';
+import CountdownTimer from '../../components/CountdownTimer'; // adjust path as needed
+import Header from '../../components/Header';
 const { width } = Dimensions.get('window');
 
 const HomeScreen = ({ navigation }) => {

@@ -1,5 +1,5 @@
 import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import Header from '../Header';
+import Header from '../../components/Header';
 import { useSelector } from 'react-redux';
 import { invitePdf } from '../invitePdf';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';

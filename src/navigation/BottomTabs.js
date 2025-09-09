@@ -1,9 +1,9 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import ProfileScreen from '../screens/ProfileScreen';
+import ProfileScreen from '../screens/Authenticated/ProfileScreen';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import HomeStackScreen from './HomeStack';
-import ChatScreen from '../screens/ChatScreen';
+import ChatScreen from '../screens/Authenticated/ChatScreen';
 const Tab = createBottomTabNavigator();
 
 export default function BottomTabs() {

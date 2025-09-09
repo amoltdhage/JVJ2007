@@ -5,11 +5,11 @@ export const ToastType = {
   SUCCESS: 'success',
   ERROR: 'error',
   INFO: 'info',
-  WARNING: 'warning' // You might need to create a custom type for warning
+  WARNING: 'warning'
 };
 
 export const showToast = (message, type = ToastType.INFO, duration = 3000) => {
-  Toast.show({
+  return Toast.show({
     type: type,
     text1: message,
     visibilityTime: duration,
@@ -19,10 +19,10 @@ export const showToast = (message, type = ToastType.INFO, duration = 3000) => {
 
 // Convenience methods
 export const toast = {
-  show: (message, duration) => showToast(message, ToastType.INFO, duration),
-  success: (message, duration) => showToast(message, ToastType.SUCCESS, duration),
-  error: (message, duration) => showToast(message, ToastType.ERROR, duration),
-  info: (message, duration) => showToast(message, ToastType.INFO, duration),
+  show: (message, duration) => showToast(message, ToastType.INFO, duration || 3000),
+  success: (message, duration) => showToast(message, ToastType.SUCCESS, duration || 3000),
+  error: (message, duration) => showToast(message, ToastType.ERROR, duration || 3000),
+  info: (message, duration) => showToast(message, ToastType.INFO, duration || 3000),
 };
 
 export default toast;

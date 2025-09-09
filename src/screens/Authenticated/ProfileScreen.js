@@ -16,13 +16,13 @@ import {
   fetchCollection,
   updateCollection,
 } from '../Services/firestoreServices';
-import AuthenticationService from '../Services/authservice';
 import { useSelector } from 'react-redux';
-import { useLoading } from '../../LoadingContext';
-import SplashScreen from './SplashScreen';
-import Header from '../components/Header';
-import { ProfileStyles } from '../styles/ProfileStyles';
+import { useLoading } from '../../../LoadingContext';
+import SplashScreen from '../SplashScreen';
+import Header from '../../components/Header';
+import { ProfileStyles } from '../../styles/ProfileStyles';
 import { launchImageLibrary } from 'react-native-image-picker';
+import AuthenticationService from '../../Services/authservice';
 
 if (Platform.OS === 'android') {
   UIManager.setLayoutAnimationEnabledExperimental &&

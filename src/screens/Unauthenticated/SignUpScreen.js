@@ -7,15 +7,14 @@ import {
   StyleSheet,
   ScrollView,
   StatusBar,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
-import AuthenticationService from '../Services/authservice';
-import { useLoading } from '../../LoadingContext';
+import { useLoading } from '../../../LoadingContext';
+import AuthenticationService from '../../Services/authservice';
 
 const SignUpScreen = ({ navigation }) => {
   const [form, setForm] = useState({

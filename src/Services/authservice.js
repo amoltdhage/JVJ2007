@@ -16,9 +16,11 @@ export default function AuthenticationService() {
   const SignUpService = async (requestBody, password) => {
     try {
       startLoading();
-      const signInMethods = await auth().fetchSignInMethodsForEmail(requestBody.email);
-      if(signInMethods.length > 0) {
-        toast.error("Email already exist", 3000);
+      const signInMethods = await auth().fetchSignInMethodsForEmail(
+        requestBody.email,
+      );
+      if (signInMethods.length > 0) {
+        toast.error('Email already exist', 3000);
         return;
       }
       const userCredential = await auth().createUserWithEmailAndPassword(
@@ -57,19 +59,12 @@ export default function AuthenticationService() {
         email,
         password,
       );
-
+      console.log('user: ', userCredential);
       if (!userCredential?.user?.emailVerified) {
         await auth().signOut();
         Alert.alert(
           'Email Not Verified',
-          'Please verify your email address before logging in. Would you like us to resend the verification email?',
-          [
-            { text: 'Cancel', style: 'cancel' },
-            {
-              text: 'Resend',
-              onPress: () => sendVerificationEmail(userCredential.user),
-            },
-          ],
+          'Please verify your email address before logging in',
         );
         stopLoading();
         return;
@@ -78,45 +73,78 @@ export default function AuthenticationService() {
       const uid = userCredential.user.uid;
 
       const userDoc = await fetchCollection('users', uid);
+
       if (userDoc) {
         dispatch(loginAction(userDoc.uid));
         return { success: true, data: userDoc };
       } else return { success: false, error: 'No profile found' };
     } catch (error) {
+      if (["auth/user-not-found", "auth/invalid-credential"].includes(error?.code)) {
+        toast.error('No account found with this email address.', 3000);
+      } else if (error?.code === 'auth/wrong-password') {
+        toast.error('Incorrect password. Please try again.', 3000);
+      } else if (error?.code === 'auth/invalid-email') {
+        toast.error('Invalid email address format.', 3000);
+      } else if (error?.code === 'auth/too-many-requests') {
+        toast.error(
+          'Too many failed login attempts. Please try again later.',
+          3000,
+        );
+      } else {
+        toast.error(error.message, 3000);
+      }
+      console.log('error: ', error, error.code);
+      return { success: false, error: error.message };
+    } finally {
+      stopLoading();
+    }
+  };
+
+  const sendPasswordResetEmail = async email => {
+    try {
+      startLoading();
+
+      await auth().sendPasswordResetEmail(email);
+      toast.success(`Password reset link sent to ${email}`, 3000);
+      return { success: true,  message: 'Password reset email sent' };
+    } catch (error) {
       let errorMessage = error.message;
 
-      if (error.code === 'auth/user-not-found') {
-        errorMessage = 'No account found with this email address.';
-      } else if (error.code === 'auth/wrong-password') {
-        errorMessage = 'Incorrect password. Please try again.';
-      } else if (error.code === 'auth/invalid-email') {
+      if (error.code === 'auth/invalid-email') {
         errorMessage = 'Invalid email address format.';
+      } else if (["auth/user-not-found", "auth/invalid-credential"].includes(error?.code)) {
+        errorMessage = 'No account found with this email address.';
       } else if (error.code === 'auth/too-many-requests') {
-        errorMessage =
-          'Too many failed login attempts. Please try again later.';
+        errorMessage = 'Too many attempts. Please try again later.';
       }
-
-      if (
-        error.code === 'auth/user-not-found' ||
-        error.code === 'auth/wrong-password'
-      ) {
-        toast.error(errorMessage, 3000);
-      }
+      toast.error(errorMessage, 3000);
       return { success: false, error: errorMessage };
     } finally {
       stopLoading();
     }
   };
 
-  const sendVerificationEmail = async user => {
+  const confirmPasswordReset = async (code, newPassword) => {
     try {
-      await user?.sendEmailVerification();
-      Alert.alert(
-        'Verification email sent',
-        'Please check your inbox and verify your email address.',
-      );
+      startLoading();
+      await auth().confirmPasswordReset(code, newPassword);
+      return { success: true, message: 'Password reset successful' };
     } catch (error) {
-      Alert.alert('Error', error.message);
+      let errorMessage = error.message;
+      if (error.code === 'auth/expired-action-code') {
+        errorMessage =
+          'The reset code has expired. Please request a new password reset.';
+      } else if (error.code === 'auth/invalid-action-code') {
+        errorMessage =
+          'Invalid reset code. Please check the code and try again.';
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage =
+          'Password is too weak. Please choose a stronger password.';
+      }
+      toast.error(errorMessage, 3000);
+      return { success: false, error: errorMessage };
+    } finally {
+      stopLoading();
     }
   };
 
@@ -132,5 +160,11 @@ export default function AuthenticationService() {
     }
   };
 
-  return { SignUpService, LoginService, logout };
+  return {
+    SignUpService,
+    LoginService,
+    logout,
+    sendPasswordResetEmail,
+    confirmPasswordReset,
+  };
 }

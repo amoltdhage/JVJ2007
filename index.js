@@ -8,13 +8,13 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 
 const Root = () => (
-    <Provider store={store}>
-        <PersistGate loading={null} persistor={persistor}>
-            <LoadingProvider>
-                <App />
-            </LoadingProvider>
-        </PersistGate>
-    </Provider>
+  <Provider store={store}>
+    <PersistGate loading={null} persistor={persistor}>
+      <LoadingProvider>
+        <App />
+      </LoadingProvider>
+    </PersistGate>
+  </Provider>
 );
 
 AppRegistry.registerComponent(appName, () => Root);
