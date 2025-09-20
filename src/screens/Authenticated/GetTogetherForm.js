@@ -209,6 +209,7 @@ const GetTogetherForm = ({ navigation }) => {
       dob: form.dob.toISOString(),
       totalPersons,
       children: childrenData,
+      createdAt: new Date(),
     };
     if (openAllowForm) {
       await updateCollection('users', auth?.user, {
@@ -219,6 +220,7 @@ const GetTogetherForm = ({ navigation }) => {
       await updateCollection('users', auth?.user, {
         ...userDetail,
         ...updatedData,
+        createdAt: new Date(),
       });
     }
     getUserData(auth.user);
@@ -258,7 +260,9 @@ const GetTogetherForm = ({ navigation }) => {
             color="#002b5c"
             style={{ marginBottom: 6 }}
           />
-          <Text style={styles.title}>Are you attending?</Text>
+          {!openAllowForm ? (
+            <Text style={styles.title}>Are you attending?</Text>
+          ) : <Text style={styles.title}>Register Another</Text>}
           {/* Attending radio */}
           <View
             style={{ width: '100%', marginBottom: 16, alignItems: 'center' }}
@@ -337,7 +341,7 @@ const GetTogetherForm = ({ navigation }) => {
                 errors={errors}
               />
 
-              <RadioSelectionInputs
+              {/* <RadioSelectionInputs
                 name="isTeacher"
                 value1={true}
                 value2={false}
@@ -347,7 +351,7 @@ const GetTogetherForm = ({ navigation }) => {
                 form={form}
                 label1="Teacher"
                 label2="Student"
-              />
+              /> */}
 
               {/* Mobile */}
               <InputField

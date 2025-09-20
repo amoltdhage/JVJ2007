@@ -9,6 +9,7 @@ import { useNavigation } from '@react-navigation/native';
 import { updateCollection } from '../../Services/firestoreServices';
 import { EVENT_INFO } from '../../utils/utils';
 import NotAttendingComponent from './NotAttendingComponent';
+import { formatRegId } from '../../Services/FormatRegnId';
 
 export default function RenderSuccessView({
   userDetail,
@@ -31,7 +32,7 @@ export default function RenderSuccessView({
 
   const handleDownloadPDF = async (type, user) => {
     let pdfPath = null;
-    const childrenData = user ? userDetail?.users?.children : userDetail;
+    const childrenData = user ? userDetail?.users?.children : userDetail?.children;
 
     const htmlContent = await invitePdf({
       EVENT_INFO,
@@ -48,6 +49,7 @@ export default function RenderSuccessView({
           fileName: 'JVJ-reconnect-invite',
           base64: false,
         });
+        console.log("file: ", file)
         pdfPath = file.filePath;
         return file.filePath;
       } catch (error) {
@@ -59,6 +61,7 @@ export default function RenderSuccessView({
     const handleViewPDF = async () => {
       try {
         let path = pdfPath || (await generatePDF());
+        console.log("path: ", path)
         await FileViewer.open(path, { showOpenWithDialog: true });
       } catch (error) {
         Alert.alert('Error', 'Could not open PDF');
@@ -84,6 +87,7 @@ export default function RenderSuccessView({
     else await handleSharePDF();
   };
 
+
   if (userDetail?.attending === true) {
     return (
       <>
@@ -107,7 +111,7 @@ export default function RenderSuccessView({
               <View style={styles.regBox}>
                 <Text style={styles.regIdLabel}>Registration ID</Text>
                 <Text style={styles.regId}>
-                  {auth?.user ? `${auth.user.slice(0, 15)}` : 'N/A'}
+                  {auth?.user ? formatRegId(auth.user, userDetail) : "N/A"}
                 </Text>
               </View>
 
@@ -205,6 +209,13 @@ export default function RenderSuccessView({
                   <Text style={styles.detail}>{EVENT_INFO.timeLine}</Text>
                   <Text style={styles.detail}>{EVENT_INFO.placeLine}</Text>
                 </View>
+                
+                <View style={styles.regBox}>
+                <Text style={styles.regIdLabel}>Registration ID</Text>
+                <Text style={styles.regId}>
+                  {auth?.user ? formatRegId(auth.user, userDetail?.users) : "N/A"}
+                </Text>
+              </View>
 
                 <View style={{ marginTop: 12 }}>
                   <Text style={styles.infoText}>
@@ -240,7 +251,7 @@ export default function RenderSuccessView({
                   </Text>
                 </View>
 
-                {userDetail?.children?.length > 0 && (
+                {userDetail?.users?.children?.length > 0 && (
                   <View style={{ marginTop: 10 }}>
                     <Text style={{ fontWeight: '700', color: '#fff' }}>
                       Children Details:

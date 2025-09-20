@@ -43,7 +43,7 @@ export default function ChildrenInput({
             Children Details
           </Text>
           {children.map((child, i) => (
-            <View key={i} style={styles.childRow}>
+            <View key={i} style={[styles.childRow, {marginBottom: 15}]}>
               <View style={{ flex: 1, marginRight: 8 }}>
                 <TextInput
                   placeholder="Child name"
@@ -51,7 +51,7 @@ export default function ChildrenInput({
                   value={child.name}
                   maxLength={50}
                   onChangeText={t => handleChildChange(i, 'name', t)}
-                  style={[styles.input, { color: '#000' }]}
+                  style={{ color: '#000', borderColor: 'gray', borderWidth: 1, borderRadius: 10 }}
                 />
                 {errors[`child_name_${i}`] && (
                   <Text style={styles.errorText}>
@@ -67,7 +67,7 @@ export default function ChildrenInput({
                   keyboardType="numeric"
                   maxLength={2}
                   onChangeText={t => handleChildChange(i, 'age', t)}
-                  style={[styles.input, { color: '#000' }]}
+                  style={{ color: '#000', borderColor: 'gray', borderWidth: 1, borderRadius: 10 }}
                 />
                 {errors[`child_age_${i}`] && (
                   <Text style={styles.errorText}>

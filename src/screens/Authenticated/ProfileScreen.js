@@ -149,30 +149,93 @@ const ProfileScreen = ({ navigation }) => {
     }
   };
 
+    // Function to convert local image to base64
+  const convertImageToBase64 = async (uri) => {
+    return new Promise((resolve, reject) => {
+      // For React Native, we need to use the FileReader API
+      // First, we need to fetch the image as a blob
+      fetch(uri)
+        .then(response => response.blob())
+        .then(blob => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            resolve(reader.result);
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        })
+        .catch(error => reject(error));
+    });
+  };
+
+  // const pickImage = async () => {
+  //   const options = {
+  //     mediaType: 'photo',
+  //     quality: 0.5, // Reduce quality to make base64 string smaller
+  //     selectionLimit: 1,
+  //     maxWidth: 800, // Limit dimensions to reduce base64 size
+  //     maxHeight: 800,
+  //   };
+  //   const result = await launchImageLibrary(options);
+  //   if (result.assets && result.assets.length > 0) {
+  //     const selectedImage = result.assets[0].uri;
+  //     setProfileImage(selectedImage);
+
+  //     // Save to Firestore
+  //     try {
+  //       await updateCollection('users', auth.user, {
+  //         profileImage: selectedImage,
+  //       });
+  //     } catch (err) {
+  //       console.error('Error updating profile image:', err);
+  //     }
+  //   }
+  // };
+
   const pickImage = async () => {
     const options = {
       mediaType: 'photo',
-      quality: 0.8,
+      quality: 0.5, // Reduce quality to make base64 string smaller
       selectionLimit: 1,
-      // maxWidth: 512,
-      // maxHeight: 512,
+      maxWidth: 800, // Limit dimensions to reduce base64 size
+      maxHeight: 800,
     };
-    const result = await launchImageLibrary(options);
-    if (result.assets && result.assets.length > 0) {
-      const selectedImage = result.assets[0].uri;
-      setProfileImage(selectedImage);
-
-      // Save to Firestore
-      try {
-        await updateCollection('users', auth.user, {
-          profileImage: selectedImage,
-        });
-      } catch (err) {
-        console.error('Error updating profile image:', err);
+    
+    try {
+      const result = await launchImageLibrary(options);
+      if (result.assets && result.assets.length > 0) {
+        const selectedImageUri = result.assets[0].uri;
+        
+        // Show the selected image immediately for better UX
+        setProfileImage(selectedImageUri);
+        
+        // Convert to base64 in the background
+        startLoading();
+        try {
+          const base64Image = await convertImageToBase64(selectedImageUri);
+          
+          // Save to Firestore
+          await updateCollection('users', auth.user, {
+            profileImage: base64Image,
+          });
+          
+          // Update local state with base64 image
+          setProfileImage(base64Image);
+          setUserDetail(prev => ({ ...prev, profileImage: base64Image }));
+        } catch (err) {
+          console.error('Error converting or updating profile image:', err);
+          Alert.alert('Error', 'Failed to update profile image');
+        } finally {
+          stopLoading();
+        }
       }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      Alert.alert('Error', 'Failed to select image');
+      stopLoading();
     }
   };
-
+  
   const handleLogout = () => {
     Alert.alert(
       'Logout',

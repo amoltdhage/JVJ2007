@@ -86,7 +86,7 @@ export const GetTogetherFormStyles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 16,
+    paddingVertical: 10
   },
   memoryCard: {
     backgroundColor: '#004080',

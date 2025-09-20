@@ -9,6 +9,7 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { useSelector } from 'react-redux';
 import {
@@ -111,21 +112,29 @@ export default function GroupChatScreen() {
   const flatListRef = useRef(null);
   const editInputRef = useRef(null);
   const [userData, setUserData] = useState(null);
+  const [loading, setLoaing] = useState(true);
 
-  const getUserData = async() => {
-    const user = await fetchCollection("users", userId);
-    if(user) setUserData(user);
-  }
+  const getUserData = async () => {
+    const user = await fetchCollection('users', userId);
+    if (user) setUserData(user);
+  };
 
   useEffect(() => {
-    const initGroup = async () => {
+    fetchAllData();
+  }, [userId]);
+
+  const fetchAllData = async () => {
+    try {
       if (!userId) return;
       const gId = await ensureUserInGroup(userId);
       setGroupId(gId);
-    };
-    initGroup();
-    getUserData();
-  }, [userId]);
+      getUserData();
+    } catch (error) {
+      setLoaing(false);
+    } finally {
+      setLoaing(false);
+    }
+  };
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -144,14 +153,14 @@ export default function GroupChatScreen() {
 
   const handleEdit = async () => {
     if (!editText.trim() || !editingMessage) return;
-    if(editingMessage.text.trim() !== editText.trim())
-    await editMessage(groupId, editingMessage.id, editText.trim());
+    if (editingMessage.text.trim() !== editText.trim())
+      await editMessage(groupId, editingMessage.id, editText.trim());
     setEditingMessage(null);
     setEditText('');
     setShowOptions(null);
   };
 
-  const handleDelete = async (message) => {
+  const handleDelete = async message => {
     Alert.alert(
       'Delete Message',
       'Are you sure you want to delete this message?',
@@ -172,7 +181,7 @@ export default function GroupChatScreen() {
     );
   };
 
-  const startEditing = (message) => {
+  const startEditing = message => {
     setEditingMessage(message);
     setEditText(message.text);
     setShowOptions(null);
@@ -198,9 +207,14 @@ export default function GroupChatScreen() {
     const isMe = item.senderId === userId;
     const senderName = isMe ? 'You' : item.senderName || 'Unknown';
 
-    const time = new Date(
+    const formattedTime = new Date(
       item.createdAt.seconds ? item.createdAt.seconds * 1000 : item.createdAt,
-    ).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    ).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    });
+    const time = formattedTime.replace(/am|pm/, match => match.toUpperCase());
 
     return (
       <View style={[styles.messageWrapper, isMe && styles.myMessageWrapper]}>
@@ -221,16 +235,16 @@ export default function GroupChatScreen() {
             </Text>
           </View>
         </TouchableOpacity>
-        
+
         {showOptions === item.id && isMe && (
           <View style={styles.optionsContainer}>
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => startEditing(item)}
               style={styles.optionButton}
             >
               <EditIcon />
             </TouchableOpacity>
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => handleDelete(item)}
               style={styles.optionButton}
             >
@@ -244,13 +258,25 @@ export default function GroupChatScreen() {
 
   const messagesWithSections = prepareMessagesWithSections(messages);
 
+  if (loading) {
+    return (
+      <>
+        <Header title="Group chat" />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#2d677aff" />
+          <Text style={styles.loadingText}>Loading messages...</Text>
+        </View>
+      </>
+    );
+  }
+
   return (
     <>
       <Header title="Group chat" />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
-        style={{flex: 1}}
+        style={{ flex: 1 }}
       >
         <View style={styles.container}>
           <FlatList
@@ -265,7 +291,7 @@ export default function GroupChatScreen() {
               }
             }}
           />
-          
+
           {editingMessage ? (
             <View style={styles.editContainer}>
               <Text style={styles.editLabel}>Editing message</Text>
@@ -276,12 +302,18 @@ export default function GroupChatScreen() {
                   value={editText}
                   onChangeText={setEditText}
                   placeholder="Edit your message..."
-                  placeholderTextColor={"gray"}
+                  placeholderTextColor={'gray'}
                 />
-                <TouchableOpacity onPress={handleEdit} style={styles.editSendButton}>
+                <TouchableOpacity
+                  onPress={handleEdit}
+                  style={styles.editSendButton}
+                >
                   <Text style={{ color: '#fff' }}>Save</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={cancelEdit} style={styles.editCancelButton}>
+                <TouchableOpacity
+                  onPress={cancelEdit}
+                  style={styles.editCancelButton}
+                >
                   <Text style={{ color: '#fff' }}>Cancel</Text>
                 </TouchableOpacity>
               </View>
@@ -293,7 +325,7 @@ export default function GroupChatScreen() {
                 value={text}
                 onChangeText={setText}
                 placeholder="Type a message..."
-                placeholderTextColor={"gray"}
+                placeholderTextColor={'gray'}
               />
               <TouchableOpacity onPress={handleSend} style={styles.sendButton}>
                 <Text style={{ color: '#fff' }}>Send</Text>
@@ -307,9 +339,20 @@ export default function GroupChatScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
+  container: {
+    flex: 1,
     backgroundColor: '#e5ddd5',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#e5ddd5',
+  },
+  loadingText: {
+    marginTop: 10,
+    color: '#2d677aff',
+    fontSize: 16,
   },
   sectionContainer: {
     alignItems: 'center',
@@ -341,12 +384,12 @@ const styles = StyleSheet.create({
   myMessage: {
     backgroundColor: '#0b4180ff',
     borderTopRightRadius: 2,
-    marginRight: 5
+    marginRight: 5,
   },
   otherMessage: {
     backgroundColor: '#2f545fff',
     borderTopLeftRadius: 2,
-    marginLeft: 5
+    marginLeft: 5,
   },
   senderName: {
     fontSize: 12,
@@ -355,11 +398,11 @@ const styles = StyleSheet.create({
     marginBottom: 2,
     marginLeft: 6,
   },
-  myMessageText: { 
+  myMessageText: {
     color: '#faf3f3ff',
     fontSize: 15,
   },
-  otherMessageText: { 
+  otherMessageText: {
     color: '#fff',
     fontSize: 15,
   },

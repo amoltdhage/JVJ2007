@@ -23,9 +23,9 @@ export default function Header({ title, navigation, showBack }) {
       </Text>
 
       {/* Right: Notification Button */}
-      <TouchableOpacity onPress={() => navigation?.navigate('Notifications')} style={styles.rightBtn}>
+      {/* <TouchableOpacity onPress={() => navigation?.navigate('Notifications')} style={styles.rightBtn}>
         <MaterialIcon name="notifications" size={26} color="#fff" />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
   );
 }

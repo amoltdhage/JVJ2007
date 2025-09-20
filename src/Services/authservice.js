@@ -37,7 +37,7 @@ export default function AuthenticationService() {
         createdAt: new Date().toISOString(),
         isPaid: false,
         isAllowAnother: false,
-        attending: true,
+        attending: "",
       };
       await addCollection('users', uid, responseData);
       await userCredential.user.sendEmailVerification();

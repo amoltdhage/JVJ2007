@@ -26,7 +26,7 @@ export default function DatePickerComponent({ styles, form, onChange, errors }) 
         mode="date"
         open={dobPickerOpen}
         date={form.dob || new Date(1990, 0, 1)}
-        minimumDate={new Date(1950, 0, 1)}
+        minimumDate={new Date(1988, 0, 1)}
         maximumDate={new Date(1992, 11, 31)}
         locale="en-GB"
         onConfirm={date => {

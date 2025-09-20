@@ -1,6 +1,26 @@
+import { formatRegId } from "../Services/FormatRegnId";
 import { EVENT_INFO } from "../utils/utils";
 
 export const invitePdf = ({ form, children, auth }) => {
+
+const createdAt = form?.createdAt?.seconds 
+  ? form?.createdAt?.seconds * 1000 
+  : form?.createdAt;
+
+const dateObj = new Date(createdAt);
+
+// Format date as DD/MM/YYYY (you can switch to locale if needed)
+const datePart = dateObj.toLocaleDateString("en-GB"); // → 10/05/2025
+
+// Format time with uppercase AM/PM
+const timePart = dateObj
+  .toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })
+  .replace(/am|pm/, (match) => match.toUpperCase());
+
+// Final string
+const formattedDateTime = `${datePart} at ${timePart}`;
+
+
   const dobFormatted = form.dob
     ? new Date(form.dob).toLocaleDateString('en-GB')
     : '-';
@@ -77,14 +97,29 @@ export const invitePdf = ({ form, children, auth }) => {
       margin-top: 4px;
       font-style: italic;
     }
-    ul.children-list {
+        ul.children-list {
       padding-left: 20px;
       margin-top: 6px;
       color: #444;
       list-style-type: disc;
+      padding-left: 0;
+      margin-top: 6px;
+      color: #444;
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
     }
     ul.children-list li {
-      margin-bottom: 4px;
+     margin-bottom: 4px;
+      display: "flex",
+      flex-direction: "row",
+      justify-content: "space-between"
+      display: inline-block;
+      background: #f1f1f1;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 14px;
     }
     .footer-note {
       margin-top: 24px;
@@ -123,10 +158,8 @@ export const invitePdf = ({ form, children, auth }) => {
 
     <div class="section">
       <div class="label">Registration ID</div>
-      <div class="field">${auth?.user}</div>
-      <div class="small">Registered at: ${new Date(
-        form?.createdAt,
-      ).toLocaleString()}</div>
+      <div class="field">${formatRegId(auth?.user, form)}</div>
+      <div class="small">Registered at: ${formattedDateTime}</div>
     </div>
 
     <div class="section">
@@ -165,7 +198,7 @@ export const invitePdf = ({ form, children, auth }) => {
     <div class="bottom-footer">
       <p>Thank you for registering! See you soon at the event.</p>
      <p>Visit us: 
-  <a href="#" onclick="event.preventDefault();" style="color:#002b5c; text-decoration:none; cursor:default;">
+  <a href="https://www.jamod.in" style="color:#002b5c; text-decoration:none; cursor:default;">
     https://www.jamod.in
   </a>
 </p>
