@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import ProfileScreen from '../screens/Authenticated/ProfileScreen';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import HomeStackScreen from './HomeStack';
-import ChatScreen from '../screens/Authenticated/ChatScreen';
+import GroupChatScreen from '../screens/Authenticated/GroupChatScreen';
 const Tab = createBottomTabNavigator();
 
 export default function BottomTabs() {
@@ -45,7 +45,7 @@ export default function BottomTabs() {
     >
       {/* <Tab.Screen name="Home" component={HomeScreen} /> */}
       <Tab.Screen name="Home" component={HomeStackScreen} />
-      <Tab.Screen name="Chat" component={ChatScreen} />
+      <Tab.Screen name="Chat" component={GroupChatScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );

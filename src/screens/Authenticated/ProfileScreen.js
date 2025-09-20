@@ -15,7 +15,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {
   fetchCollection,
   updateCollection,
-} from '../Services/firestoreServices';
+} from '../../Services/firestoreServices';
 import { useSelector } from 'react-redux';
 import { useLoading } from '../../../LoadingContext';
 import SplashScreen from '../SplashScreen';
@@ -136,8 +136,6 @@ const ProfileScreen = ({ navigation }) => {
     );
   }, [userDetail]);
 
-  console.log('user: ', userDetail);
-
   const getUserData = async id => {
     try {
       startLoading();
@@ -154,7 +152,7 @@ const ProfileScreen = ({ navigation }) => {
   const pickImage = async () => {
     const options = {
       mediaType: 'photo',
-      quality: 1,
+      quality: 0.8,
       selectionLimit: 1,
       // maxWidth: 512,
       // maxHeight: 512,

@@ -59,7 +59,6 @@ export default function AuthenticationService() {
         email,
         password,
       );
-      console.log('user: ', userCredential);
       if (!userCredential?.user?.emailVerified) {
         await auth().signOut();
         Alert.alert(
