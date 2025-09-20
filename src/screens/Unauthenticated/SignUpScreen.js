@@ -98,8 +98,7 @@ const SignUpScreen = ({ navigation }) => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardShouldPersistTaps="handled"
-      showsVerticalScrollIndicator={false}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : -30}  
       style={{ flex: 1 }}
     >
       <ScrollView contentContainerStyle={styles.container}>
@@ -163,6 +162,7 @@ const SignUpScreen = ({ navigation }) => {
               placeholderTextColor="#999"
               value={form.password}
               onChangeText={text => handleChange('password', text)}
+              maxLength={15}
             />
             <TouchableOpacity onPress={() => setSecureText(!secureText)}>
               <MaterialIcon
@@ -188,6 +188,7 @@ const SignUpScreen = ({ navigation }) => {
               placeholderTextColor="#999"
               value={form.confirmPassword}
               onChangeText={text => handleChange('confirmPassword', text)}
+              maxLength={15}
             />
             <TouchableOpacity
               onPress={() => setSecureConfirmText(!secureConfirmText)}
@@ -238,7 +239,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#121212',
     alignItems: 'center',
     paddingVertical: 30,
-    paddingHorizontal: 20,
+    paddingHorizontal: 20
   },
   title: {
     fontSize: 28,

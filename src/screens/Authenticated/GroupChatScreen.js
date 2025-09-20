@@ -9,7 +9,6 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
-  Image,
 } from 'react-native';
 import { useSelector } from 'react-redux';
 import {
@@ -145,6 +144,7 @@ export default function GroupChatScreen() {
 
   const handleEdit = async () => {
     if (!editText.trim() || !editingMessage) return;
+    if(editingMessage.text.trim() !== editText.trim())
     await editMessage(groupId, editingMessage.id, editText.trim());
     setEditingMessage(null);
     setEditText('');
@@ -293,6 +293,7 @@ export default function GroupChatScreen() {
                 value={text}
                 onChangeText={setText}
                 placeholder="Type a message..."
+                placeholderTextColor={"gray"}
               />
               <TouchableOpacity onPress={handleSend} style={styles.sendButton}>
                 <Text style={{ color: '#fff' }}>Send</Text>

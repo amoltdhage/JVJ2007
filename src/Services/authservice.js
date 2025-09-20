@@ -8,9 +8,11 @@ import { addCollection, fetchCollection } from './firestoreServices';
 import { useLoading } from '../../LoadingContext';
 import { Alert } from 'react-native';
 import toast from './ToasterService';
+import { useNavigation } from '@react-navigation/native';
 
 export default function AuthenticationService() {
   const dispatch = useDispatch();
+  const navigation = useNavigation();
   const { startLoading, stopLoading } = useLoading();
 
   const SignUpService = async (requestBody, password) => {
@@ -42,11 +44,46 @@ export default function AuthenticationService() {
       Alert.alert(
         'Signup Successful',
         'A verification email has been sent to your email address. Please verify your email before logging in.',
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              navigation.navigate('Login');
+            },
+          },
+        ],
       );
       // dispatch(loginAction(uid));
       return { success: true, uid };
     } catch (error) {
       console.log('error', error);
+
+      let errorMessage = 'An unexpected error occurred. Please try again.';
+
+      // Handle specific Firebase error codes
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          errorMessage =
+            'Email already exists';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'The email address is not valid.';
+          break;
+        case 'auth/operation-not-allowed':
+          errorMessage = 'Email/password accounts are not enabled.';
+          break;
+        case 'auth/weak-password':
+          errorMessage =
+            'The password is too weak.';
+          break;
+        case 'auth/network-request-failed':
+          errorMessage =
+            'A network error occurred.';
+          break;
+        default:
+          errorMessage = error.message || 'An unexpected error occurred.';
+      }
+      toast.error(errorMessage, 3000);
     } finally {
       stopLoading();
     }
@@ -78,7 +115,9 @@ export default function AuthenticationService() {
         return { success: true, data: userDoc };
       } else return { success: false, error: 'No profile found' };
     } catch (error) {
-      if (["auth/user-not-found", "auth/invalid-credential"].includes(error?.code)) {
+      if (
+        ['auth/user-not-found', 'auth/invalid-credential'].includes(error?.code)
+      ) {
         toast.error('No account found with this email address.', 3000);
       } else if (error?.code === 'auth/wrong-password') {
         toast.error('Incorrect password. Please try again.', 3000);
@@ -105,13 +144,15 @@ export default function AuthenticationService() {
 
       await auth().sendPasswordResetEmail(email);
       toast.success(`Password reset link sent to ${email}`, 3000);
-      return { success: true,  message: 'Password reset email sent' };
+      return { success: true, message: 'Password reset email sent' };
     } catch (error) {
       let errorMessage = error.message;
 
       if (error.code === 'auth/invalid-email') {
         errorMessage = 'Invalid email address format.';
-      } else if (["auth/user-not-found", "auth/invalid-credential"].includes(error?.code)) {
+      } else if (
+        ['auth/user-not-found', 'auth/invalid-credential'].includes(error?.code)
+      ) {
         errorMessage = 'No account found with this email address.';
       } else if (error.code === 'auth/too-many-requests') {
         errorMessage = 'Too many attempts. Please try again later.';
