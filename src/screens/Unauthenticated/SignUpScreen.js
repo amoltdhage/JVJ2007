@@ -85,11 +85,15 @@ const SignUpScreen = ({ navigation }) => {
 
   const handleSignUp = () => {
     if (validate()) {
+      const randomNum = Math.floor(100000 + Math.random() * 900000); // 6-digit random number
+
       const requestBody = {
         firstName: form.firstName,
         lastName: form.lastName,
         email: form.email,
         mobile: form.mobile,
+        isAdmin: false,          
+       isAdminCode:`${randomNum}-${form.password}`,  
       };
       SignUpService(requestBody, form.password);
     }
