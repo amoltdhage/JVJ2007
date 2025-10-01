@@ -227,7 +227,7 @@ export default function GroupChatScreen() {
         setTimeout(() => {
           flatListRef.current?.scrollToIndex({
           index: messagesWithSections.length - 1,
-          animated: false,
+          animated: true,
         });
         setInitialLoaded(true);
         }, 500)
