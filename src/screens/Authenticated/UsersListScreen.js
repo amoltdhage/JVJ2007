@@ -9,20 +9,19 @@ import {
   TouchableOpacity,
   TextInput,
   Alert,
-  Share,
-  ScrollView,
   Image,
   Modal,
   Dimensions,
   StatusBar,
+  Platform,
+  PermissionsAndroid,
 } from 'react-native';
-import { useSelector } from 'react-redux';
 import { firestore } from '../../Services/firebase';
-import XLSX from 'xlsx';
 import RNFS from 'react-native-fs';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import Header from '../../components/Header';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import ExcelJS from 'exceljs';
 
 const { width, height } = Dimensions.get('window');
 
@@ -102,18 +101,60 @@ const UsersListScreen = ({ navigation }) => {
     setFilteredUsers(filtered);
   };
 
+  const requestStoragePermission = async () => {
+    if (Platform.OS === 'android' && Platform.Version < 33) {
+      // Android < 13
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        {
+          title: 'Storage Permission Required',
+          message:
+            'This app needs access to your storage to download Excel files',
+          buttonPositive: 'OK',
+        },
+      );
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
+    }
+    return true; // Android 13+ handles via MediaStore
+  };
+
   const exportExcel = async () => {
     try {
+      const hasPermission = await requestStoragePermission();
+      if (!hasPermission) {
+        Alert.alert(
+          'Permission Denied',
+          'Cannot export file without storage permission',
+        );
+        return;
+      }
+
       if (filteredUsers.length === 0) {
         Alert.alert('No Data', 'There are no attendees to export');
         return null;
       }
 
-      const dataForExcel = [];
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Attendees');
+
+      // Add header row
+      worksheet.columns = [
+        { header: 'SrNo', key: 'SrNo', width: 6 },
+        { header: 'Type', key: 'Type', width: 12 },
+        { header: 'Full Name', key: 'FullName', width: 25 },
+        { header: 'Email', key: 'Email', width: 25 },
+        { header: 'Mobile', key: 'Mobile', width: 15 },
+        { header: 'Gender', key: 'Gender', width: 10 },
+        { header: 'Village', key: 'Village', width: 15 },
+        { header: 'Total Persons', key: 'TotalPersons', width: 15 },
+        { header: 'Children', key: 'Children', width: 35 },
+        { header: 'Comments', key: 'Comments', width: 30 },
+      ];
+
       let srNo = 1;
 
       filteredUsers.forEach(parent => {
-        dataForExcel.push({
+        worksheet.addRow({
           SrNo: srNo++,
           Type: 'Parent',
           FullName: parent.fullName || '',
@@ -130,7 +171,7 @@ const UsersListScreen = ({ navigation }) => {
 
         if (parent.users && parent.users.attending === true) {
           const sub = parent.users;
-          dataForExcel.push({
+          worksheet.addRow({
             SrNo: srNo++,
             Type: 'Sub User',
             FullName: sub.fullName || '',
@@ -147,109 +188,18 @@ const UsersListScreen = ({ navigation }) => {
         }
       });
 
-      const ws = XLSX.utils.json_to_sheet(dataForExcel);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Attendees');
-      const wbout = XLSX.write(wb, { type: 'binary', bookType: 'xlsx' });
-      const path = RNFS.DownloadDirectoryPath + '/attendees.xlsx';
-      await RNFS.writeFile(path, wbout, 'ascii');
+      const randomInt = Math.floor(Math.random() * 10000) + 1;
+      const path = `${RNFS.DownloadDirectoryPath}/attendees-${randomInt}.xlsx`;
+
+      // Write Excel to file
+      const buffer = await workbook.xlsx.writeBuffer();
+      await RNFS.writeFile(path, buffer.toString('base64'), 'base64');
+
       Alert.alert('✅ Success', `Excel file exported successfully!`);
       return path;
     } catch (e) {
       console.error(e);
       Alert.alert('❌ Error', 'Failed to export Excel file');
-    }
-  };
-
-  const exportPDF = async () => {
-    try {
-      if (filteredUsers.length === 0) {
-        Alert.alert('No Data', 'There are no attendees to export');
-        return null;
-      }
-
-      let htmlContent = `
-        <html>
-        <head>
-          <style>
-            body { font-family: Arial, sans-serif; margin: 20px; }
-            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-            th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-            th { background-color: #002b5c; color: white; }
-            h1 { text-align: center; color: #002b5c; margin-bottom: 30px; }
-            .header { background-color: #f8f9fa; padding: 20px; text-align: center; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h1>🎉 Event Attendees List</h1>
-            <p>Generated on ${new Date().toLocaleDateString()}</p>
-          </div>
-          <table>
-            <tr>
-              <th>SrNo</th>
-              <th>Type</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Mobile</th>
-              <th>Gender</th>
-              <th>Village</th>
-              <th>Total Persons</th>
-              <th>Children</th>
-            </tr>
-      `;
-
-      let srNo = 1;
-      filteredUsers.forEach(parent => {
-        htmlContent += `
-          <tr>
-            <td>${srNo++}</td>
-            <td>👤 Parent</td>
-            <td>${parent.fullName || ''}</td>
-            <td>${parent.email || ''}</td>
-            <td>${parent.mobile || ''}</td>
-            <td>${parent.gender || ''}</td>
-            <td>${parent.village || ''}</td>
-            <td>${parent.totalPersons || 0}</td>
-            <td>${(parent.children || [])
-              .map(c => `${c.name} (${c.age})`)
-              .join(', ')}</td>
-          </tr>
-        `;
-
-        if (parent.users && parent.users.attending === true) {
-          const sub = parent.users;
-          htmlContent += `
-            <tr>
-              <td>${srNo++}</td>
-              <td>👥 Sub User</td>
-              <td>${sub.fullName || ''}</td>
-              <td>${sub.email || ''}</td>
-              <td>${sub.mobile || ''}</td>
-              <td>${sub.gender || ''}</td>
-              <td>${sub.village || ''}</td>
-              <td>${sub.totalPersons || 0}</td>
-              <td>${(sub.children || [])
-                .map(c => `${c.name} (${c.age})`)
-                .join(', ')}</td>
-            </tr>
-          `;
-        }
-      });
-
-      htmlContent += `</table></body></html>`;
-
-      const file = await RNHTMLtoPDF.convert({
-        html: htmlContent,
-        fileName: 'attendees_list',
-        directory: 'Downloads',
-      });
-
-      Alert.alert('✅ Success', 'PDF exported successfully!');
-      return file.filePath;
-    } catch (e) {
-      console.error(e);
-      Alert.alert('❌ Error', 'Failed to export PDF');
     }
   };
 
@@ -485,10 +435,10 @@ const UsersListScreen = ({ navigation }) => {
             <Text style={styles.exportButtonText}>Export Excel</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.exportButton} onPress={exportPDF}>
+          {/* <TouchableOpacity style={styles.exportButton} onPress={exportPDF}>
             <Icon name="picture-as-pdf" size={22} color="#fff" />
             <Text style={styles.exportButtonText}>Export PDF</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
           <TouchableOpacity style={styles.exportButton} onPress={fetchUsers}>
             <Icon name="refresh" size={22} color="#fff" />
@@ -590,7 +540,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
   },
   exportButton: {
-    // flexDirection: 'row',
+    flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#007bff',
     paddingHorizontal: 15,

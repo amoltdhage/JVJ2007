@@ -64,7 +64,8 @@ export default function BottomTabs() {
       <Tab.Screen name="Home" component={HomeStackScreen} />
       <Tab.Screen name="Chat" component={GroupChatScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
-      {userDetail?.email?.toLowerCase() === 'amoltd11@gmail.com' ? (
+      {userDetail?.email?.toLowerCase() === 'nishantjain951@gmail.com' ||
+      userDetail?.email?.toLowerCase() === 'amoltd11@gmail.com' ? (
         <Tab.Screen name="Attendees" component={UsersListScreen} />
       ) : null}
     </Tab.Navigator>
