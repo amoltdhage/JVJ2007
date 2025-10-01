@@ -128,7 +128,6 @@ const UsersListScreen = ({ navigation }) => {
         );
         return;
       }
-
       if (filteredUsers.length === 0) {
         Alert.alert('No Data', 'There are no attendees to export');
         return null;
