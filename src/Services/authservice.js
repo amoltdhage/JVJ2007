@@ -192,7 +192,6 @@ export default function AuthenticationService() {
     try {
       await auth().signOut();
       dispatch(logoutAction());
-      console.log(message || 'User signed out!');
     } catch (error) {
       console.error('Sign out error:', error);
     } finally {

@@ -15,7 +15,6 @@ export const useGroupMessages = (groupId) => {
       .onSnapshot((querySnapshot) => {
         const msgs = querySnapshot.docs.map((doc) => {
           const data = doc.data();
-          console.log("data: ", data)
           return {
             ...data,
             edited: data.edited || false,

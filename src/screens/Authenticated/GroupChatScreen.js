@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'; 
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -35,8 +35,8 @@ const getSectionLabel = timestamp => {
     typeof timestamp === 'number'
       ? new Date(timestamp * 1000)
       : timestamp.seconds
-      ? new Date(timestamp.seconds * 1000)
-      : new Date(timestamp);
+        ? new Date(timestamp.seconds * 1000)
+        : new Date(timestamp);
   const today = new Date();
   const yesterday = new Date();
   yesterday.setDate(today.getDate() - 1);
@@ -111,6 +111,7 @@ export default function GroupChatScreen() {
   const editInputRef = useRef(null);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [initialLoaded, setInitialLoaded] = useState(false);
 
   // Store all users for profile images
   const [allUsers, setAllUsers] = useState({});
@@ -159,15 +160,12 @@ export default function GroupChatScreen() {
       setLoading(false);
     }
   };
+    const messagesWithSections = prepareMessagesWithSections(messages);
 
-  // Scroll to bottom when messages change
+  // After messages are fetched initially
   useEffect(() => {
-    if (flatListRef.current && messages.length > 0) {
-      setTimeout(() => {
-        flatListRef.current.scrollToEnd({ animated: true });
-      }, 100);
-    }
-  }, [messages]);
+    scrollToBottom(messagesWithSections)
+  }, [messagesWithSections, initialLoaded]);
 
   // Clear timer on unmount
   useEffect(() => {
@@ -180,6 +178,10 @@ export default function GroupChatScreen() {
     if (!text.trim() || !groupId) return;
     await sendMessage(groupId, userData, text.trim());
     setText('');
+
+    setTimeout(() => {
+      flatListRef.current?.scrollToEnd({ animated: true });
+    }, 100);
   };
 
   const handleEdit = async () => {
@@ -219,6 +221,27 @@ export default function GroupChatScreen() {
     setEditText('');
   };
 
+  const scrollToBottom = () => {
+    if (!initialLoaded && messagesWithSections.length > 0) {
+      try {
+        setTimeout(() => {
+          flatListRef.current?.scrollToIndex({
+          index: messagesWithSections.length - 1,
+          animated: false,
+        });
+        setInitialLoaded(true);
+        }, 500)
+      } catch (e) {
+        // fallback if not measured yet
+        setTimeout(() => {
+          flatListRef.current?.scrollToEnd({ animated: true });
+        setInitialLoaded(true);
+        }, 500)
+      }
+    }
+  };
+
+
   const renderItem = ({ item }) => {
     if (item.type === 'section') {
       return (
@@ -244,10 +267,10 @@ export default function GroupChatScreen() {
     // Extract initials for fallback
     const initials = item.senderName
       ? item.senderName
-          .split(' ')
-          .map(part => part[0])
-          .join('')
-          .toUpperCase()
+        .split(' ')
+        .map(part => part[0])
+        .join('')
+        .toUpperCase()
       : 'U';
 
     return (
@@ -330,8 +353,6 @@ export default function GroupChatScreen() {
     );
   };
 
-  const messagesWithSections = prepareMessagesWithSections(messages);
-
   if (loading) {
     return (
       <>
@@ -358,20 +379,16 @@ export default function GroupChatScreen() {
           style={{ flex: 1 }}
           onPress={() => setShowOptions(null)}
         >
-          <View style={styles.container}>
-            <FlatList
-              ref={flatListRef}
-              data={messagesWithSections}
-              renderItem={renderItem}
-              keyExtractor={item => item.id}
-              contentContainerStyle={{ paddingVertical: 10 }}
-              onContentSizeChange={() => {
-                if (flatListRef.current && messages.length > 0) {
-                  flatListRef.current.scrollToEnd({ animated: true });
-                }
-              }}
-            />
-          </View>
+          <FlatList
+            ref={flatListRef}
+            data={messagesWithSections}
+            renderItem={renderItem}
+            keyExtractor={item => item.id}
+            contentContainerStyle={{ paddingVertical: 10 }}
+            style={styles.container}
+            onContentSizeChange={() => scrollToBottom}
+            onLayout={() => scrollToBottom}
+          />
         </TouchableOpacity>
 
         {editingMessage ? (
@@ -448,8 +465,8 @@ const styles = StyleSheet.create({
   messageContainer: { padding: 8, borderRadius: 8, maxWidth: '75%', marginBottom: 2 },
   myMessage: { backgroundColor: '#0b4180ff', borderTopRightRadius: 2, marginRight: 5 },
   otherMessage: { backgroundColor: '#2f545fff', borderTopLeftRadius: 2, marginLeft: 5 },
-  senderName: { fontSize: 12, fontWeight: '600', color: '#667781', marginBottom: 2, marginLeft: 6 },
-  profileImage: { width: 32, height: 32, borderRadius: 16, marginRight: 6 },
+  senderName: { fontSize: 12, fontWeight: '600', color: '#667781', marginBottom: 2 },
+  profileImage: { width: 25, height: 25, borderRadius: 16, marginRight: 2 },
   myMessageText: { color: '#faf3f3ff', fontSize: 15 },
   otherMessageText: { color: '#fff', fontSize: 15 },
   messageFooter: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 2 },
@@ -468,7 +485,7 @@ const styles = StyleSheet.create({
   editSendButton: { backgroundColor: '#0078fe', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 8, marginRight: 8 },
   senderContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 4 },
   editCancelButton: { backgroundColor: '#666', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 8 },
-  
+
   // Modal styles
   modalBackground: {
     flex: 1,
@@ -641,14 +658,14 @@ const styles = StyleSheet.create({
 //     }
 //   };
 
-//   // Scroll to bottom when messages change
-//   useEffect(() => {
-//     if (flatListRef.current && messages.length > 0) {
-//       setTimeout(() => {
-//         flatListRef.current.scrollToEnd({ animated: true });
-//       }, 100);
-//     }
-//   }, [messages]);
+// // Scroll to bottom when messages change
+// useEffect(() => {
+//   if (flatListRef.current && messages.length > 0) {
+//     setTimeout(() => {
+//       flatListRef.current.scrollToEnd({ animated: true });
+//     }, 100);
+//   }
+// }, [messages]);
 
 //   const handleSend = async () => {
 //     if (!text.trim() || !groupId) return;
@@ -790,11 +807,11 @@ const styles = StyleSheet.create({
 //             renderItem={renderItem}
 //             keyExtractor={item => item.id}
 //             contentContainerStyle={{ paddingVertical: 10 }}
-//             onContentSizeChange={() => {
-//               if (flatListRef.current && messages.length > 0) {
-//                 flatListRef.current.scrollToEnd({ animated: true });
-//               }
-//             }}
+// onContentSizeChange={() => {
+//   if (flatListRef.current && messages.length > 0) {
+//     flatListRef.current.scrollToEnd({ animated: true });
+//   }
+// }}
 //           />
 
 //           {editingMessage ? (

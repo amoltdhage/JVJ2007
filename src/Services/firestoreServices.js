@@ -42,9 +42,6 @@ export const ensureUserInGroup = async userId => {
       const members = groupDoc.members || [];
       if (!members.includes(userId)) {
         await groupRef.update({ members: [...members, userId] });
-        console.log("Added user to members: ", members);
-      } else {
-        console.log("User already a member");
       }
     }
 

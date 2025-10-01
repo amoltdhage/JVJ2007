@@ -88,8 +88,8 @@ const SignUpScreen = ({ navigation }) => {
       const randomNum = Math.floor(100000 + Math.random() * 900000); // 6-digit random number
 
       const requestBody = {
-        firstName: form.firstName,
-        lastName: form.lastName,
+        firstName: form.firstName?.trim(),
+        lastName: form.lastName?.trim(),
         email: form.email,
         mobile: form.mobile,
         isAdmin: false,          
