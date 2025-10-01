@@ -1,5 +1,5 @@
 // UsersListScreen.js - WITH PROPER REDUX HANDLING
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -15,12 +15,12 @@ import {
   Modal,
   Dimensions,
   StatusBar,
-} from "react-native";
+} from 'react-native';
 import { useSelector } from 'react-redux';
 import { firestore } from '../../Services/firebase';
-import XLSX from "xlsx";
-import RNFS from "react-native-fs";
-import RNHTMLtoPDF from "react-native-html-to-pdf";
+import XLSX from 'xlsx';
+import RNFS from 'react-native-fs';
+import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import Header from '../../components/Header';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
@@ -30,7 +30,7 @@ const UsersListScreen = ({ navigation }) => {
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchText, setSearchText] = useState("");
+  const [searchText, setSearchText] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -39,27 +39,26 @@ const UsersListScreen = ({ navigation }) => {
   const fetchUsers = async () => {
     try {
       setRefreshing(true);
-      console.log("🟡 Fetching users with attending: true...");
-      
+      console.log('🟡 Fetching users with attending: true...');
+
       const querySnapshot = await firestore()
         .collection('users')
         .where('attending', '==', true)
         .get();
 
-      console.log("🟡 Attending users found:", querySnapshot.size);
+      console.log('🟡 Attending users found:', querySnapshot.size);
 
       const data = [];
-      querySnapshot.forEach((doc) => {
+      querySnapshot.forEach(doc => {
         const userData = doc.data();
         data.push({ id: doc.id, ...userData });
       });
-      
+
       setUsers(data);
       setFilteredUsers(data);
-      
     } catch (err) {
-      console.error("🔴 Error fetching users:", err);
-      Alert.alert("Error", `Failed to load users: ${err.message}`);
+      console.error('🔴 Error fetching users:', err);
+      Alert.alert('Error', `Failed to load users: ${err.message}`);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -68,7 +67,7 @@ const UsersListScreen = ({ navigation }) => {
 
   useEffect(() => {
     fetchUsers();
-  }, [])
+  }, []);
 
   // Function to open full screen image modal
   const openImageModal = (profileImage, fullName) => {
@@ -86,18 +85,19 @@ const UsersListScreen = ({ navigation }) => {
     setSelectedUserName('');
   };
 
-  const handleSearch = (text) => {
+  const handleSearch = text => {
     setSearchText(text);
     if (!text) {
       setFilteredUsers(users);
       return;
     }
 
-    const filtered = users.filter((u) =>
-      (u.fullName || "").toLowerCase().includes(text.toLowerCase()) ||
-      (u.email || "").toLowerCase().includes(text.toLowerCase()) ||
-      (u.mobile || "").includes(text) ||
-      (u.village || "").toLowerCase().includes(text.toLowerCase())
+    const filtered = users.filter(
+      u =>
+        (u.fullName || '').toLowerCase().includes(text.toLowerCase()) ||
+        (u.email || '').toLowerCase().includes(text.toLowerCase()) ||
+        (u.mobile || '').includes(text) ||
+        (u.village || '').toLowerCase().includes(text.toLowerCase()),
     );
     setFilteredUsers(filtered);
   };
@@ -105,62 +105,66 @@ const UsersListScreen = ({ navigation }) => {
   const exportExcel = async () => {
     try {
       if (filteredUsers.length === 0) {
-        Alert.alert("No Data", "There are no attendees to export");
+        Alert.alert('No Data', 'There are no attendees to export');
         return null;
       }
 
       const dataForExcel = [];
       let srNo = 1;
 
-      filteredUsers.forEach((parent) => {
+      filteredUsers.forEach(parent => {
         dataForExcel.push({
           SrNo: srNo++,
-          Type: "Parent",
-          FullName: parent.fullName || "",
-          Email: parent.email || "",
-          Mobile: parent.mobile || "",
-          Gender: parent.gender || "",
-          Village: parent.village || "",
+          Type: 'Parent',
+          FullName: parent.fullName || '',
+          Email: parent.email || '',
+          Mobile: parent.mobile || '',
+          Gender: parent.gender || '',
+          Village: parent.village || '',
           TotalPersons: parent.totalPersons || 0,
-          Children: (parent.children || []).map((c) => `${c.name} (${c.age})`).join(", "),
-          Comments: parent.comments || "",
+          Children: (parent.children || [])
+            .map(c => `${c.name} (${c.age})`)
+            .join(', '),
+          Comments: parent.comments || '',
         });
 
         if (parent.users && parent.users.attending === true) {
           const sub = parent.users;
           dataForExcel.push({
             SrNo: srNo++,
-            Type: "Sub User",
-            FullName: sub.fullName || "",
-            Email: sub.email || "",
-            Mobile: sub.mobile || "",
-            Gender: sub.gender || "",
-            Village: sub.village || "",
+            Type: 'Sub User',
+            FullName: sub.fullName || '',
+            Email: sub.email || '',
+            Mobile: sub.mobile || '',
+            Gender: sub.gender || '',
+            Village: sub.village || '',
             TotalPersons: sub.totalPersons || 0,
-            Children: (sub.children || []).map((c) => `${c.name} (${c.age})`).join(", "),
-            Comments: sub.comments || "",
+            Children: (sub.children || [])
+              .map(c => `${c.name} (${c.age})`)
+              .join(', '),
+            Comments: sub.comments || '',
           });
         }
       });
 
       const ws = XLSX.utils.json_to_sheet(dataForExcel);
       const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Attendees");
-      const wbout = XLSX.write(wb, { type: "binary", bookType: "xlsx" });
-      const path = RNFS.DownloadDirectoryPath + "/attendees.xlsx";
-      await RNFS.writeFile(path, wbout, "ascii");
-      Alert.alert("✅ Success", `Excel file exported successfully!`);
+      XLSX.utils.book_append_sheet(wb, ws, 'Attendees');
+      const wbout = XLSX.write(wb, { type: 'binary', bookType: 'xlsx' });
+      const path = RNFS.DownloadDirectoryPath + '/attendees.xlsx';
+      await RNFS.writeFile(path, wbout, 'ascii');
+      Alert.alert('✅ Success', `Excel file exported successfully!`);
       return path;
     } catch (e) {
       console.error(e);
-      Alert.alert("❌ Error", "Failed to export Excel file");
+      Alert.alert('❌ Error', 'Failed to export Excel file');
     }
   };
 
   const exportPDF = async () => {
     try {
       if (filteredUsers.length === 0) {
-        Alert.alert("No Data", "There are no attendees to export");
+        Alert.alert('No Data', 'There are no attendees to export');
         return null;
       }
 
@@ -196,18 +200,20 @@ const UsersListScreen = ({ navigation }) => {
       `;
 
       let srNo = 1;
-      filteredUsers.forEach((parent) => {
+      filteredUsers.forEach(parent => {
         htmlContent += `
           <tr>
             <td>${srNo++}</td>
             <td>👤 Parent</td>
-            <td>${parent.fullName || ""}</td>
-            <td>${parent.email || ""}</td>
-            <td>${parent.mobile || ""}</td>
-            <td>${parent.gender || ""}</td>
-            <td>${parent.village || ""}</td>
+            <td>${parent.fullName || ''}</td>
+            <td>${parent.email || ''}</td>
+            <td>${parent.mobile || ''}</td>
+            <td>${parent.gender || ''}</td>
+            <td>${parent.village || ''}</td>
             <td>${parent.totalPersons || 0}</td>
-            <td>${(parent.children || []).map((c) => `${c.name} (${c.age})`).join(", ")}</td>
+            <td>${(parent.children || [])
+              .map(c => `${c.name} (${c.age})`)
+              .join(', ')}</td>
           </tr>
         `;
 
@@ -217,13 +223,15 @@ const UsersListScreen = ({ navigation }) => {
             <tr>
               <td>${srNo++}</td>
               <td>👥 Sub User</td>
-              <td>${sub.fullName || ""}</td>
-              <td>${sub.email || ""}</td>
-              <td>${sub.mobile || ""}</td>
-              <td>${sub.gender || ""}</td>
-              <td>${sub.village || ""}</td>
+              <td>${sub.fullName || ''}</td>
+              <td>${sub.email || ''}</td>
+              <td>${sub.mobile || ''}</td>
+              <td>${sub.gender || ''}</td>
+              <td>${sub.village || ''}</td>
               <td>${sub.totalPersons || 0}</td>
-              <td>${(sub.children || []).map((c) => `${c.name} (${c.age})`).join(", ")}</td>
+              <td>${(sub.children || [])
+                .map(c => `${c.name} (${c.age})`)
+                .join(', ')}</td>
             </tr>
           `;
         }
@@ -233,19 +241,19 @@ const UsersListScreen = ({ navigation }) => {
 
       const file = await RNHTMLtoPDF.convert({
         html: htmlContent,
-        fileName: "attendees_list",
-        directory: "Downloads",
+        fileName: 'attendees_list',
+        directory: 'Downloads',
       });
 
-      Alert.alert("✅ Success", "PDF exported successfully!");
+      Alert.alert('✅ Success', 'PDF exported successfully!');
       return file.filePath;
     } catch (e) {
       console.error(e);
-      Alert.alert("❌ Error", "Failed to export PDF");
+      Alert.alert('❌ Error', 'Failed to export PDF');
     }
   };
 
-  const renderChildren = (children) => {
+  const renderChildren = children => {
     if (!children || children.length === 0) return null;
     return (
       <View style={styles.childrenContainer}>
@@ -260,9 +268,9 @@ const UsersListScreen = ({ navigation }) => {
     );
   };
 
-  const renderNestedUser = (nested) => {
+  const renderNestedUser = nested => {
     if (!nested || nested.attending !== true) return null;
-    
+
     return (
       <View style={styles.nestedCard}>
         <View style={styles.nestedHeader}>
@@ -273,8 +281,12 @@ const UsersListScreen = ({ navigation }) => {
           <Text style={styles.nestedText}>📛 {nested.fullName}</Text>
           <Text style={styles.nestedText}>📞 {nested.mobile}</Text>
           <Text style={styles.nestedText}>👤 {nested.gender}</Text>
-          <Text style={styles.nestedText}>🏠 {nested.village || "Not specified"}</Text>
-          <Text style={styles.nestedText}>👥 Total: {nested.totalPersons || 1} person(s)</Text>
+          <Text style={styles.nestedText}>
+            🏠 {nested.village || 'Not specified'}
+          </Text>
+          <Text style={styles.nestedText}>
+            👥 Total: {nested.totalPersons || 1} person(s)
+          </Text>
         </View>
         {renderChildren(nested.children)}
       </View>
@@ -282,18 +294,20 @@ const UsersListScreen = ({ navigation }) => {
   };
 
   // Function to render profile image or avatar
-  const renderProfileImage = (user) => {
+  const renderProfileImage = user => {
     if (user.profileImage) {
-      const imageSource = user.profileImage.startsWith('data:image/') 
+      const imageSource = user.profileImage.startsWith('data:image/')
         ? { uri: user.profileImage }
         : { uri: user.profileImage };
-      
+
       return (
-        <TouchableOpacity onPress={() => openImageModal(user.profileImage, user.fullName)}>
-          <Image 
-            source={imageSource} 
+        <TouchableOpacity
+          onPress={() => openImageModal(user.profileImage, user.fullName)}
+        >
+          <Image
+            source={imageSource}
             style={styles.profileImage}
-            onError={() => console.log("Error loading profile image")}
+            onError={() => console.log('Error loading profile image')}
           />
         </TouchableOpacity>
       );
@@ -301,7 +315,7 @@ const UsersListScreen = ({ navigation }) => {
       return (
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>
-            {user.fullName ? user.fullName.charAt(0).toUpperCase() : "U"}
+            {user.fullName ? user.fullName.charAt(0).toUpperCase() : 'U'}
           </Text>
         </View>
       );
@@ -309,16 +323,15 @@ const UsersListScreen = ({ navigation }) => {
   };
 
   const renderItem = ({ item, index }) => (
-    <View style={[
-      styles.card,
-      index % 2 === 0 ? styles.cardEven : styles.cardOdd
-    ]}>
+    <View
+      style={[styles.card, index % 2 === 0 ? styles.cardEven : styles.cardOdd]}
+    >
       <View style={styles.cardHeader}>
         {renderProfileImage(item)}
         <View style={styles.headerContent}>
-          <Text style={styles.name}>{item.fullName || "No Name"}</Text>
-          <Text style={styles.email}>{item.email || "No email"}</Text>
-          <Text style={styles.mobile}>{item.mobile || "No mobile"}</Text>
+          <Text style={styles.name}>{item.fullName || 'No Name'}</Text>
+          <Text style={styles.email}>{item.email || 'No email'}</Text>
+          <Text style={styles.mobile}>{item.mobile || 'No mobile'}</Text>
         </View>
         <View style={styles.badge}>
           <Text style={styles.badgeText}>👤 Main</Text>
@@ -328,20 +341,26 @@ const UsersListScreen = ({ navigation }) => {
       <View style={styles.detailsGrid}>
         <View style={styles.detailItem}>
           <Icon name="wc" size={16} color="#666" />
-          <Text style={styles.detailText}>{item.gender || "Not specified"}</Text>
+          <Text style={styles.detailText}>
+            {item.gender || 'Not specified'}
+          </Text>
         </View>
         <View style={styles.detailItem}>
           <Icon name="location-on" size={16} color="#666" />
-          <Text style={styles.detailText}>{item.village || "Not specified"}</Text>
+          <Text style={styles.detailText}>
+            {item.village || 'Not specified'}
+          </Text>
         </View>
         <View style={styles.detailItem}>
           <Icon name="group" size={16} color="#666" />
-          <Text style={styles.detailText}>{item.totalPersons || 1} person(s)</Text>
+          <Text style={styles.detailText}>
+            {item.totalPersons || 1} person(s)
+          </Text>
         </View>
         <View style={styles.detailItem}>
           <Icon name="cake" size={16} color="#666" />
           <Text style={styles.detailText}>
-            {item.dob ? new Date(item.dob).toLocaleDateString() : "DOB not set"}
+            {item.dob ? new Date(item.dob).toLocaleDateString() : 'DOB not set'}
           </Text>
         </View>
       </View>
@@ -362,12 +381,12 @@ const UsersListScreen = ({ navigation }) => {
     <View style={styles.emptyContainer}>
       <Icon name="people-outline" size={80} color="#ccc" />
       <Text style={styles.emptyTitle}>
-        {users.length === 0 ? "No Attendees Yet" : "No Matching Results"}
+        {users.length === 0 ? 'No Attendees Yet' : 'No Matching Results'}
       </Text>
       <Text style={styles.emptySubtitle}>
-        {users.length === 0 
-          ? "When users register as attending, they will appear here." 
-          : "Try adjusting your search terms."}
+        {users.length === 0
+          ? 'When users register as attending, they will appear here.'
+          : 'Try adjusting your search terms.'}
       </Text>
       <TouchableOpacity style={styles.refreshButton} onPress={fetchUsers}>
         <Icon name="refresh" size={20} color="#fff" />
@@ -385,9 +404,12 @@ const UsersListScreen = ({ navigation }) => {
       statusBarTranslucent={true}
       onRequestClose={closeImageModal}
     >
-      <StatusBar backgroundColor="rgba(0, 0, 0, 0.95)" barStyle="light-content" />
+      <StatusBar
+        backgroundColor="rgba(0, 0, 0, 0.95)"
+        barStyle="light-content"
+      />
       <View style={styles.fullScreenModal}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.fullScreenCloseButton}
           onPress={closeImageModal}
         >
@@ -402,29 +424,31 @@ const UsersListScreen = ({ navigation }) => {
 
         <View style={styles.fullScreenImageContainer}>
           {selectedImage ? (
-            <Image 
-              source={{ 
-                uri: selectedImage.startsWith('data:image/') 
-                  ? selectedImage 
-                  : selectedImage 
+            <Image
+              source={{
+                uri: selectedImage.startsWith('data:image/')
+                  ? selectedImage
+                  : selectedImage,
               }}
               style={styles.fullScreenImage}
               resizeMode="contain"
               onError={() => {
-                Alert.alert("Error", "Failed to load image");
+                Alert.alert('Error', 'Failed to load image');
                 closeImageModal();
               }}
             />
           ) : (
             <View style={styles.fullScreenNoImage}>
               <Icon name="image-not-supported" size={80} color="#ccc" />
-              <Text style={styles.fullScreenNoImageText}>No image available</Text>
+              <Text style={styles.fullScreenNoImageText}>
+                No image available
+              </Text>
             </View>
           )}
         </View>
 
         <View style={styles.fullScreenControls}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.fullScreenControlButton}
             onPress={closeImageModal}
           >
@@ -451,7 +475,7 @@ const UsersListScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Header title="Attendees" navigation={navigation} />
-      
+
       {/* TEMPORARY: Always show buttons for testing */}
       <View style={styles.adminContainer}>
         <Text style={styles.adminTitle}>👑 Admin Tools</Text>
@@ -460,12 +484,12 @@ const UsersListScreen = ({ navigation }) => {
             <Icon name="description" size={22} color="#fff" />
             <Text style={styles.exportButtonText}>Export Excel</Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity style={styles.exportButton} onPress={exportPDF}>
             <Icon name="picture-as-pdf" size={22} color="#fff" />
             <Text style={styles.exportButtonText}>Export PDF</Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity style={styles.exportButton} onPress={fetchUsers}>
             <Icon name="refresh" size={22} color="#fff" />
             <Text style={styles.exportButtonText}>Refresh List</Text>
@@ -511,7 +535,7 @@ const UsersListScreen = ({ navigation }) => {
       {/* Attendees List */}
       <FlatList
         data={filteredUsers}
-        keyExtractor={(item) => item.id || Math.random().toString()}
+        keyExtractor={item => item.id || Math.random().toString()}
         renderItem={renderItem}
         ListEmptyComponent={renderEmptyComponent}
         contentContainerStyle={styles.listContent}
@@ -572,7 +596,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 10,
     borderRadius: 20,
-    width: "auto",
+    width: 'auto',
     justifyContent: 'center',
   },
   exportButtonText: {

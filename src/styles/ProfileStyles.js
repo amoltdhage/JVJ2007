@@ -122,6 +122,13 @@ export const ProfileStyles = StyleSheet.create({
     height: 100,
     borderRadius: 50,
   },
+   profileImageLoader: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    alignItems: "center",
+    justifyContent: "center"
+  },
   profilePlaceholder: {
     width: 100,
     height: 100,

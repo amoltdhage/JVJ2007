@@ -10,6 +10,7 @@ import {
   Image,
   Modal,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {
@@ -84,6 +85,7 @@ const ProfileScreen = ({ navigation }) => {
   const [profileImage, setProfileImage] = useState(null);
   const [userInitial, setUserInitial] = useState('A');
   const [isImageExpanded, setIsImageExpanded] = useState(false);
+  const [imageLoader, setImageLoader] = useState(false);
 
   const sectionIcons = {
     'My Profile': 'person',
@@ -168,8 +170,7 @@ const ProfileScreen = ({ navigation }) => {
 
         // Show the selected image immediately
         setProfileImage(base64Image);
-
-        startLoading();
+        setImageLoader(true);
         try {
           // Save to Firestore as base64
           await updateCollection('users', auth.user, {
@@ -182,13 +183,13 @@ const ProfileScreen = ({ navigation }) => {
           console.error('Error updating profile image:', err);
           Alert.alert('Error', 'Failed to update profile image');
         } finally {
-          stopLoading();
+          setImageLoader(false);
         }
       }
     } catch (error) {
       console.error('Error picking image:', error);
       Alert.alert('Error', 'Failed to select image');
-      stopLoading();
+      setImageLoader(false);
     }
   };
 
@@ -207,11 +208,20 @@ const ProfileScreen = ({ navigation }) => {
           style: 'destructive',
         },
       ],
-      { cancelable: true }
+      { cancelable: true },
     );
   };
 
-  if (isLoading) return <SplashScreen />;
+  if (isLoading)
+    return (
+      <View style={styles.loadingContainer}>
+        <Header title="Profile" navigation={navigation} />
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color="#002b5c" />
+          <Text style={styles.loadingText}>Loading Profile Data...</Text>
+        </View>
+      </View>
+    );
 
   return (
     <>
@@ -238,7 +248,11 @@ const ProfileScreen = ({ navigation }) => {
         contentContainerStyle={{ paddingTop: 20, paddingBottom: 30 }}
       >
         <View style={styles.profileImageContainer}>
-          {profileImage ? (
+          {imageLoader ? (
+            <View style={styles.profileImageLoader}>
+              <ActivityIndicator size="large" color="#002b5c" />
+            </View>
+          ) : profileImage ? (
             <TouchableOpacity onPress={() => setIsImageExpanded(true)}>
               <Image
                 source={{ uri: profileImage }}
@@ -268,13 +282,15 @@ const ProfileScreen = ({ navigation }) => {
         >
           {renderKeyValue(profileData.contactDetails)}
         </ProfileSection>
-        
+
         {/* Logout Button */}
-        <TouchableOpacity 
-          style={styles.logoutButton} 
-          onPress={handleLogout}
-        >
-          <MaterialIcons name="logout" size={20} color="#fff" style={{ marginRight: 10 }} />
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <MaterialIcons
+            name="logout"
+            size={20}
+            color="#fff"
+            style={{ marginRight: 10 }}
+          />
           <Text style={styles.logoutButtonText}>Logout</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -300,10 +316,24 @@ const styles = {
     fontSize: 16,
     fontWeight: '600',
   },
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: '#f8f9fa',
+  },
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 15,
+    fontSize: 16,
+    color: '#666',
+    fontFamily: 'System',
+  },
 };
 
 export default ProfileScreen;
-
 
 // import React, { useEffect, useState } from 'react';
 // import {
@@ -507,25 +537,25 @@ export default ProfileScreen;
 //       maxWidth: 800, // Limit dimensions to reduce base64 size
 //       maxHeight: 800,
 //     };
-    
+
 //     try {
 //       const result = await launchImageLibrary(options);
 //       if (result.assets && result.assets.length > 0) {
 //         const selectedImageUri = result.assets[0].uri;
-        
+
 //         // Show the selected image immediately for better UX
 //         setProfileImage(selectedImageUri);
-        
+
 //         // Convert to base64 in the background
 //         startLoading();
 //         try {
 //           const base64Image = await convertImageToBase64(selectedImageUri);
-          
+
 //           // Save to Firestore
 //           await updateCollection('users', auth.user, {
 //             profileImage: base64Image,
 //           });
-          
+
 //           // Update local state with base64 image
 //           setProfileImage(base64Image);
 //           setUserDetail(prev => ({ ...prev, profileImage: base64Image }));
@@ -542,7 +572,7 @@ export default ProfileScreen;
 //       stopLoading();
 //     }
 //   };
-  
+
 //   const handleLogout = () => {
 //     Alert.alert(
 //       'Logout',
@@ -619,10 +649,10 @@ export default ProfileScreen;
 //         >
 //           {renderKeyValue(profileData.contactDetails)}
 //         </ProfileSection>
-        
+
 //         {/* Logout Button */}
-//         <TouchableOpacity 
-//           style={styles.logoutButton} 
+//         <TouchableOpacity
+//           style={styles.logoutButton}
 //           onPress={handleLogout}
 //         >
 //           <MaterialIcons name="logout" size={20} color="#fff" style={{ marginRight: 10 }} />
