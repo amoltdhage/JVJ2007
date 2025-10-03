@@ -20,7 +20,7 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {auth?.isAuthenticated ? (
-          <Stack.Screen name="Home" component={DrawerNav} />
+          <Stack.Screen name="Drawer" component={DrawerNav} />
         ) : (
           <>
             <Stack.Screen name="Auth" component={LoginScreen} />

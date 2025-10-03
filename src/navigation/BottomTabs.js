@@ -25,12 +25,12 @@ export default function BottomTabs() {
 
   return (
     <Tab.Navigator
-      initialRouteName="Home"
+      initialRouteName="HomeStack"
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, size }) => {
           let iconName;
 
-          if (route.name === 'Home') iconName = 'home';
+          if (route.name === 'HomeStack') iconName = 'home';
           else if (route.name === 'Attendees') iconName = 'people';
           else if (route.name === 'Chat') iconName = 'chat';
           else if (route.name === 'Profile') iconName = 'person';
@@ -60,8 +60,7 @@ export default function BottomTabs() {
         headerShown: false,
       })}
     >
-      {/* <Tab.Screen name="Home" component={HomeScreen} /> */}
-      <Tab.Screen name="Home" component={HomeStackScreen} />
+      <Tab.Screen name="HomeStack" component={HomeStackScreen} />
       <Tab.Screen name="Chat" component={GroupChatScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>

@@ -37,7 +37,7 @@ export default function AuthenticationService() {
         createdAt: new Date().toISOString(),
         isPaid: false,
         isAllowAnother: false,
-        attending: "",
+        attending: '',
       };
       await addCollection('users', uid, responseData);
       await userCredential.user.sendEmailVerification();
@@ -63,8 +63,7 @@ export default function AuthenticationService() {
       // Handle specific Firebase error codes
       switch (error.code) {
         case 'auth/email-already-in-use':
-          errorMessage =
-            'Email already exists';
+          errorMessage = 'Email already exists';
           break;
         case 'auth/invalid-email':
           errorMessage = 'The email address is not valid.';
@@ -73,12 +72,10 @@ export default function AuthenticationService() {
           errorMessage = 'Email/password accounts are not enabled.';
           break;
         case 'auth/weak-password':
-          errorMessage =
-            'The password is too weak.';
+          errorMessage = 'The password is too weak.';
           break;
         case 'auth/network-request-failed':
-          errorMessage =
-            'A network error occurred.';
+          errorMessage = 'A network error occurred.';
           break;
         default:
           errorMessage = error.message || 'An unexpected error occurred.';
@@ -115,10 +112,10 @@ export default function AuthenticationService() {
         return { success: true, data: userDoc };
       } else return { success: false, error: 'No profile found' };
     } catch (error) {
-      if (
-        ['auth/user-not-found', 'auth/invalid-credential'].includes(error?.code)
-      ) {
+      if (error?.code === 'auth/user-not-found') {
         toast.error('No account found with this email address.', 3000);
+      } else if (error?.code === 'auth/invalid-credential') {
+        toast.error('Invalid email or password.', 3000);
       } else if (error?.code === 'auth/wrong-password') {
         toast.error('Incorrect password. Please try again.', 3000);
       } else if (error?.code === 'auth/invalid-email') {

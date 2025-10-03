@@ -4,6 +4,7 @@ import BottomTabs from './BottomTabs';
 import { useSelector } from 'react-redux';
 import { fetchCollection } from '../Services/firestoreServices';
 import UsersListScreen from '../screens/Authenticated/UsersListScreen';
+import ApprovalCertificate from '../screens/Authenticated/ApprovalCertificate';
 
 const Drawer = createDrawerNavigator();
 
@@ -43,6 +44,7 @@ export default function DrawerNav() {
       userDetail?.email?.toLowerCase() === 'amoltd11@gmail.com' ? (
         <Drawer.Screen name="Attendees" component={UsersListScreen} />
       ) : null}
+      <Drawer.Screen name="Approval Certificate" component={ApprovalCertificate} />
     </Drawer.Navigator>
   );
 }
