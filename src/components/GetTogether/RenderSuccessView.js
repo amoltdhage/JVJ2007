@@ -5,7 +5,6 @@ import { invitePdf } from '../invitePdf';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import FileViewer from 'react-native-file-viewer';
 import Share from 'react-native-share';
-import { useNavigation } from '@react-navigation/native';
 import { updateCollection } from '../../Services/firestoreServices';
 import { EVENT_INFO } from '../../utils/utils';
 import NotAttendingComponent from './NotAttendingComponent';
@@ -17,7 +16,6 @@ export default function RenderSuccessView({
   getUserData,
   setOpenAllowForm,
 }) {
-  const navigation = useNavigation();
   const auth = useSelector(state => state.auth);
 
   const resetForm = async () => {
@@ -32,7 +30,9 @@ export default function RenderSuccessView({
 
   const handleDownloadPDF = async (type, user) => {
     let pdfPath = null;
-    const childrenData = user ? userDetail?.users?.children : userDetail?.children;
+    const childrenData = user
+      ? userDetail?.users?.children
+      : userDetail?.children;
 
     const htmlContent = await invitePdf({
       EVENT_INFO,
@@ -49,7 +49,7 @@ export default function RenderSuccessView({
           fileName: 'JVJ-reconnect-invite',
           base64: false,
         });
-        console.log("file: ", file)
+        console.log('file: ', file);
         pdfPath = file.filePath;
         return file.filePath;
       } catch (error) {
@@ -61,7 +61,7 @@ export default function RenderSuccessView({
     const handleViewPDF = async () => {
       try {
         let path = pdfPath || (await generatePDF());
-        console.log("path: ", path)
+        console.log('path: ', path);
         await FileViewer.open(path, { showOpenWithDialog: true });
       } catch (error) {
         Alert.alert('Error', 'Could not open PDF');
@@ -87,16 +87,11 @@ export default function RenderSuccessView({
     else await handleSharePDF();
   };
 
-
   if (userDetail?.attending === true) {
     return (
       <>
         <ScrollView contentContainerStyle={styles.container}>
-          <Header
-            title={EVENT_INFO.subtitle}
-            navigation={navigation}
-            showBack
-          />
+          <Header title={EVENT_INFO.subtitle} showBack={true} />
           <View style={styles.successInner}>
             <View style={styles.memoryCard}>
               <Text style={styles.bigTitle}>{EVENT_INFO.titleBig}</Text>
@@ -111,7 +106,7 @@ export default function RenderSuccessView({
               <View style={styles.regBox}>
                 <Text style={styles.regIdLabel}>Registration ID</Text>
                 <Text style={styles.regId}>
-                  {auth?.user ? formatRegId(auth.user, userDetail) : "N/A"}
+                  {auth?.user ? formatRegId(auth.user, userDetail) : 'N/A'}
                 </Text>
               </View>
 
@@ -209,13 +204,15 @@ export default function RenderSuccessView({
                   <Text style={styles.detail}>{EVENT_INFO.timeLine}</Text>
                   <Text style={styles.detail}>{EVENT_INFO.placeLine}</Text>
                 </View>
-                
+
                 <View style={styles.regBox}>
-                <Text style={styles.regIdLabel}>Registration ID</Text>
-                <Text style={styles.regId}>
-                  {auth?.user ? formatRegId(auth.user, userDetail?.users) : "N/A"}
-                </Text>
-              </View>
+                  <Text style={styles.regIdLabel}>Registration ID</Text>
+                  <Text style={styles.regId}>
+                    {auth?.user
+                      ? formatRegId(auth.user, userDetail?.users)
+                      : 'N/A'}
+                  </Text>
+                </View>
 
                 <View style={{ marginTop: 12 }}>
                   <Text style={styles.infoText}>

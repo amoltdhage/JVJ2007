@@ -18,7 +18,7 @@ import {
 } from 'react-native';
 import { firestore } from '../../Services/firebase';
 import RNFS from 'react-native-fs';
-import RNHTMLtoPDF from 'react-native-html-to-pdf';
+// import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import Header from '../../components/Header';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import ExcelJS from 'exceljs';
@@ -412,7 +412,7 @@ const UsersListScreen = ({ navigation }) => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <Header title="Attendees" navigation={navigation} />
+        <Header title="Attendees" />
         <View style={styles.center}>
           <ActivityIndicator size="large" color="#002b5c" />
           <Text style={styles.loadingText}>Loading attendees...</Text>
@@ -423,7 +423,7 @@ const UsersListScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Header title="Attendees" navigation={navigation} />
+      <Header title="Attendees" />
 
       {/* TEMPORARY: Always show buttons for testing */}
       <View style={styles.adminContainer}>

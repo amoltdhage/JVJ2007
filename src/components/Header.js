@@ -1,9 +1,11 @@
 // src/components/Header.js
+import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 
-export default function Header({ title, navigation, showBack }) {
+export default function Header({ title, showBack = false }) {
+  const navigation = useNavigation();
   return (
     <View style={styles.header}>
       {/* Left: Drawer Menu OR Back Button */}

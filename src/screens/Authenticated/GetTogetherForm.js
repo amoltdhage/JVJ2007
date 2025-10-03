@@ -247,7 +247,7 @@ const GetTogetherForm = ({ navigation }) => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={{ flex: 1 }}
     >
-      <Header title="Get-Together Form" navigation={navigation} showBack />
+      <Header title="Get-Together Form" showBack />
       <ScrollView
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"

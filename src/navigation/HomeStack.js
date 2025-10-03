@@ -2,6 +2,7 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from '../screens/Authenticated/HomeScreen';
 import GetTogetherForm from '../screens/Authenticated/GetTogetherForm';
+import Header from '../components/Header';
 
 const HomeStack = createNativeStackNavigator();
 

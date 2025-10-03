@@ -2,13 +2,11 @@ import React from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import Header from '../../components/Header';
 import { EVENT_INFO } from '../../utils/utils';
-import { useNavigation } from '@react-navigation/native';
 
 export default function NotAttendingComponent({ resetForm, styles }) {
-  const navigation = useNavigation();
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Header title={EVENT_INFO.subtitle} navigation={navigation} showBack />
+      <Header title={EVENT_INFO.subtitle} showBack />
       <View style={styles.successInner}>
         <View style={styles.memoryCard}>
           <Text style={styles.bigTitle}>{EVENT_INFO.titleBig}</Text>
