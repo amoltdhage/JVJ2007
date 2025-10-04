@@ -674,12 +674,12 @@ const styles = StyleSheet.create({
   modalImage: {
     width: 250,
     height: 250,
-    borderRadius: 100,
+    borderRadius: 200,
   },
   // modalImage: {
   //   width: "100%",
   //   height: "100%",
-  //   borderRadius: 12,
+  //   borderRadius: 100,
   // },
   modalProfileImage: {
     width: 200,

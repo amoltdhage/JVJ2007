@@ -19,10 +19,9 @@ import {
 } from '../../Services/firestoreServices';
 import { useSelector } from 'react-redux';
 import { useLoading } from '../../../LoadingContext';
-import SplashScreen from '../SplashScreen';
 import Header from '../../components/Header';
 import { ProfileStyles } from '../../styles/ProfileStyles';
-import { launchImageLibrary } from 'react-native-image-picker';
+import ImagePicker from 'react-native-image-crop-picker';
 import AuthenticationService from '../../Services/authservice';
 
 if (Platform.OS === 'android') {
@@ -68,7 +67,7 @@ const ProfileSection = ({
 
 const renderKeyValue = data =>
   Object.entries(data).map(([key, value]) => {
-    if (!value) return null; // skip empty
+    if (!value) return null;
     return (
       <View style={styles.dataRow} key={key}>
         <Text style={styles.dataLabel}>{key}</Text>
@@ -77,7 +76,7 @@ const renderKeyValue = data =>
     );
   });
 
-const ProfileScreen = ({ navigation }) => {
+const ProfileScreen = () => {
   const { logout } = AuthenticationService();
   const auth = useSelector(state => state.auth);
   const { isLoading, startLoading, stopLoading } = useLoading();
@@ -151,26 +150,33 @@ const ProfileScreen = ({ navigation }) => {
     }
   };
 
-  // 📌 Updated pickImage to always save Base64
+  // Updated pickImage with circular cropping
   const pickImage = async () => {
-    const options = {
-      mediaType: 'photo',
-      quality: 0.5,
-      selectionLimit: 1,
-      maxWidth: 800,
-      maxHeight: 800,
-      includeBase64: true, // 👈 ensure base64 is included
-    };
-
     try {
-      const result = await launchImageLibrary(options);
-      if (result.assets && result.assets.length > 0) {
-        const selected = result.assets[0];
-        const base64Image = `data:${selected.type};base64,${selected.base64}`;
+      const image = await ImagePicker.openPicker({
+        width: 400,
+        height: 400,
+        cropping: true,
+        cropperCircleOverlay: true, // Circular crop overlay
+        includeBase64: true,
+        compressImageQuality: 0.7,
+        mediaType: 'photo',
+        cropperToolbarTitle: 'Crop Profile Photo',
+        cropperChooseText: 'Done',
+        cropperCancelText: 'Cancel',
+        freeStyleCropEnabled: false, // Lock to square/circle
+        showCropGuidelines: true,
+        hideBottomControls: false,
+        enableRotationGesture: true,
+      });
+
+      if (image && image.data) {
+        const base64Image = `data:${image.mime};base64,${image.data}`;
 
         // Show the selected image immediately
         setProfileImage(base64Image);
         setImageLoader(true);
+
         try {
           // Save to Firestore as base64
           await updateCollection('users', auth.user, {
@@ -179,16 +185,93 @@ const ProfileScreen = ({ navigation }) => {
 
           // Update local state
           setUserDetail(prev => ({ ...prev, profileImage: base64Image }));
+          Alert.alert('Success', 'Profile photo updated successfully');
         } catch (err) {
           console.error('Error updating profile image:', err);
           Alert.alert('Error', 'Failed to update profile image');
+          // Revert to previous image
+          setProfileImage(userDetail?.profileImage);
         } finally {
           setImageLoader(false);
         }
       }
     } catch (error) {
-      console.error('Error picking image:', error);
-      Alert.alert('Error', 'Failed to select image');
+      if (error.code !== 'E_PICKER_CANCELLED') {
+        console.error('Error picking image:', error);
+        Alert.alert('Error', 'Failed to select image');
+      }
+      setImageLoader(false);
+    }
+  };
+
+  // Option to show camera or gallery selection
+  // const showImagePickerOptions = () => {
+  //   Alert.alert(
+  //     'Update Profile Photo',
+  //     'Choose an option',
+  //     [
+  //       {
+  //         text: 'Take Photo',
+  //         onPress: openCamera,
+  //       },
+  //       {
+  //         text: 'Choose from Gallery',
+  //         onPress: pickImage,
+  //       },
+  //       {
+  //         text: 'Cancel',
+  //         style: 'cancel',
+  //       },
+  //     ],
+  //     { cancelable: true },
+  //   );
+  // };
+
+  // Camera option with cropping
+  const openCamera = async () => {
+    try {
+      const image = await ImagePicker.openCamera({
+        width: 400,
+        height: 400,
+        cropping: true,
+        cropperCircleOverlay: true,
+        includeBase64: true,
+        compressImageQuality: 0.7,
+        mediaType: 'photo',
+        cropperToolbarTitle: 'Crop Profile Photo',
+        cropperChooseText: 'Done',
+        cropperCancelText: 'Cancel',
+        freeStyleCropEnabled: false,
+        showCropGuidelines: true,
+        enableRotationGesture: true,
+      });
+
+      if (image && image.data) {
+        const base64Image = `data:${image.mime};base64,${image.data}`;
+
+        setProfileImage(base64Image);
+        setImageLoader(true);
+
+        try {
+          await updateCollection('users', auth.user, {
+            profileImage: base64Image,
+          });
+
+          setUserDetail(prev => ({ ...prev, profileImage: base64Image }));
+          Alert.alert('Success', 'Profile photo updated successfully');
+        } catch (err) {
+          console.error('Error updating profile image:', err);
+          Alert.alert('Error', 'Failed to update profile image');
+          setProfileImage(userDetail?.profileImage);
+        } finally {
+          setImageLoader(false);
+        }
+      }
+    } catch (error) {
+      if (error.code !== 'E_PICKER_CANCELLED') {
+        console.error('Error opening camera:', error);
+        Alert.alert('Error', 'Failed to open camera');
+      }
       setImageLoader(false);
     }
   };
@@ -234,11 +317,19 @@ const ProfileScreen = ({ navigation }) => {
             <MaterialIcons name="close" size={30} color="#fff" />
           </TouchableOpacity>
 
-          <Image
-            source={{ uri: profileImage }}
-            style={styles.expandedImage}
-            resizeMode="contain"
-          />
+          {profileImage ? (
+            <Image
+              source={{ uri: profileImage }}
+              style={styles.expandedImage}
+              resizeMode="contain"
+            />
+          ) : (
+            <View style={[styles.profilePlaceholder, { width: 300, height: 300 }]}>
+              <Text style={[styles.profileInitial, { fontSize: 120 }]}>
+                {userInitial}
+              </Text>
+            </View>
+          )}
         </View>
       </Modal>
 
@@ -268,6 +359,7 @@ const ProfileScreen = ({ navigation }) => {
             <MaterialIcons name="edit" size={20} color="#fff" />
           </TouchableOpacity>
         </View>
+        
         <ProfileSection
           title="My Profile"
           iconName={sectionIcons['My Profile']}
@@ -283,7 +375,6 @@ const ProfileScreen = ({ navigation }) => {
           {renderKeyValue(profileData.contactDetails)}
         </ProfileSection>
 
-        {/* Logout Button */}
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <MaterialIcons
             name="logout"
@@ -298,7 +389,6 @@ const ProfileScreen = ({ navigation }) => {
   );
 };
 
-// Add logout button styles to your ProfileStyles
 const styles = {
   ...ProfileStyles,
   logoutButton: {
