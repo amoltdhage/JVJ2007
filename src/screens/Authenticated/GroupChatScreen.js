@@ -63,10 +63,11 @@ const getSectionLabel = timestamp => {
   });
 };
 
-// Group messages by section
+// Group messages by section - REVERSED for inverted list
 const prepareMessagesWithSections = messages => {
   if (!messages.length) return [];
 
+  // First sort in ascending order (oldest to newest)
   const sortedMessages = [...messages].sort((a, b) => {
     const aTime = a.createdAt.seconds
       ? a.createdAt.seconds * 1000
@@ -74,16 +75,17 @@ const prepareMessagesWithSections = messages => {
     const bTime = b.createdAt.seconds
       ? b.createdAt.seconds * 1000
       : b.createdAt;
-    return aTime - bTime;
+    return aTime - bTime; // Ascending order
   });
 
-  const result = [];
+  // Group messages with sections
+  const grouped = [];
   let currentSection = null;
 
   sortedMessages.forEach(msg => {
     const section = getSectionLabel(msg.createdAt);
     if (section !== currentSection) {
-      result.push({
+      grouped.push({
         id: `section-${section}`,
         type: 'section',
         title: section,
@@ -91,13 +93,14 @@ const prepareMessagesWithSections = messages => {
       });
       currentSection = section;
     }
-    result.push({
+    grouped.push({
       ...msg,
       type: 'message',
     });
   });
 
-  return result;
+  // Now reverse the entire array for inverted list
+  return grouped.reverse();
 };
 
 export default function GroupChatScreen() {
@@ -112,8 +115,8 @@ export default function GroupChatScreen() {
   const editInputRef = useRef(null);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [initialLoaded, setInitialLoaded] = useState(false);
   const [itemData, setItemData] = useState(null);
+  const [messagesWithSections, setMessagesWithSections] = useState([]);
 
   // Store all users for profile images
   const [allUsers, setAllUsers] = useState({});
@@ -162,13 +165,10 @@ export default function GroupChatScreen() {
       setLoading(false);
     }
   };
-  const messagesWithSections = prepareMessagesWithSections(messages);
 
-  // After messages are fetched initially
   useEffect(() => {
-    if (messagesWithSections?.length && !initialLoaded)
-      scrollToBottom(messagesWithSections);
-  }, [messagesWithSections, initialLoaded]);
+    setMessagesWithSections(prepareMessagesWithSections(messages));
+  }, [messages]);
 
   // Clear timer on unmount
   useEffect(() => {
@@ -181,10 +181,6 @@ export default function GroupChatScreen() {
     if (!text.trim() || !groupId) return;
     await sendMessage(groupId, userData, text.trim());
     setText('');
-
-    setTimeout(() => {
-      flatListRef.current?.scrollToEnd({ animated: true });
-    }, 100);
   };
 
   const handleEdit = async () => {
@@ -226,26 +222,6 @@ export default function GroupChatScreen() {
   const cancelEdit = () => {
     setEditingMessage(null);
     setEditText('');
-  };
-
-  const scrollToBottom = () => {
-    if (!initialLoaded && messagesWithSections.length > 0) {
-      try {
-        setTimeout(() => {
-          flatListRef.current?.scrollToIndex({
-            index: messagesWithSections.length - 1,
-            animated: true,
-          });
-          setInitialLoaded(true);
-        }, 500);
-      } catch (e) {
-        // fallback if not measured yet
-        setTimeout(() => {
-          flatListRef.current?.scrollToEnd({ animated: true });
-          setInitialLoaded(true);
-        }, 500);
-      }
-    }
   };
 
   const renderItem = ({ item, index }) => {
@@ -346,9 +322,6 @@ export default function GroupChatScreen() {
           onLongPress={() => {
             if (isMe) {
               setShowOptions(item.id);
-              console.log("index: ", index, messagesWithSections?.length - 1)
-              if (index === messagesWithSections?.length - 1)
-                flatListRef.current?.scrollToIndex({ index, animated: true });
 
               // clear previous timer
               if (hideOptionsTimeout.current)
@@ -415,7 +388,6 @@ export default function GroupChatScreen() {
         keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
         style={{ flex: 1 }}
       >
-        {/* TouchableOpacity to hide options when tapping outside */}
         <TouchableOpacity
           activeOpacity={1}
           style={{ flex: 1 }}
@@ -426,22 +398,14 @@ export default function GroupChatScreen() {
             data={messagesWithSections}
             renderItem={renderItem}
             keyExtractor={item => item.id}
+            inverted
             contentContainerStyle={{ paddingVertical: 10 }}
             style={styles.container}
-            onContentSizeChange={() => {
-              if (messagesWithSections?.length)
-                scrollToBottom(messagesWithSections);
-            }}
-            onLayout={() => {
-              if (messagesWithSections?.length)
-                scrollToBottom(messagesWithSections);
-            }}
-            onScrollToIndexFailed={() => {
-              setTimeout(() => {
-                if (!initialLoaded && messagesWithSections?.length)
-                  scrollToBottom(messagesWithSections);
-              }, 300);
-            }}
+            removeClippedSubviews={Platform.OS === 'android'}
+            maxToRenderPerBatch={10}
+            updateCellsBatchingPeriod={50}
+            initialNumToRender={15}
+            windowSize={10}
           />
         </TouchableOpacity>
 
@@ -461,13 +425,13 @@ export default function GroupChatScreen() {
                 onPress={handleEdit}
                 style={styles.editSendButton}
               >
-                <Text style={{ color: '#fff' }}>Save</Text>
+                <MaterialIcons name="send" size={25} color="#fff" />
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={cancelEdit}
                 style={styles.editCancelButton}
               >
-                <Text style={{ color: '#fff' }}>Cancel</Text>
+                <MaterialIcons name="cancel" size={25} color="#fff" />
               </TouchableOpacity>
             </View>
           </View>
@@ -481,7 +445,6 @@ export default function GroupChatScreen() {
               placeholderTextColor={'gray'}
             />
             <TouchableOpacity onPress={handleSend} style={styles.sendButton}>
-              {/* <Text style={{ color: '#fff' }}>Send</Text> */}
               <MaterialIcons name="send" size={20} color="#fff" />
             </TouchableOpacity>
           </View>
@@ -638,6 +601,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
     fontSize: 15,
     maxHeight: 100,
+    color: "#000"
   },
   sendButton: {
     backgroundColor: '#0078fe',
@@ -664,12 +628,13 @@ const styles = StyleSheet.create({
     fontSize: 15,
     borderWidth: 1,
     borderColor: '#ffd54f',
+    color: "#000"
   },
   editSendButton: {
     backgroundColor: '#0078fe',
     borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
     marginRight: 8,
   },
   senderContainer: {
@@ -680,11 +645,9 @@ const styles = StyleSheet.create({
   editCancelButton: {
     backgroundColor: '#666',
     borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
   },
-
-  // Modal styles
   modalBackground: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.6)',

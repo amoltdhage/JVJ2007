@@ -49,7 +49,6 @@ export default function RenderSuccessView({
           fileName: 'JVJ-reconnect-invite',
           base64: false,
         });
-        console.log('file: ', file);
         pdfPath = file.filePath;
         return file.filePath;
       } catch (error) {
@@ -61,7 +60,6 @@ export default function RenderSuccessView({
     const handleViewPDF = async () => {
       try {
         let path = pdfPath || (await generatePDF());
-        console.log('path: ', path);
         await FileViewer.open(path, { showOpenWithDialog: true });
       } catch (error) {
         Alert.alert('Error', 'Could not open PDF');

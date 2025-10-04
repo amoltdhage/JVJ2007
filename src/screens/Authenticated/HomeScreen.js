@@ -1,12 +1,29 @@
-
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Dimensions,
+  TouchableOpacity,
+  Image,
+} from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import CountdownTimer from '../../components/CountdownTimer'; // adjust path as needed
 import Header from '../../components/Header';
+import ZoomImageModal from '../../components/ZoomImageModal';
 const { width } = Dimensions.get('window');
 
 const HomeScreen = ({ navigation }) => {
+  const images = [
+    {
+      url: '',
+      props: {
+        source: require('../../assets/images/Approval.jpeg'),
+      },
+    },
+  ];
+
   const calculateTimeLeft = () => {
     const targetDate = new Date('2025-10-25T10:00:00');
     const difference = +targetDate - +new Date();
@@ -25,6 +42,7 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -34,24 +52,23 @@ const HomeScreen = ({ navigation }) => {
   }, []);
 
   return (
-      <>
+    <>
       <Header title="Home" />
-
-    <ScrollView contentContainerStyle={styles.container}>
-      {/* Reunion Title Block */}
-      <View style={styles.bannerBox}>
-      <CountdownTimer/>
-        <Text style={styles.bigTitle}>JVJ 2007 - 10th Batch</Text>
-        <Text style={styles.subtitle}>Get Together</Text>
-        <View style={styles.detailBox}>
-          <Text style={styles.detail}>📅 25th October 2025, Saturday</Text>
-          <Text style={styles.detail}>⏰ 10:00 AM - 4:30 PM</Text>
-          <Text style={styles.detail}>📍 Janta Vidyalaya, Jamod</Text>
+      <ScrollView contentContainerStyle={styles.container}>
+        {/* Reunion Title Block */}
+        <View style={styles.bannerBox}>
+          <CountdownTimer />
+          <Text style={styles.bigTitle}>JVJ 2007 - 10th Batch</Text>
+          <Text style={styles.subtitle}>Get Together</Text>
+          <View style={styles.detailBox}>
+            <Text style={styles.detail}>📅 25th October 2025, Saturday</Text>
+            <Text style={styles.detail}>⏰ 10:00 AM - 4:30 PM</Text>
+            <Text style={styles.detail}>📍 Janta Vidyalaya, Jamod</Text>
+          </View>
         </View>
-      </View>
 
-      {/* Memory Quote */}
-      {/* <View style={styles.memoryBox}>
+        {/* Memory Quote */}
+        {/* <View style={styles.memoryBox}>
         <Text style={styles.memoryText}>
           “We didn’t realize we were making memories, we just knew we were having fun.” {"\n"} {"\n"}
           "आपण तेव्हा आठवणी तयार करत होतो, हे तेव्हा कळलंच नाही… {"\n"}
@@ -59,63 +76,81 @@ const HomeScreen = ({ navigation }) => {
         </Text>
       </View> */}
 
-      <View style={styles.memoryCard}>
-        <Text style={styles.memoryQuote}>
-          “We didn’t realize we were making memories, we just knew we were having fun.” {"\n"} {"\n"}
-          "आपण तेव्हा आठवणी तयार करत होतो, हे तेव्हा कळलंच नाही… {"\n"}
-          तेव्हा आपल्याला फक्त एवढंच माहीत होतं-आपण धमाल करत होतो!"
-        </Text>
-      </View>
-
-
-      {/* Announcement Section */}
-      <View style={styles.announcementBox}>
-        <Text style={styles.announcementTitle}>📢 Announcement</Text>
-        <Text style={styles.announcementText}>Our official poster will be shared soon. Stay connected!</Text>
-
-        {/* Get Together Form Section */}
-        <View style={styles.formBox}>
-          <TouchableOpacity style={styles.formButton} onPress={() => navigation.navigate('GetTogetherForm')}>
-            <Text style={styles.formButtonText}>FILL GET-TOGETHER FORM</Text>
-            <Text style={styles.formButtonText}>गेट-टुगेदर फॉर्म भरा</Text>
-          </TouchableOpacity>
+        <View style={styles.memoryCard}>
+          <Text style={styles.memoryQuote}>
+            “We didn’t realize we were making memories, we just knew we were
+            having fun.” {'\n'} {'\n'}
+            "आपण तेव्हा आठवणी तयार करत होतो, हे तेव्हा कळलंच नाही… {'\n'}
+            तेव्हा आपल्याला फक्त एवढंच माहीत होतं-आपण धमाल करत होतो!"
+          </Text>
         </View>
-        <Text style={styles.formTitle}>👆🏻</Text> 
-        <Text style={styles.formTitle}>🎉 Let’s Reconnect!</Text>
-        <Text style={styles.formInfo}>
-          ✍️ चला, पुन्हा भेटीची तयारी करूया!{"\n"}
-          कोण येणार आहे, याची यादी करणं आवश्यक आहे.{"\n"}
-          म्हणूनच हा फॉर्म भरणं गरजेचं आहे –{"\n"}
-          जेणेकरून नियोजन सुरळीत होईल आणि{"\n"}
-          सगळ्यांना सोबत येता येईल! 😊
-        </Text>
-      </View>
 
-      {/* Countdown Timer */}
-      <View style={styles.countdownBox}>
-        <Text style={styles.countdownTitle}>⏳ Countdown to Reunion</Text>
-        <Text style={styles.countdownText}>
-          {timeLeft.days || 0}d {timeLeft.hours || 0}h {timeLeft.minutes || 0}m {timeLeft.seconds || 0}s
-        </Text>
-      </View>
+        {/* Announcement Section */}
+        <View style={styles.announcementBox}>
+          <Text style={styles.announcementTitle}>📢 Announcement</Text>
+          <Text style={styles.announcementText}>
+            Our official poster will be shared soon. Stay connected!
+          </Text>
 
-      {/* Friendship Reminder */}
-      <View style={styles.friendBox}>
-        <Text style={styles.friendText}>💬 Tag your school bestie and let’s make this reunion unforgettable!</Text>
-      </View>
+          {/* Get Together Form Section */}
+          <View style={styles.formBox}>
+            <TouchableOpacity
+              style={styles.formButton}
+              onPress={() => navigation.navigate('GetTogetherForm')}
+            >
+              <Text style={styles.formButtonText}>FILL GET-TOGETHER FORM</Text>
+              <Text style={styles.formButtonText}>गेट-टुगेदर फॉर्म भरा</Text>
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.formTitle}>👆🏻</Text>
+          <Text style={styles.formTitle}>🎉 Let’s Reconnect!</Text>
+          <Text style={styles.formInfo}>
+            ✍️ चला, पुन्हा भेटीची तयारी करूया!{'\n'}
+            कोण येणार आहे, याची यादी करणं आवश्यक आहे.{'\n'}
+            म्हणूनच हा फॉर्म भरणं गरजेचं आहे –{'\n'}
+            जेणेकरून नियोजन सुरळीत होईल आणि{'\n'}
+            सगळ्यांना सोबत येता येईल! 😊
+          </Text>
+        </View>
 
-      {/* Optional Image (Can Replace Later with Poster or School Pic) */}
-      {/* <Image
-        source={require('../assets/reunion_placeholder.png')}
-        style={styles.image}
-        resizeMode="cover"
-      /> */}
+        {/* Countdown Timer */}
+        <View style={styles.countdownBox}>
+          <Text style={styles.countdownTitle}>⏳ Countdown to Reunion</Text>
+          <Text style={styles.countdownText}>
+            {timeLeft.days || 0}d {timeLeft.hours || 0}h {timeLeft.minutes || 0}
+            m {timeLeft.seconds || 0}s
+          </Text>
+        </View>
 
-      <View style={styles.iconBox}>
-        <MaterialIcon name="school" size={100} color="#003366" />
-      </View>
-    </ScrollView>
-      </>
+        {/* Friendship Reminder */}
+        <View style={styles.friendBox}>
+          <Text style={styles.friendText}>
+            💬 Tag your school bestie and let’s make this reunion unforgettable!
+          </Text>
+        </View>
+
+        {/* Optional Image (Can Replace Later with Poster or School Pic) */}
+        <TouchableOpacity onPress={() => setVisible(true)}>
+          <Image
+            source={require('../../assets/images/Approval.jpeg')}
+            style={styles.image}
+            resizeMode="cover"
+          />
+        </TouchableOpacity>
+
+        {visible ? (
+          <ZoomImageModal
+            visible={visible}
+            setVisible={setVisible}
+            images={images}
+          />
+        ) : null}
+
+        <View style={styles.iconBox}>
+          <MaterialIcon name="school" size={100} color="#003366" />
+        </View>
+      </ScrollView>
+    </>
   );
 };
 
@@ -128,26 +163,26 @@ const styles = StyleSheet.create({
   bannerBox: {
     backgroundColor: '#002b5c',
     borderRadius: 12,
-    padding:20,
+    padding: 20,
     alignItems: 'center',
     marginBottom: 1,
   },
   bigTitle: {
-    marginTop:8,
+    marginTop: 8,
     fontSize: 22,
     fontWeight: 'bold',
     color: '#ffffff',
-    textAlign: "center"
+    textAlign: 'center',
   },
   subtitle: {
     fontSize: 14,
     fontWeight: 'bold',
     color: '#cce6ff',
     marginBottom: 10,
-    textAlign: "center"
+    textAlign: 'center',
   },
   detailBox: {
-    alignSelf: "center",
+    alignSelf: 'center',
     marginTop: 10,
     paddingLeft: 5,
   },
@@ -201,8 +236,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#4E342E',
     // marginBottom: 8,
-    marginTop:8,
-    textAlign: "center"
+    marginTop: 8,
+    textAlign: 'center',
   },
   formInfo: {
     fontSize: 16,
@@ -283,9 +318,8 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     textAlign: 'center',
     lineHeight: 24,
-        color: '#003366',
+    color: '#003366',
   },
-
 });
 
 export default HomeScreen;
