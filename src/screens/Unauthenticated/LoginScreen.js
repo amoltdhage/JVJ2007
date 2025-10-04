@@ -230,5 +230,6 @@ const styles = StyleSheet.create({
     color: '#aaa',
     marginTop: 10,
     fontSize: 14,
+    // width: "100%"
   },
 });

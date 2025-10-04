@@ -60,7 +60,7 @@ export default function BottomTabs() {
         headerShown: false,
       })}
     >
-      <Tab.Screen name="HomeStack" component={HomeStackScreen} />
+      <Tab.Screen name="Home" component={HomeStackScreen} />
       <Tab.Screen name="Chat" component={GroupChatScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
