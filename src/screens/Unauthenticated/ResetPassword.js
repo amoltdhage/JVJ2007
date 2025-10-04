@@ -13,10 +13,12 @@ import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
 import { useLoading } from '../../../LoadingContext';
 import AuthenticationService from '../../Services/authservice';
+import { useNavigation } from '@react-navigation/native';
 
-export default function ResetPassword({ navigation }) {
+export default function ResetPassword() {
   const { sendPasswordResetEmail } = AuthenticationService();
   const [form, setForm] = useState({ email: '' });
+  const navigation = useNavigation();
 
   const { isLoading } = useLoading();
 
@@ -44,60 +46,59 @@ export default function ResetPassword({ navigation }) {
 
   const handleSubmit = async () => {
     if (!validate(form)) return;
-    sendPasswordResetEmail(form.email);
+    sendPasswordResetEmail(form.email).then(res => {
+      if (res?.success) navigation.navigate('login');
+    });
   };
 
   return (
-      <ScrollView contentContainerStyle={styles.container}>
-        <StatusBar barStyle="light-content" />
-        <MaterialIcon
-          name="person-add-alt"
-          size={60}
-          color="#00b4db"
-          style={{ marginBottom: 10 }}
-        />
-        <Text style={styles.title}>Reset Password</Text>
+    <ScrollView contentContainerStyle={styles.container}>
+      <StatusBar barStyle="light-content" />
+      <MaterialIcon
+        name="person-add-alt"
+        size={60}
+        color="#00b4db"
+        style={{ marginBottom: 10 }}
+      />
+      <Text style={styles.title}>Reset Password</Text>
 
-        <View style={styles.inputWrapper}>
-          <View style={styles.inputContainer}>
-            <MaterialIcon name="email" size={22} style={styles.icon} />
-            <TextInput
-              placeholder="Email Address"
-              style={styles.input}
-              placeholderTextColor="#999"
-              value={form?.['email']}
-              onChangeText={text => handleChange('email', text)}
-              keyboardType="email-address"
-              maxLength={100}
-            />
-          </View>
-          {errors?.['email'] && (
-            <Text style={styles.errorText}>{errors['email']}</Text>
-          )}
+      <View style={styles.inputWrapper}>
+        <View style={styles.inputContainer}>
+          <MaterialIcon name="email" size={22} style={styles.icon} />
+          <TextInput
+            placeholder="Email Address"
+            style={styles.input}
+            placeholderTextColor="#999"
+            value={form?.['email']}
+            onChangeText={text => handleChange('email', text)}
+            keyboardType="email-address"
+            maxLength={100}
+          />
         </View>
+        {errors?.['email'] && (
+          <Text style={styles.errorText}>{errors['email']}</Text>
+        )}
+      </View>
 
-        {/* Submit Button */}
-        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-          <LinearGradient
-            colors={['#00b4db', '#0083b0']}
-            style={styles.gradient}
-          >
-            {isLoading ? (
-              <ActivityIndicator size="large" color="#f3f6f7ff" />
-            ) : (
-              <Text style={styles.buttonText}>Reset password</Text>
-            )}
-          </LinearGradient>
-        </TouchableOpacity>
+      {/* Submit Button */}
+      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+        <LinearGradient colors={['#00b4db', '#0083b0']} style={styles.gradient}>
+          {isLoading ? (
+            <ActivityIndicator size="large" color="#f3f6f7ff" />
+          ) : (
+            <Text style={styles.buttonText}>Reset password</Text>
+          )}
+        </LinearGradient>
+      </TouchableOpacity>
 
-        {/* Already have account */}
-        <TouchableOpacity onPress={() => navigation.navigate('Auth')}>
-          <Text style={styles.loginText}>
-            Remembered your password?{' '}
-            <Text style={{ color: '#00b4db', fontWeight: 'bold' }}>Login</Text>
-          </Text>
-        </TouchableOpacity>
-      </ScrollView>
+      {/* Already have account */}
+      <TouchableOpacity onPress={() => navigation.navigate('Auth')}>
+        <Text style={styles.loginText}>
+          Remembered your password?{' '}
+          <Text style={{ color: '#00b4db', fontWeight: 'bold' }}>Login</Text>
+        </Text>
+      </TouchableOpacity>
+    </ScrollView>
   );
 }
 
@@ -108,7 +109,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 120,
     paddingHorizontal: 20,
-    height: '100%'
+    height: '100%',
   },
   title: {
     fontSize: 28,

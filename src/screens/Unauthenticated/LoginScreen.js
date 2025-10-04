@@ -142,7 +142,7 @@ const LoginScreen = ({ navigation }) => {
           <Text style={styles.loginText}>
             Forgot your password?{' '}
             <Text style={{ color: '#00b4db', fontWeight: 'bold' }}>
-              Reset Password
+              Reset
             </Text>
           </Text>
         </TouchableOpacity>

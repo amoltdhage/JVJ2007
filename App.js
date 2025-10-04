@@ -23,7 +23,7 @@ export default function App() {
           <Stack.Screen name="Drawer" component={DrawerNav} />
         ) : (
           <>
-            <Stack.Screen name="Auth" component={LoginScreen} />
+            <Stack.Screen name="login" component={LoginScreen} />
             <Stack.Screen name="SignUp" component={SignUpScreen} />
             <Stack.Screen name="ResetPassword" component={ResetPassword} />
           </>

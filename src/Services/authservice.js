@@ -48,7 +48,7 @@ export default function AuthenticationService() {
           {
             text: 'OK',
             onPress: () => {
-              navigation.navigate('Login');
+              navigation.navigate('login');
             },
           },
         ],
