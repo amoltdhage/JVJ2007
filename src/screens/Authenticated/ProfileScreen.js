@@ -23,6 +23,7 @@ import Header from '../../components/Header';
 import { ProfileStyles } from '../../styles/ProfileStyles';
 import ImagePicker from 'react-native-image-crop-picker';
 import AuthenticationService from '../../Services/authservice';
+import FontAwesome from "react-native-vector-icons/FontAwesome"
 
 if (Platform.OS === 'android') {
   UIManager.setLayoutAnimationEnabledExperimental &&
@@ -95,13 +96,13 @@ const ProfileScreen = () => {
     myProfile: {
       Name: 'Amol Dhage',
       DOB: '06/05/1991',
+      Gender: 'Male',
     },
     contactDetails: {
       Email: 'amol@gmail.com',
       Contact: '9890909890',
       'Emergency Contact': '9898989898',
       Country: 'India',
-      Gender: 'Male',
     },
   });
 
@@ -118,16 +119,26 @@ const ProfileScreen = () => {
           ? userDetail?.fullName
           : `${userDetail?.firstName?.trim()} ${userDetail?.lastName?.trim()}`,
         DOB: new Date(userDetail?.dob).toLocaleDateString('en-GB'),
+        Gender: userDetail?.gender
+          ? userDetail.gender.charAt(0).toUpperCase() +
+            userDetail.gender.slice(1)
+          : '-',
+        Payment:
+          userDetail?.isPaid && Number(userDetail?.amount) ? (
+            <Text>
+              <FontAwesome name="rupee" size={14} color="#666" />{Number(userDetail?.amount)}
+            </Text>
+          ) : userDetail?.isPaid ? (
+            <Text style={{ color: 'green', fontWeight: 'bold' }}>Paid</Text>
+          ) : (
+            <Text style={{ color: 'red', fontWeight: 'bold' }}>Pending</Text>
+          ),
       },
       contactDetails: {
         Email: userDetail?.email || '-',
         Contact: userDetail?.mobile || '-',
         Village: userDetail?.village || '-',
         Country: 'India',
-        Gender: userDetail?.gender
-          ? userDetail.gender.charAt(0).toUpperCase() +
-            userDetail.gender.slice(1)
-          : '-',
       },
     };
     setProfileData(newProfileData);
@@ -324,7 +335,9 @@ const ProfileScreen = () => {
               resizeMode="contain"
             />
           ) : (
-            <View style={[styles.profilePlaceholder, { width: 300, height: 300 }]}>
+            <View
+              style={[styles.profilePlaceholder, { width: 300, height: 300 }]}
+            >
               <Text style={[styles.profileInitial, { fontSize: 120 }]}>
                 {userInitial}
               </Text>
@@ -359,7 +372,7 @@ const ProfileScreen = () => {
             <MaterialIcons name="edit" size={20} color="#fff" />
           </TouchableOpacity>
         </View>
-        
+
         <ProfileSection
           title="My Profile"
           iconName={sectionIcons['My Profile']}

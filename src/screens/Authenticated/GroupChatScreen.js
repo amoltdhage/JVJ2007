@@ -517,7 +517,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#e5ddd5',
   },
-  loadingText: { marginTop: 10, color: '#2d677aff', fontSize: 16 },
+  loadingText: {
+    marginTop: 10,
+    color: '#2d677aff',
+    fontSize: 16,
+    width: '100%',
+    textAlign: 'center',
+    justifyContent: 'center',
+  },
   sectionContainer: { alignItems: 'center', marginVertical: 10 },
   sectionHeader: {
     backgroundColor: '#e5ddd5',
@@ -601,7 +608,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
     fontSize: 15,
     maxHeight: 100,
-    color: "#000"
+    color: '#000',
   },
   sendButton: {
     backgroundColor: '#0078fe',
@@ -628,7 +635,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     borderWidth: 1,
     borderColor: '#ffd54f',
-    color: "#000"
+    color: '#000',
   },
   editSendButton: {
     backgroundColor: '#0078fe',

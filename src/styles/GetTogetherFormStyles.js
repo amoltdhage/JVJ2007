@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet } from 'react-native';
 
 export const GetTogetherFormStyles = StyleSheet.create({
   container: {
@@ -86,7 +86,7 @@ export const GetTogetherFormStyles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 10
+    paddingVertical: 10,
   },
   memoryCard: {
     backgroundColor: '#004080',
@@ -153,5 +153,19 @@ export const GetTogetherFormStyles = StyleSheet.create({
     fontWeight: '500',
     marginBottom: 4,
     color: '#333',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#e5ddd5',
+  },
+  loadingText: {
+    marginTop: 10,
+    color: '#2d677aff',
+    fontSize: 16,
+    width: '100%',
+    textAlign: 'center',
+    justifyContent: 'center',
   },
 });

@@ -25,12 +25,12 @@ export default function BottomTabs() {
 
   return (
     <Tab.Navigator
-      initialRouteName="HomeStack"
+      initialRouteName="Home"
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, size }) => {
           let iconName;
 
-          if (route.name === 'HomeStack') iconName = 'home';
+          if (route.name === 'Home') iconName = 'home';
           else if (route.name === 'Attendees') iconName = 'people';
           else if (route.name === 'Chat') iconName = 'chat';
           else if (route.name === 'Profile') iconName = 'person';

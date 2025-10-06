@@ -51,19 +51,20 @@ const LoginScreen = ({ navigation }) => {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : -30}
       style={{ flex: 1 }}
     >
       <ScrollView contentContainerStyle={styles.container}>
         <StatusBar barStyle="light-content" />
 
-        <Text style={styles.title}>JVJ Reconnect</Text>
+        <Text style={[styles.title, { marginTop: 20 }]}>JVJ Reconnect</Text>
         <Text style={styles.title2}>2007 Batch</Text>
         <MaterialIcon
           name="person-outline"
           size={60}
           color="#00b4db"
-          style={{ marginBottom: 10 }}
+          // style={{ marginBottom: 1 }}
         />
 
         <Text style={styles.title}>Login</Text>
@@ -128,24 +129,25 @@ const LoginScreen = ({ navigation }) => {
             )}
           </LinearGradient>
         </TouchableOpacity>
+        <View style={styles.inlineTextContainer}>
+          <Text style={styles.loginText}>
+            Forgot your password?
+            <TouchableOpacity
+              onPress={() => navigation.navigate('ResetPassword')}
+            >
+              <Text style={styles.linkText}>Reset</Text>
+            </TouchableOpacity>
+          </Text>
+        </View>
 
-        {/* SignUp Link */}
-        <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+        <View style={styles.inlineTextContainer}>
           <Text style={styles.loginText}>
-            Don't have an account?{' '}
-            <Text style={{ color: '#00b4db', fontWeight: 'bold' }}>
-              Sign Up
-            </Text>
+            Don’t have an account?
+            <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+              <Text style={styles.linkText}>Sign Up</Text>
+            </TouchableOpacity>
           </Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('ResetPassword')}>
-          <Text style={styles.loginText}>
-            Forgot your password?{' '}
-            <Text style={{ color: '#00b4db', fontWeight: 'bold' }}>
-              Reset
-            </Text>
-          </Text>
-        </TouchableOpacity>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -160,12 +162,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 30,
     paddingHorizontal: 20,
+    width: '100%',
   },
   title: {
     fontSize: 28,
     color: '#00b4db',
     fontWeight: 'bold',
-    // marginBottom: 25,
+    // marginTop: 15,
     textAlign: 'center',
   },
   title2: {
@@ -227,9 +230,23 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   loginText: {
+    width: '100%',
     color: '#aaa',
-    marginTop: 10,
     fontSize: 14,
-    // width: "100%"
+    textAlign: 'center',
+  },
+  inlineTextContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    marginTop: 10,
+  },
+  linkText: {
+    color: '#00b4db',
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginBottom: -4,
+    marginLeft: 8
   },
 });

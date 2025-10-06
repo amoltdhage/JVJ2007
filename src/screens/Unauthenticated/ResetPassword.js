@@ -92,12 +92,14 @@ export default function ResetPassword() {
       </TouchableOpacity>
 
       {/* Already have account */}
-      <TouchableOpacity onPress={() => navigation.navigate('Auth')}>
+      <View style={styles.inlineTextContainer}>
         <Text style={styles.loginText}>
-          Remembered your password?{' '}
-          <Text style={{ color: '#00b4db', fontWeight: 'bold' }}>Login</Text>
+          Password remembered?
+          <TouchableOpacity onPress={() => navigation.navigate('login')}>
+            <Text style={styles.linkText}>Login</Text>
+          </TouchableOpacity>
         </Text>
-      </TouchableOpacity>
+      </View>
     </ScrollView>
   );
 }
@@ -163,8 +165,23 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   loginText: {
+    width: '100%',
     color: '#aaa',
-    marginTop: 10,
     fontSize: 14,
+    textAlign: 'center',
+  },
+  inlineTextContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    marginTop: 10,
+  },
+  linkText: {
+    color: '#00b4db',
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginBottom: -4,
+    marginLeft: 8,
   },
 });

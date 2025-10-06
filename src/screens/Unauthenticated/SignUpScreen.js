@@ -92,8 +92,8 @@ const SignUpScreen = ({ navigation }) => {
         lastName: form.lastName?.trim(),
         email: form.email,
         mobile: form.mobile,
-        isAdmin: false,          
-       isAdminCode:`${randomNum}-${form.password}`,  
+        isAdmin: false,
+        isAdminCode: `${randomNum}-${form.password}`,
       };
       SignUpService(requestBody, form.password);
     }
@@ -102,7 +102,7 @@ const SignUpScreen = ({ navigation }) => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : -30}  
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : -30}
       style={{ flex: 1 }}
     >
       <ScrollView contentContainerStyle={styles.container}>
@@ -224,12 +224,20 @@ const SignUpScreen = ({ navigation }) => {
         </TouchableOpacity>
 
         {/* Already have account */}
-        <TouchableOpacity onPress={() => navigation.navigate('Auth')}>
+        {/* <TouchableOpacity onPress={() => navigation.navigate('login')}>
           <Text style={styles.loginText}>
             Already have an account?{' '}
             <Text style={{ color: '#00b4db', fontWeight: 'bold' }}>Login</Text>
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
+        <View style={styles.inlineTextContainer}>
+          <Text style={styles.loginText}>
+            Already have an account?
+            <TouchableOpacity onPress={() => navigation.navigate('login')}>
+              <Text style={styles.linkText}>Login</Text>
+            </TouchableOpacity>
+          </Text>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -243,7 +251,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#121212',
     alignItems: 'center',
     paddingVertical: 30,
-    paddingHorizontal: 20
+    paddingHorizontal: 20,
   },
   title: {
     fontSize: 28,
@@ -300,5 +308,25 @@ const styles = StyleSheet.create({
     color: '#aaa',
     marginTop: 10,
     fontSize: 14,
+  },
+  loginText: {
+    width: '100%',
+    color: '#aaa',
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  inlineTextContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    marginTop: 10,
+  },
+  linkText: {
+    color: '#00b4db',
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginBottom: -4,
+    marginLeft: 10
   },
 });

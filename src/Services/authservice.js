@@ -189,6 +189,7 @@ export default function AuthenticationService() {
     try {
       await auth().signOut();
       dispatch(logoutAction());
+      if(message) toast.success(message, 3000);
     } catch (error) {
       console.error('Sign out error:', error);
     } finally {

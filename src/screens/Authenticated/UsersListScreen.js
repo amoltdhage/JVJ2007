@@ -22,6 +22,9 @@ import RNFS from 'react-native-fs';
 import Header from '../../components/Header';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import ExcelJS from 'exceljs';
+import { useSelector } from 'react-redux';
+import { fetchCollection } from '../../Services/firestoreServices';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 const { width, height } = Dimensions.get('window');
 
@@ -34,6 +37,18 @@ const UsersListScreen = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedUserName, setSelectedUserName] = useState('');
+
+  const userId = useSelector(state => state.auth?.user);
+  const [userDetail, setUserDetail] = useState(null);
+
+  useEffect(() => {
+    if (userId && !userDetail) getUserDetail(userId);
+  }, [userId]);
+
+  const getUserDetail = async id => {
+    const userData = await fetchCollection('users', id);
+    setUserDetail(userData);
+  };
 
   const fetchUsers = async () => {
     try {
@@ -229,13 +244,30 @@ const UsersListScreen = ({ navigation }) => {
         <View style={styles.nestedContent}>
           <Text style={styles.nestedText}>📛 {nested.fullName}</Text>
           <Text style={styles.nestedText}>📞 {nested.mobile}</Text>
-          <Text style={styles.nestedText}>👤 {nested.gender}</Text>
+          <Text style={styles.nestedText}>
+            👤{' '}
+            {nested.gender
+              ? nested.gender.charAt(0).toUpperCase() + nested.gender.slice(1)
+              : 'Not specified'}
+          </Text>
           <Text style={styles.nestedText}>
             🏠 {nested.village || 'Not specified'}
           </Text>
           <Text style={styles.nestedText}>
             👥 Total: {nested.totalPersons || 1} person(s)
           </Text>
+          <View style={styles.detailItem}>
+          <FontAwesome name="rupee" size={16} color="#666" />
+          <Text
+            style={[
+              styles.detailText,
+              { fontWeight: 'bold' },
+              nested?.isPaid ? { color: 'green' } : { color: 'red' },
+            ]}
+          >
+            {nested?.isPaid ? 'Paid' : 'Pending'}
+          </Text>
+        </View>
         </View>
         {renderChildren(nested.children)}
       </View>
@@ -291,7 +323,9 @@ const UsersListScreen = ({ navigation }) => {
         <View style={styles.detailItem}>
           <Icon name="wc" size={16} color="#666" />
           <Text style={styles.detailText}>
-            {item.gender || 'Not specified'}
+            {item?.gender
+              ? item?.gender.charAt(0).toUpperCase() + item?.gender.slice(1)
+              : 'Not specified'}
           </Text>
         </View>
         <View style={styles.detailItem}>
@@ -312,14 +346,27 @@ const UsersListScreen = ({ navigation }) => {
             {item.dob ? new Date(item.dob).toLocaleDateString() : 'DOB not set'}
           </Text>
         </View>
+        {/** Amount paid or not */}
+        <View style={styles.detailItem}>
+          <FontAwesome name="rupee" size={16} color="#666" />
+          <Text
+            style={[
+              styles.detailText,
+              { fontWeight: 'bold' },
+              item?.isPaid ? { color: 'green' } : { color: 'red' },
+            ]}
+          >
+            {item?.isPaid ? 'Paid' : 'Pending'}
+          </Text>
+        </View>
       </View>
 
-      {item.comments && (
+      {item?.comments ? (
         <View style={styles.commentsSection}>
           <Text style={styles.commentsLabel}>💬 Comments</Text>
           <Text style={styles.commentsText}>{item.comments}</Text>
         </View>
-      )}
+      ) : null}
 
       {renderChildren(item.children)}
       {renderNestedUser(item.users)}
@@ -358,12 +405,12 @@ const UsersListScreen = ({ navigation }) => {
         barStyle="light-content"
       />
       <View style={styles.fullScreenModal}>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.fullScreenCloseButton}
           onPress={closeImageModal}
         >
           <Icon name="close" size={30} color="#fff" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         <View style={styles.fullScreenUserName}>
           <Text style={styles.fullScreenUserNameText}>
@@ -426,41 +473,70 @@ const UsersListScreen = ({ navigation }) => {
       <Header title="Attendees" />
 
       {/* TEMPORARY: Always show buttons for testing */}
-      <View style={styles.adminContainer}>
-        <Text style={styles.adminTitle}>👑 Admin Tools</Text>
-        <View style={styles.adminButtons}>
-          <TouchableOpacity style={styles.exportButton} onPress={exportExcel}>
-            <Icon name="description" size={22} color="#fff" />
-            <Text style={styles.exportButtonText}>Export Excel</Text>
-          </TouchableOpacity>
+      {userDetail?.is_admin ? (
+        <View style={styles.adminContainer}>
+          <Text style={styles.adminTitle}>👑 Admin Tools</Text>
+          <View style={styles.adminButtons}>
+            <TouchableOpacity style={styles.exportButton} onPress={exportExcel}>
+              <Icon name="description" size={22} color="#fff" />
+              <Text style={styles.exportButtonText}>Export Excel</Text>
+            </TouchableOpacity>
 
-          {/* <TouchableOpacity style={styles.exportButton} onPress={exportPDF}>
+            {/* <TouchableOpacity style={styles.exportButton} onPress={exportPDF}>
             <Icon name="picture-as-pdf" size={22} color="#fff" />
             <Text style={styles.exportButtonText}>Export PDF</Text>
           </TouchableOpacity> */}
 
-          <TouchableOpacity style={styles.exportButton} onPress={fetchUsers}>
-            <Icon name="refresh" size={22} color="#fff" />
-            <Text style={styles.exportButtonText}>Refresh List</Text>
-          </TouchableOpacity>
+            <TouchableOpacity style={styles.exportButton} onPress={fetchUsers}>
+              <Icon name="refresh" size={22} color="#fff" />
+              <Text style={styles.exportButtonText}>Refresh List</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      ) : null}
 
       {/* Stats Header */}
       <View style={styles.statsContainer}>
         <View style={styles.statItem}>
           <Text style={styles.statNumber}>{users.length}</Text>
-          <Text style={styles.statLabel}>Total</Text>
-        </View>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{filteredUsers.length}</Text>
-          <Text style={styles.statLabel}>Showing</Text>
+          <Text style={styles.statLabel}>Registered</Text>
         </View>
         <View style={styles.statItem}>
           <Text style={styles.statNumber}>
-            {users.reduce((acc, user) => acc + (user.totalPersons || 1), 0)}
+            {filteredUsers.reduce((acc, user) => {
+              const nestedUsersCount = user?.users ? 1 : 0;
+              return acc + nestedUsersCount;
+            }, 0)}
           </Text>
-          <Text style={styles.statLabel}>People</Text>
+          <Text style={styles.statLabel}>Additional</Text>
+          <Text style={{ fontSize: 12, color: '#666', fontFamily: 'System' }}>
+            Attendees
+          </Text>
+        </View>
+        <View style={styles.statItem}>
+          <Text style={styles.statNumber}>
+            {filteredUsers.reduce((acc, user) => {
+              const childrenCount =
+                (Array.isArray(user?.children) ? user?.children?.length : 0) +
+                (Array.isArray(user?.users?.children)
+                  ? user?.users?.children?.length
+                  : 0);
+              return acc + childrenCount;
+            }, 0)}
+          </Text>
+          <Text style={styles.statLabel}>Children</Text>
+        </View>
+        <View style={styles.statItem}>
+          <Text style={styles.statNumber}>
+            {users.reduce(
+              (acc, user) =>
+                acc +
+                (Number(user.totalPersons) +
+                  Number(user?.users?.totalPersons) || 1),
+              0,
+            )}
+          </Text>
+          <Text style={styles.statLabel}>Total</Text>
         </View>
       </View>
 
@@ -518,6 +594,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
     fontFamily: 'System',
+    width: '100%',
+    textAlign: 'center',
+    justifyContent: 'center',
   },
   // Admin Container
   adminContainer: {
@@ -685,7 +764,7 @@ const styles = StyleSheet.create({
     fontFamily: 'System',
   },
   email: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#666',
     marginBottom: 2,
     fontFamily: 'System',
@@ -866,7 +945,7 @@ const styles = StyleSheet.create({
   },
   fullScreenUserName: {
     position: 'absolute',
-    top: 40,
+    top: 60,
     left: 20,
     zIndex: 1000,
   },
@@ -899,7 +978,7 @@ const styles = StyleSheet.create({
   },
   fullScreenControls: {
     position: 'absolute',
-    bottom: 40,
+    bottom: 100,
     flexDirection: 'row',
   },
   fullScreenControlButton: {

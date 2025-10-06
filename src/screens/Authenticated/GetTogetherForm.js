@@ -7,6 +7,7 @@ import {
   Alert,
   Platform,
   KeyboardAvoidingView,
+  ActivityIndicator,
 } from 'react-native';
 import Header from '../../components/Header';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
@@ -25,7 +26,7 @@ import { useLoading } from '../../../LoadingContext';
 import SplashScreen from '../SplashScreen';
 import AuthenticationService from '../../Services/authservice';
 
-const GetTogetherForm = ({ navigation }) => {
+const GetTogetherForm = () => {
   const { isLoading, startLoading, stopLoading } = useLoading();
   const auth = useSelector(state => state.auth);
   const { logout } = AuthenticationService();
@@ -177,6 +178,7 @@ const GetTogetherForm = ({ navigation }) => {
   };
 
   const handleSubmit = async () => {
+    if(isLoading) return;
     if (!validate()) {
       Alert.alert(
         'Please fix errors',
@@ -184,6 +186,7 @@ const GetTogetherForm = ({ navigation }) => {
       );
       return;
     }
+    startLoading();
 
     if (form.attending === false) {
       // Just show thank-you if no
@@ -225,6 +228,7 @@ const GetTogetherForm = ({ navigation }) => {
     }
     getUserData(auth.user);
     setOpenAllowForm(false);
+    stopLoading();
   };
 
   if (
@@ -240,8 +244,14 @@ const GetTogetherForm = ({ navigation }) => {
       />
     );
 
-  if (isLoading) return <SplashScreen />;
-
+  if (isLoading)
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#2d677aff" />
+        <Text style={styles.loadingText}>Loading...</Text>
+      </View>
+    );
+  
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -262,7 +272,9 @@ const GetTogetherForm = ({ navigation }) => {
           />
           {!openAllowForm ? (
             <Text style={styles.title}>Are you attending?</Text>
-          ) : <Text style={styles.title}>Register Another</Text>}
+          ) : (
+            <Text style={styles.title}>Register Another</Text>
+          )}
           {/* Attending radio */}
           <View
             style={{ width: '100%', marginBottom: 16, alignItems: 'center' }}
@@ -399,7 +411,7 @@ const GetTogetherForm = ({ navigation }) => {
 
               {/* Submit */}
               <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit}>
-                <Text style={styles.submitText}>Submit</Text>
+                <Text style={styles.submitText}>{isLoading ? <ActivityIndicator size="large" color="#f3f6f7ff" /> : "Submit"}</Text>
               </TouchableOpacity>
             </>
           ) : null}
