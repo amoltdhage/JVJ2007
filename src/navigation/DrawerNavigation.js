@@ -17,6 +17,8 @@ import About from '../screens/Authenticated/About';
 import ContactUs from '../screens/Authenticated/ContactUs';
 import PaymentsScreen from '../screens/Authenticated/PaymentsScreen';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import ExpenseScreen from '../screens/Authenticated/ExpenseScreen';
 
 const Drawer = createDrawerNavigator();
 const { width } = Dimensions.get('window');
@@ -121,6 +123,13 @@ export default function DrawerNav() {
             onPress={() => navigation.navigate('PaymentsScreen')}
           />
           <DrawerItem
+            label={() => <DrawerLabel label="Expense" />}
+            icon={({ size }) => (
+              <FontAwesome name="money" size={size} color="white" />
+            )}
+            onPress={() => navigation.navigate('ExpenseScreen')}
+          />
+          <DrawerItem
             label={() => <DrawerLabel label="About Us" />}
             icon={({ size }) => (
               <AntDesign name="infocirlceo" size={size} color="white" />
@@ -199,6 +208,7 @@ export default function DrawerNav() {
       <Drawer.Screen name="PaymentsScreen" component={PaymentsScreen} />
       <Drawer.Screen name="About" component={About} />
       <Drawer.Screen name="ContactUs" component={ContactUs} />
+      <Drawer.Screen name="ExpenseScreen" component={ExpenseScreen} />
     </Drawer.Navigator>
   );
 }

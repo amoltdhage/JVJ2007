@@ -7,6 +7,7 @@ import {
   Dimensions,
   TouchableOpacity,
   Image,
+  Linking,
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import CountdownTimer from '../../components/CountdownTimer'; // adjust path as needed
@@ -87,10 +88,10 @@ const HomeScreen = ({ navigation }) => {
 
         {/* Announcement Section */}
         <View style={styles.announcementBox}>
-          <Text style={styles.announcementTitle}>📢 Announcement</Text>
-          <Text style={styles.announcementText}>
-            Our official poster will be shared soon. Stay connected!
-          </Text>
+          {/* <Text style={styles.announcementTitle}>📢 Announcement</Text> */}
+          {/* <Text style={styles.announcementText}>
+            ✨ It’s Not Just a Reunion — It’s a Return to Where It All Began!
+          </Text> */}
 
           {/* Get Together Form Section */}
           <View style={styles.formBox}>
@@ -113,13 +114,30 @@ const HomeScreen = ({ navigation }) => {
           </Text>
         </View>
 
-        {/* Countdown Timer */}
         <View style={styles.countdownBox}>
-          <Text style={styles.countdownTitle}>⏳ Countdown to Reunion</Text>
-          <Text style={styles.countdownText}>
+          <Text style={[styles.countdownTitle, { textAlign: 'center' }]}>
+            ✨ It’s Not Just a Reunion — It’s a Return to Where It All Began!
+          </Text>
+
+          <Text
+            style={[
+              styles.countdownText,
+              {
+                color: 'blue',
+                textAlign: 'center',
+                textDecorationLine: 'underline',
+              },
+            ]}
+            onPress={() =>
+              Linking.openURL('https://drive.google.com/drive/folders/0BzoRw-Ca6LIhfjJrckxpWFNRbUdiZVczNFZQUmNkN3FNMGlzVVJpZVNtTGRyOWJqTHhSeGc?resourcekey=0-hjHeOrm17F8FpvFS15JkFA&usp=drive_link')
+            }
+          >
+            View Event Details on Google Drive
+          </Text>
+          {/* <Text style={styles.countdownText}>
             {timeLeft.days || 0}d {timeLeft.hours || 0}h {timeLeft.minutes || 0}
             m {timeLeft.seconds || 0}s
-          </Text>
+          </Text> */}
         </View>
 
         {/* Friendship Reminder */}
@@ -146,9 +164,9 @@ const HomeScreen = ({ navigation }) => {
           />
         ) : null}
 
-        <View style={styles.iconBox}>
+        {/* <View style={styles.iconBox}>
           <MaterialIcon name="school" size={100} color="#003366" />
-        </View>
+        </View> */}
       </ScrollView>
     </>
   );

@@ -19,16 +19,15 @@ import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import FileViewer from 'react-native-file-viewer';
 import { PaymentExpenseStyle } from '../../styles/PaymentExpenseStyle';
 
-const PaymentDetailsScreen = () => {
+export default function ExpenseScreen() {
   const userId = useSelector(state => state.auth?.user);
   const [userDetail, setUserDetail] = useState(null);
   const [payments, setPayments] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingPayment, setEditingPayment] = useState(null);
-  const [payee, setPayee] = useState('');
+  const [expense, setExpense] = useState('');
   const [amount, setAmount] = useState('');
   const [status, setStatus] = useState('Pending');
-  const [received, setReceived] = useState('Not Received');
 
   useEffect(() => {
     if (userId && !userDetail) getUserDetail(userId);
@@ -44,44 +43,63 @@ const PaymentDetailsScreen = () => {
   };
 
   useEffect(() => {
+    // const unsubscribe = firestore()
+    //   .collection('ExpenseDetails')
+    //   .orderBy('createdAt', 'asc') // Keep original order
+    //   .onSnapshot(snapshot => {
+    //     const list = snapshot.docs.map((doc, index) => ({
+    //       id: doc.id,
+    //       ...doc.data(),
+    //       rowIndex: index,
+    //     }));
+    //     setPayments(list);
+    //   });
+    // return () => unsubscribe();
+
     const unsubscribe = firestore()
-      .collection('paymentsDetails')
-      .orderBy('createdAt', 'asc') // Keep original order
-      .onSnapshot(snapshot => {
-        if (!snapshot || snapshot.empty) {
-          setPayments([]);
-          return;
-        }
-        const list = snapshot.docs.map((doc, index) => ({
-          id: doc.id,
-          ...doc.data(),
-          rowIndex: index,
-        }));
-        setPayments(list);
-      });
+      .collection('ExpenseDetails')
+      .orderBy('createdAt', 'asc')
+      .onSnapshot(
+        snapshot => {
+          if (!snapshot || snapshot.empty) {
+            setPayments([]);
+            return;
+          }
+
+          const list = snapshot.docs.map((doc, index) => ({
+            id: doc.id,
+            ...doc.data(),
+            rowIndex: index,
+          }));
+          setPayments(list);
+        },
+        error => {
+          console.error('Firestore listener error:', error);
+          setPayments([]); // fallback
+        },
+      );
+
     return () => unsubscribe();
   }, []);
 
   const openModal = payment => {
     if (payment) {
       setEditingPayment(payment);
-      setPayee(payment.payee);
+      setExpense(payment.expense);
       setAmount(payment.amount.toString());
       setStatus(payment.status);
-      setReceived(payment.received || 'Not Received');
     } else {
       setEditingPayment(null);
-      setPayee('');
+      setExpense('');
       setAmount('');
       setStatus('Pending');
-      setReceived('Not Received');
     }
     setModalVisible(true);
   };
 
   const handleSavePayment = async () => {
-    if (!payee || !amount) {
-      Alert.alert('Error', 'Please enter payee and amount');
+    if (!expense || !amount) {
+      Alert.alert('Error', 'Please enter expense and amount');
       return;
     }
 
@@ -92,18 +110,16 @@ const PaymentDetailsScreen = () => {
 
     try {
       const id =
-        editingPayment?.id ||
-        firestore().collection('paymentsDetails').doc().id;
+        editingPayment?.id || firestore().collection('ExpenseDetails').doc().id;
 
       await firestore()
-        .collection('paymentsDetails')
+        .collection('ExpenseDetails')
         .doc(id)
         .set({
           id,
-          payee,
+          expense,
           amount: parseFloat(amount),
           status,
-          received,
           createdAt:
             editingPayment?.createdAt || firestore.FieldValue.serverTimestamp(),
           updatedAt: firestore.FieldValue.serverTimestamp(),
@@ -111,10 +127,9 @@ const PaymentDetailsScreen = () => {
 
       setModalVisible(false);
       setEditingPayment(null);
-      setPayee('');
+      setExpense('');
       setAmount('');
       setStatus('Pending');
-      setReceived('Not Received');
     } catch (err) {
       console.error('Error saving payment:', err);
       Alert.alert('Error', 'Failed to save payment');
@@ -129,7 +144,7 @@ const PaymentDetailsScreen = () => {
         style: 'destructive',
         onPress: async () => {
           try {
-            await firestore().collection('paymentsDetails').doc(id).delete();
+            await firestore().collection('ExpenseDetails').doc(id).delete();
           } catch (err) {
             console.error('Delete error:', err);
             Alert.alert('Error', 'Failed to delete payment');
@@ -148,7 +163,11 @@ const PaymentDetailsScreen = () => {
   const handleDownloadPDF = async () => {
     let pdfPath = null;
 
-    const htmlContent = await generatePaymentsHTML(payments, totalAmount);
+    const htmlContent = await generatePaymentsHTML(
+      payments,
+      totalAmount,
+      'expense',
+    );
 
     // Generate PDF from HTML
     const generatePDF = async () => {
@@ -187,8 +206,8 @@ const PaymentDetailsScreen = () => {
       ]}
     >
       <Text style={styles.fieldText}>
-        <Text style={styles.fieldLabel}>Payee: </Text>
-        {item.payee}
+        <Text style={styles.fieldLabel}>Expense: </Text>
+        {item.expense}
       </Text>
 
       <Text style={styles.fieldText}>
@@ -215,18 +234,6 @@ const PaymentDetailsScreen = () => {
         </Text>
       </Text>
 
-      <Text style={styles.fieldText}>
-        <Text style={styles.fieldLabel}>Receipt Status: </Text>
-        <Text
-          style={{
-            color: item.received === 'Received' ? '#750581ff' : '#B0B0B0',
-            fontWeight: '600',
-          }}
-        >
-          {item.received || 'Not Received'}
-        </Text>
-      </Text>
-
       {(
         // userDetail?.is_admin || 
         userDetail?.isCashier) && (
@@ -236,7 +243,6 @@ const PaymentDetailsScreen = () => {
             style={styles.iconButton}
           >
             <FontAwesome name="edit" size={22} color="#1E90FF" />
-            {/* <Text style={styles.iconLabel}>Edit</Text> */}
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -244,7 +250,6 @@ const PaymentDetailsScreen = () => {
             style={styles.iconButton}
           >
             <FontAwesome name="trash" size={22} color="#E53935" />
-            {/* <Text style={styles.iconLabel}>Delete</Text> */}
           </TouchableOpacity>
         </View>
       )}
@@ -254,35 +259,28 @@ const PaymentDetailsScreen = () => {
   return (
     <View style={styles.container}>
       <Header title="Payments Details" />
-      {userDetail?.is_admin || userDetail?.isCashier ? (
-        <>
-          <View style={styles.totalContainer}>
-            <View style={styles.totalBox}>
-              <Text style={styles.totalLabel}>
-                Total Amount :{' '}
-                <Text style={styles.totalValue}>
-                  ₹{commaNumber(totalAmount)}
-                </Text>
-              </Text>
-              {userDetail?.isCashier ? (
-                <TouchableOpacity
-                  style={{ borderRadius: 6, backgroundColor: '#f5f5f5' }}
-                  onPress={handleDownloadPDF}
-                >
-                  <Entypo color="#35076dff" size={24} name="export" />
-                </TouchableOpacity>
-              ) : null}
-            </View>
-          </View>
-          {userDetail?.isCashier ? (
-            <TouchableOpacity
-              style={styles.addButton}
-              onPress={() => openModal()}
-            >
-              <Text style={styles.addButtonText}>+ Add Payee</Text>
-            </TouchableOpacity>
+      <View style={styles.totalContainer}>
+        <View style={styles.totalBox}>
+          <Text style={styles.totalLabel}>
+            Total Amount :{' '}
+            <Text style={styles.totalValue}>₹{commaNumber(totalAmount)}</Text>
+          </Text>
+          {payments?.length ? (
+            userDetail?.isCashier ? (
+              <TouchableOpacity
+                style={{ borderRadius: 6, backgroundColor: '#f5f5f5' }}
+                onPress={handleDownloadPDF}
+              >
+                <Entypo color="#35076dff" size={24} name="export" />
+              </TouchableOpacity>
+            ) : null
           ) : null}
-        </>
+        </View>
+      </View>
+      {userDetail?.isCashier ? (
+        <TouchableOpacity style={styles.addButton} onPress={() => openModal()}>
+          <Text style={styles.addButtonText}>+ Add Expense</Text>
+        </TouchableOpacity>
       ) : null}
 
       <View style={{ flex: 1 }}>
@@ -292,7 +290,7 @@ const PaymentDetailsScreen = () => {
           renderItem={renderItem}
           contentContainerStyle={{ paddingBottom: 80 }}
           ListEmptyComponent={
-            <Text style={styles.emptyText}>No payments yet</Text>
+            <Text style={styles.emptyText}>No expenses yet</Text>
           }
         />
       </View>
@@ -302,14 +300,14 @@ const PaymentDetailsScreen = () => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>
-              {editingPayment ? 'Edit Payment' : 'Add Payee'}
+              {editingPayment ? 'Edit Payment' : 'Add Expense'}
             </Text>
 
             <TextInput
               style={styles.input}
-              placeholder="Payee Name"
-              value={payee}
-              onChangeText={setPayee}
+              placeholder="Expense Name"
+              value={expense}
+              onChangeText={setExpense}
               placeholderTextColor={'gray'}
             />
             <TextInput
@@ -322,11 +320,14 @@ const PaymentDetailsScreen = () => {
             />
 
             {(userDetail?.is_admin || userDetail?.isCashier) && (
-              <View style={styles.statusRow}>
+              <View
+                style={[styles.statusRow, { justifyContent: 'flex-start' }]}
+              >
                 <TouchableOpacity
                   style={[
                     styles.statusButton,
                     status === 'Paid' && { backgroundColor: '#4CAF50' },
+                    { merginHorizontal: 5 },
                   ]}
                   onPress={() => setStatus('Paid')}
                 >
@@ -336,31 +337,11 @@ const PaymentDetailsScreen = () => {
                   style={[
                     styles.statusButton,
                     status === 'Pending' && { backgroundColor: '#F44336' },
+                    { merginHorizontal: 5 },
                   ]}
                   onPress={() => setStatus('Pending')}
                 >
                   <Text style={styles.statusText}>Pending</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[
-                    styles.statusButton,
-                    received === 'Received' && { backgroundColor: '#1E90FF' },
-                  ]}
-                  onPress={() => setReceived('Received')}
-                >
-                  <Text style={styles.statusText}>Received</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles.statusButton,
-                    received === 'Not Received' && {
-                      backgroundColor: '#B0B0B0',
-                    },
-                  ]}
-                  onPress={() => setReceived('Not Received')}
-                >
-                  <Text style={styles.statusText}>Not Received</Text>
                 </TouchableOpacity>
               </View>
             )}
@@ -392,8 +373,6 @@ const PaymentDetailsScreen = () => {
       </Modal>
     </View>
   );
-};
-
-export default PaymentDetailsScreen;
+}
 
 const styles = PaymentExpenseStyle;
