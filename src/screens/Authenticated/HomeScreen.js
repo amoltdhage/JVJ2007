@@ -6,13 +6,11 @@ import {
   ScrollView,
   Dimensions,
   TouchableOpacity,
-  Image,
   Linking,
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import CountdownTimer from '../../components/CountdownTimer'; // adjust path as needed
 import Header from '../../components/Header';
-import ZoomImageModal from '../../components/ZoomImageModal';
 const { width } = Dimensions.get('window');
 
 const HomeScreen = ({ navigation }) => {
@@ -129,10 +127,10 @@ const HomeScreen = ({ navigation }) => {
               },
             ]}
             onPress={() =>
-              Linking.openURL('https://drive.google.com/drive/folders/0BzoRw-Ca6LIhfjJrckxpWFNRbUdiZVczNFZQUmNkN3FNMGlzVVJpZVNtTGRyOWJqTHhSeGc?resourcekey=0-hjHeOrm17F8FpvFS15JkFA&usp=drive_link')
+              Linking.openURL('https://drive.google.com/drive/folders/1zXbITy24O8ZAmOiPQ-sL7pWNo7wPlQGE?usp=drive_link')
             }
           >
-            View Event Details on Google Drive
+            View Event Gallery
           </Text>
           {/* <Text style={styles.countdownText}>
             {timeLeft.days || 0}d {timeLeft.hours || 0}h {timeLeft.minutes || 0}
@@ -147,26 +145,9 @@ const HomeScreen = ({ navigation }) => {
           </Text>
         </View>
 
-        {/* Optional Image (Can Replace Later with Poster or School Pic) */}
-        <TouchableOpacity onPress={() => setVisible(true)}>
-          <Image
-            source={require('../../assets/images/Approval.jpeg')}
-            style={styles.image}
-            resizeMode="cover"
-          />
-        </TouchableOpacity>
-
-        {visible ? (
-          <ZoomImageModal
-            visible={visible}
-            setVisible={setVisible}
-            images={images}
-          />
-        ) : null}
-
-        {/* <View style={styles.iconBox}>
+        <View style={styles.iconBox}>
           <MaterialIcon name="school" size={100} color="#003366" />
-        </View> */}
+        </View>
       </ScrollView>
     </>
   );

@@ -144,7 +144,7 @@ const ProfileScreen = () => {
     setProfileData(newProfileData);
     setProfileImage(userDetail?.profileImage);
     setUserInitial(
-      username && username?.length > 0 ? username.charAt(0).toUpperCase() : '?',
+      username && username?.length > 0 ? username.charAt(0).toUpperCase() : 'A',
     );
   }, [userDetail]);
 

@@ -3,6 +3,7 @@ import ImageViewer from 'react-native-image-zoom-viewer';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export default function ZoomImageModal({ visible, images, setVisible }) {
+  console.log("visi: ", visible);
   return (
     <Modal visible={visible} transparent={true} animationType="fade">
       <View style={{ flex: 1, backgroundColor: 'black' }}>

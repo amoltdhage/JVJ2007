@@ -28,9 +28,10 @@ export const PaymentExpenseStyle = StyleSheet.create({
   },
   emptyText: {
     textAlign: 'center',
-    marginTop: 20,
-    color: '#999',
-    fontSize: 12,
+    marginTop: '50%',
+    color: '#000',
+    fontSize: 20,
+    fontWeight: "bold"
   },
   modalOverlay: {
     flex: 1,
@@ -52,6 +53,7 @@ export const PaymentExpenseStyle = StyleSheet.create({
     padding: 10,
     marginBottom: 10,
     fontSize: 14,
+    color: "#000"
   },
   statusRow: {
     flexDirection: 'row',

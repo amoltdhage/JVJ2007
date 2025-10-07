@@ -19,6 +19,8 @@ import PaymentsScreen from '../screens/Authenticated/PaymentsScreen';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import ExpenseScreen from '../screens/Authenticated/ExpenseScreen';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+
 
 const Drawer = createDrawerNavigator();
 const { width } = Dimensions.get('window');
@@ -107,27 +109,26 @@ export default function DrawerNav() {
             )}
             onPress={() => navigation.navigate('Attendees')}
           />
-
+          <DrawerItem
+            label={() => <DrawerLabel label="Payment Collection" />}
+            icon={({ size }) => (
+              <MaterialIcons name="payments" size={size} color="white" />
+            )}
+            onPress={() => navigation.navigate('PaymentsScreen')}
+          />
+          <DrawerItem
+            label={() => <DrawerLabel label="Expenses" />}
+            icon={({ size }) => (
+              <FontAwesome name="money" size={size} color="white" />
+            )}
+            onPress={() => navigation.navigate('ExpenseScreen')}
+          />
           <DrawerItem
             label={() => <DrawerLabel label="Approval Certificate" />}
             icon={({ size }) => (
               <AntDesign name="filetext1" size={size} color="white" />
             )}
             onPress={() => navigation.navigate('Approval Certificate')}
-          />
-          <DrawerItem
-            label={() => <DrawerLabel label="Payments List" />}
-            icon={({ size }) => (
-              <AntDesign name="filetext1" size={size} color="white" />
-            )}
-            onPress={() => navigation.navigate('PaymentsScreen')}
-          />
-          <DrawerItem
-            label={() => <DrawerLabel label="Expense" />}
-            icon={({ size }) => (
-              <FontAwesome name="money" size={size} color="white" />
-            )}
-            onPress={() => navigation.navigate('ExpenseScreen')}
           />
           <DrawerItem
             label={() => <DrawerLabel label="About Us" />}
@@ -137,9 +138,9 @@ export default function DrawerNav() {
             onPress={() => navigation.navigate('About')}
           />
           <DrawerItem
-            label={() => <DrawerLabel label="ContactUs" />}
+            label={() => <DrawerLabel label="Contact Us" />}
             icon={({ size }) => (
-              <AntDesign name="team" size={size} color="white" />
+              <MaterialCommunityIcons name="card-account-phone" size={size} color="white" />
             )}
             onPress={() => navigation.navigate('ContactUs')}
           />

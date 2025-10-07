@@ -253,7 +253,7 @@ const PaymentDetailsScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Header title="Payments Details" />
+      <Header title="Payment Collection" />
       {userDetail?.is_admin || userDetail?.isCashier ? (
         <>
           <View style={styles.totalContainer}>
@@ -355,7 +355,7 @@ const PaymentDetailsScreen = () => {
                   style={[
                     styles.statusButton,
                     received === 'Not Received' && {
-                      backgroundColor: '#B0B0B0',
+                      backgroundColor: '#ab1515ff',
                     },
                   ]}
                   onPress={() => setReceived('Not Received')}

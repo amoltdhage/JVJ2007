@@ -234,9 +234,8 @@ export default function ExpenseScreen() {
         </Text>
       </Text>
 
-      {(
-        // userDetail?.is_admin || 
-        userDetail?.isCashier) && (
+      {// userDetail?.is_admin ||
+      userDetail?.isCashier && (
         <View style={styles.actionsRow}>
           <TouchableOpacity
             onPress={() => openModal(item)}
@@ -258,7 +257,7 @@ export default function ExpenseScreen() {
 
   return (
     <View style={styles.container}>
-      <Header title="Payments Details" />
+      <Header title="Expenses" />
       <View style={styles.totalContainer}>
         <View style={styles.totalBox}>
           <Text style={styles.totalLabel}>
@@ -290,7 +289,12 @@ export default function ExpenseScreen() {
           renderItem={renderItem}
           contentContainerStyle={{ paddingBottom: 80 }}
           ListEmptyComponent={
-            <Text style={styles.emptyText}>No expenses yet</Text>
+            <>
+              <Text style={styles.emptyText}>
+                <FontAwesome name="money" size={35} color="black" /> {'\n'}No
+                expenses yet
+              </Text>
+            </>
           }
         />
       </View>
@@ -305,7 +309,7 @@ export default function ExpenseScreen() {
 
             <TextInput
               style={styles.input}
-              placeholder="Expense Name"
+              placeholder="Expense"
               value={expense}
               onChangeText={setExpense}
               placeholderTextColor={'gray'}
