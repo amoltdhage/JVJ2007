@@ -94,7 +94,7 @@ export default function ResetPassword() {
       {/* Already have account */}
       <View style={styles.inlineTextContainer}>
         <Text style={styles.loginText}>
-          Password remembered?
+          Password remembered? - पासवर्ड लक्षात आला का?
           <TouchableOpacity onPress={() => navigation.navigate('login')}>
             <Text style={styles.linkText}>Login</Text>
           </TouchableOpacity>

@@ -64,8 +64,12 @@ const LoginScreen = ({ navigation }) => {
           name="person-outline"
           size={60}
           color="#00b4db"
-          // style={{ marginBottom: 1 }}
+        // style={{ marginBottom: 1 }}
         />
+
+        <Text style={styles.smallText}>
+         सूचना: जर तुम्ही पहिल्यांदा ॲप वापरत असाल तर आधी आपले खाते तयार करा, त्यासाठी खालील दिलेल्या "Sign Up-साइन अप" वर क्लिक करा.
+        </Text>
 
         <Text style={styles.title}>Login</Text>
 
@@ -131,7 +135,7 @@ const LoginScreen = ({ navigation }) => {
         </TouchableOpacity>
         <View style={styles.inlineTextContainer}>
           <Text style={styles.loginText}>
-            Forgot your password?
+            Forgot your password? - तुमचा पासवर्ड विसरलात का?
             <TouchableOpacity
               onPress={() => navigation.navigate('ResetPassword')}
             >
@@ -142,7 +146,7 @@ const LoginScreen = ({ navigation }) => {
 
         <View style={styles.inlineTextContainer}>
           <Text style={styles.loginText}>
-            Don’t have an account?
+            Don’t have an account? - खाते नाही का?
             <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
               <Text style={styles.linkText}>Sign Up</Text>
             </TouchableOpacity>
@@ -163,6 +167,13 @@ const styles = StyleSheet.create({
     paddingVertical: 30,
     paddingHorizontal: 20,
     width: '100%',
+  },
+   waringText: {
+    fontSize: 14,        // smaller text size
+    color: '#e81a1aff',       // gray color
+    textAlign: 'center', // center-aligned text
+    marginTop: 8, 
+    fontWeight: 'bold',       // space above
   },
   title: {
     fontSize: 28,

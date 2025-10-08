@@ -234,7 +234,7 @@ const SignUpScreen = ({ navigation }) => {
         </TouchableOpacity> */}
         <View style={styles.inlineTextContainer}>
           <Text style={styles.loginText}>
-            Already have an account?
+            Already have an account? - आधीच खाते आहे का?
             <TouchableOpacity onPress={() => navigation.navigate('login')}>
               <Text style={styles.linkText}>Login</Text>
             </TouchableOpacity>
