@@ -115,7 +115,6 @@ const formatDateTime = () => {
 </style>
 </head>
 <body>
-
   <h1>${type === "expense" ? "Expense" : "Collection"} Details</h1>
   <h2>JVJ 2007 - 10th Batch Get Together - 2025</h2>
   <div class="total-summary">
@@ -128,7 +127,7 @@ const formatDateTime = () => {
         <th style="width:35%;">${type === "expense" ? "Expense" : "Payee"}</th>
         <th style="width:20%">Amount</th>
         <th style="width:20%">Status</th>
-        ${type !== "expense" ? <th style="width:25%">Receipt Status</th> : ""}
+        ${type !== "expense" ? `<th style="width:25%">Receipt Status</th>` : ""}
       </tr>
     </thead>
     <tbody>
@@ -139,7 +138,7 @@ const formatDateTime = () => {
             <td>${item?.[type === "expense" ? "expense" : "payee"]}</td>
             <td class="${item.status === 'Paid' ? 'paid' : 'pending'}">₹${commaNumber(item.amount)}</td>
             <td class="${item.status === 'Paid' ? 'paid' : 'pending'}">${item.status}</td>
-            ${type !== "expense" ? <td class="${item.received === 'Received' ? 'received' : 'not-received'}">${item.received || 'Not Received'}</td> : ""}
+            ${type !== "expense" ? `<td class="${item.received === 'Received' ? 'received' : 'not-received'}">${item.received || 'Not Received'}</td>` : ""}
           </tr>
         `
         )
@@ -147,7 +146,6 @@ const formatDateTime = () => {
     </tbody>
   </table>
   <footer>Generated on ${formatDateTime()}</footer>
-
 </body>
 </html>
 `;
