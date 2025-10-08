@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   Dimensions,
   TouchableOpacity,
   Linking,
+  Animated,
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import CountdownTimer from '../../components/CountdownTimer'; // adjust path as needed
@@ -22,6 +23,139 @@ const HomeScreen = ({ navigation }) => {
       },
     },
   ];
+
+  const BlinkingGalleryButton = () => {
+    const blinkAnim = useRef(new Animated.Value(1)).current;
+
+    useEffect(() => {
+      const blink = Animated.loop(
+        Animated.sequence([
+          Animated.timing(blinkAnim, {
+            toValue: 0.2, // fade out
+            duration: 600,
+            useNativeDriver: true,
+          }),
+          Animated.timing(blinkAnim, {
+            toValue: 1, // fade in
+            duration: 600,
+            useNativeDriver: true,
+          }),
+        ]),
+      );
+      blink.start();
+      return () => blink.stop();
+    }, []);
+
+    return (
+      <TouchableOpacity
+        style={styles.galleryButton}
+        onPress={() =>
+          Linking.openURL(
+            'https://drive.google.com/drive/folders/1zXbITy24O8ZAmOiPQ-sL7pWNo7wPlQGE?usp=drive_link',
+          )
+        }
+      >
+        <Animated.Text
+          style={[styles.galleryButtonText, { opacity: blinkAnim }]}
+        >
+          🖼️ Watch All Event Photos{'\n'}कार्यक्रमातील सर्व छायाचित्रे पहा
+        </Animated.Text>
+      </TouchableOpacity>
+    );
+  };
+
+  const EventPassedDateTime = new Date('2025-10-25T10:25:00');
+  const [isEventPast, setIsEventPast] = useState(false);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const currentTime = new Date();
+      setIsEventPast(currentTime > EventPassedDateTime);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const ThankYouMessage = () => {
+    const fadeAnim = useRef(new Animated.Value(0)).current; // initial opacity 0
+    const scaleAnim = useRef(new Animated.Value(1)).current; // initial scale 1
+
+    useEffect(() => {
+      // Fade in + subtle scaling loop for sparkle effect
+      Animated.loop(
+        Animated.sequence([
+          Animated.parallel([
+            Animated.timing(fadeAnim, {
+              toValue: 1,
+              duration: 1200,
+              useNativeDriver: true,
+            }),
+            Animated.sequence([
+              Animated.timing(scaleAnim, {
+                toValue: 0.5,
+                duration: 600,
+                useNativeDriver: true,
+              }),
+              Animated.timing(scaleAnim, {
+                toValue: 1,
+                duration: 600,
+                useNativeDriver: true,
+              }),
+            ]),
+          ]),
+          Animated.delay(800), // small pause before next loop
+        ]),
+      ).start();
+    }, [fadeAnim, scaleAnim]);
+
+    return (
+      <View style={styles.countdownBox}>
+        <Animated.Text
+          style={[
+            styles.countdownTitle,
+            {
+              textAlign: 'center',
+              opacity: fadeAnim,
+              transform: [{ scale: scaleAnim }],
+            },
+          ]}
+        >
+          🎉 This reunion wouldn’t have been possible without you! {'\n'} {'\n'}
+          ही भेटीची संधी तुमच्याशिवाय शक्य नसती!
+        </Animated.Text>
+      </View>
+    );
+  };
+
+  const SimpleThanksMessage = () => {
+    const fadeAnim = useRef(new Animated.Value(0)).current; // initial opacity 0
+
+    useEffect(() => {
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 250, // slow fade-in
+        useNativeDriver: true,
+      }).start();
+    }, [fadeAnim]);
+
+    return (
+      <View style={styles.countdownBox}>
+        <Animated.Text
+          style={[
+            styles.countdownTitle,
+            { textAlign: 'center', opacity: fadeAnim, lineHeight: 28 },
+          ]}
+        >
+          ✨ह्या आठवणी सदैव जिवंत राहतील!✨ {'\n\n'}
+          तुमच्या सर्वांच्या उपस्थितीमुळे,{'\n'} आजचा दिवस अतिशय हसत-खेळत{'\n'}आणि {'\n'}
+          खूप छान जुन्या आठवणींच्या गप्पा-गोष्टी करत {'\n'} कधी निघून गेला ते कळलंच नाही,{'\n\n'}
+          ही आपल्या १८ वर्षांनंतरची {'\n'} भेट खरोखर अविस्मरणीय झाली!{'\n\n'}
+          आपल्या सहभागाबद्दल मनापासून धन्यवाद!{'\n'}
+          Thanks a ton for being a part of this special day!
+        </Animated.Text>
+      </View>
+    );
+  };
 
   const calculateTimeLeft = () => {
     const targetDate = new Date('2025-10-25T10:00:00');
@@ -63,58 +197,71 @@ const HomeScreen = ({ navigation }) => {
             <Text style={styles.detail}>📅 25th October 2025, Saturday</Text>
             <Text style={styles.detail}>⏰ 10:00 AM - 4:30 PM</Text>
             <Text style={styles.detail}>📍 Janta Vidyalaya, Jamod</Text>
+            {isEventPast ? <BlinkingGalleryButton /> : null}
           </View>
         </View>
 
-        {/* Memory Quote */}
-        {/* <View style={styles.memoryBox}>
-        <Text style={styles.memoryText}>
-          “We didn’t realize we were making memories, we just knew we were having fun.” {"\n"} {"\n"}
-          "आपण तेव्हा आठवणी तयार करत होतो, हे तेव्हा कळलंच नाही… {"\n"}
-           तेव्हा आपल्याला फक्त एवढंच माहीत होतं-आपण धमाल करत होतो!"
-        </Text>
-      </View> */}
-
-        <View style={styles.memoryCard}>
-          <Text style={styles.memoryQuote}>
-            “We didn’t realize we were making memories, we just knew we were
-            having fun.” {'\n'} {'\n'}
-            "आपण तेव्हा आठवणी तयार करत होतो, हे तेव्हा कळलंच नाही… {'\n'}
-            तेव्हा आपल्याला फक्त एवढंच माहीत होतं-आपण धमाल करत होतो!"
-          </Text>
-        </View>
+        {!isEventPast ? (
+          <View style={styles.memoryCard}>
+            <Text style={styles.memoryQuote}>
+              “We didn’t realize we were making memories, we just knew we were
+              having fun.”{'\n'}
+              {'\n'}
+              आपण तेव्हा आठवणी तयार करत होतो, हे तेव्हा कळलंच नाही…{'\n'}
+              तेव्हा आपल्याला फक्त एवढंच माहीत होतं — आपण धमाल करत होतो!
+            </Text>
+          </View>
+        ) : null}
 
         {/* Announcement Section */}
         <View style={styles.announcementBox}>
           {/* <Text style={styles.announcementTitle}>📢 Announcement</Text> */}
-          {/* <Text style={styles.announcementText}>
-            ✨ It’s Not Just a Reunion — It’s a Return to Where It All Began!
-          </Text> */}
 
-          {/* Get Together Form Section */}
-          <View style={styles.formBox}>
-            <TouchableOpacity
-              style={styles.formButton}
-              onPress={() => navigation.navigate('GetTogetherForm')}
-            >
-              <Text style={styles.formButtonText}>FILL GET-TOGETHER FORM</Text>
-              <Text style={styles.formButtonText}>गेट-टुगेदर फॉर्म भरा</Text>
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.formTitle}>👆🏻</Text>
-          <Text style={styles.formTitle}>🎉 Let’s Reconnect!</Text>
-          <Text style={styles.formInfo}>
-            ✍️ चला, पुन्हा भेटीची तयारी करूया!{'\n'}
-            कोण येणार आहे, याची यादी करणं आवश्यक आहे.{'\n'}
-            म्हणूनच हा फॉर्म भरणं गरजेचं आहे –{'\n'}
-            जेणेकरून नियोजन सुरळीत होईल आणि{'\n'}
-            सगळ्यांना सोबत येता येईल! 😊
-          </Text>
+          {isEventPast ? (
+            <SimpleThanksMessage />
+          ) : (
+            <>
+              <Text style={[styles.countdownTitle, { textAlign: 'center' }]}>
+                ✨ It’s Not Just a Reunion — It’s a Return to Where It All
+                Began!
+              </Text>
+              <Text style={styles.countdownTitle}>
+                ✨ ही फक्त पुन्हा भेट नाही {'\n'} ही त्या ठिकाणी परत जाण्याची
+                संधी आहे जिथून सर्व सुरू झाले!
+              </Text>
+
+              {/* Get Together Form Section */}
+              <View style={styles.formBox}>
+                <TouchableOpacity
+                  style={styles.formButton}
+                  onPress={() => navigation.navigate('GetTogetherForm')}
+                >
+                  <Text style={styles.formButtonText}>
+                    FILL GET-TOGETHER FORM
+                  </Text>
+                  <Text style={styles.formButtonText}>
+                    गेट-टुगेदर फॉर्म भरा
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <Text style={styles.formTitle}>👆🏻</Text>
+              <Text style={styles.formTitle}>🎉 Let’s Reconnect!</Text>
+              <Text style={styles.formInfo}>
+                ✍️ चला, पुन्हा भेटीची तयारी करूया!{'\n'}
+                कोण येणार आहे, याची यादी करणं आवश्यक आहे.{'\n'}
+                म्हणूनच हा फॉर्म भरणं गरजेचं आहे –{'\n'}
+                जेणे करून नियोजन सुरळीत होईल आणि{'\n'}
+                सगळ्यांना सोबत येता येईल! 😊
+              </Text>
+            </>
+          )}
         </View>
 
         <View style={styles.countdownBox}>
           <Text style={[styles.countdownTitle, { textAlign: 'center' }]}>
-            ✨ It’s Not Just a Reunion — It’s a Return to Where It All Began!
+            🎉 This reunion wouldn’t have been possible without you! {'\n'}{' '}
+            {'\n'}
+            ही भेटीची संधी तुमच्याशिवाय शक्य नसती! {'\n'}
           </Text>
 
           <Text
@@ -127,10 +274,12 @@ const HomeScreen = ({ navigation }) => {
               },
             ]}
             onPress={() =>
-              Linking.openURL('https://drive.google.com/drive/folders/1zXbITy24O8ZAmOiPQ-sL7pWNo7wPlQGE?usp=drive_link')
+              Linking.openURL(
+                'https://drive.google.com/drive/folders/1zXbITy24O8ZAmOiPQ-sL7pWNo7wPlQGE?usp=drive_link',
+              )
             }
           >
-            View Event Gallery
+            View Event Gallery - कार्यक्रमाची गॅलरी पहा
           </Text>
           {/* <Text style={styles.countdownText}>
             {timeLeft.days || 0}d {timeLeft.hours || 0}h {timeLeft.minutes || 0}
@@ -269,6 +418,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#4E342E',
     marginBottom: 6,
+    textAlign: 'center',
   },
   countdownText: {
     fontSize: 16,
@@ -318,6 +468,27 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 24,
     color: '#003366',
+  },
+  galleryButton: {
+    backgroundColor: '#4e8cff', // blue button
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginTop: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+
+  galleryButtonText: {
+    color: '#ffffff',
+    fontWeight: 'bold',
+    fontSize: 14,
+    textAlign: 'center',
+    lineHeight: 20,
   },
 });
 

@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
   },
   infoContainer: {
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: '#002b5c',
     borderRadius: 10,
     shadowColor: '#000',
     shadowOpacity: 0.05,
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 16,
-    color: '#333',
+    color: '#fff',
     lineHeight: 22,
     textAlign: 'center',
   },

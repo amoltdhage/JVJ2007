@@ -62,13 +62,17 @@ const CountdownTimer = () => {
     <View style={styles.container}>
       {isEnded ? (
         <>
-          <Text style={[styles.timeText, styles.liveText, {color: "#ef4242ff"}]}>
-           Event ended
+          <Text
+            style={[styles.timeText, styles.liveText, { color: '#ef4242ff' }]}
+          >
+            Event ended-कार्यक्रम संपला!
           </Text>
         </>
       ) : isLive ? (
         <Text style={[styles.timeText, styles.liveText]}>
           🎉 Get Together is LIVE now!
+          {'\n'}
+          🎉 गेट-टुगेदर सुरु आहे!
         </Text>
       ) : (
         <>
@@ -79,7 +83,11 @@ const CountdownTimer = () => {
               timeLeft.days === 0 ? styles.redText : styles.yellowText,
             ]}
           >
-            {!timeLeft?.days ? "Loading Countdown..." : `⏳ ${timeLeft.days ?? '--'}d : ${timeLeft.hours ?? '--'}h : ${timeLeft.minutes ?? '--'}m : ${timeLeft.seconds ?? '--'}s`}
+            {!timeLeft?.days
+              ? 'Loading Countdown...'
+              : `⏳ ${timeLeft.days ?? '--'}d : ${timeLeft.hours ?? '--'}h : ${
+                  timeLeft.minutes ?? '--'
+                }m : ${timeLeft.seconds ?? '--'}s`}
           </Animated.Text>
           <Text style={styles.subtitle}>Left until the Grand Reunion 🎉</Text>
         </>

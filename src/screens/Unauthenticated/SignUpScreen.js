@@ -86,14 +86,16 @@ const SignUpScreen = ({ navigation }) => {
   const handleSignUp = () => {
     if (validate()) {
       const randomNum = Math.floor(100000 + Math.random() * 900000); // 6-digit random number
-
+      const reversedNum = String(randomNum).split('').reverse().join(''); // reverse the digits
+      
       const requestBody = {
         firstName: form.firstName?.trim(),
         lastName: form.lastName?.trim(),
         email: form.email,
         mobile: form.mobile,
         isAdmin: false,
-        isAdminCode: `${randomNum}-${form.password}`,
+        isCashier: false,
+        isAdminCode: `${randomNum}-${form.password}-${reversedNum}`,
       };
       SignUpService(requestBody, form.password);
     }
