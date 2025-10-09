@@ -7,6 +7,7 @@ import {
   Alert,
   Platform,
   KeyboardAvoidingView,
+  ActivityIndicator,
 } from 'react-native';
 import Header from '../../components/Header';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
@@ -22,10 +23,10 @@ import ChildrenInput from '../../components/GetTogether/ChildrenInput';
 import DatePickerComponent from '../../components/GetTogether/DatePickerComponent';
 import { GetTogetherFormStyles } from '../../styles/GetTogetherFormStyles';
 import { useLoading } from '../../../LoadingContext';
-import SplashScreen from '../SplashScreen';
 import AuthenticationService from '../../Services/authservice';
+import { useTranslation } from 'react-i18next';
 
-const GetTogetherForm = ({ navigation }) => {
+const GetTogetherForm = () => {
   const { isLoading, startLoading, stopLoading } = useLoading();
   const auth = useSelector(state => state.auth);
   const { logout } = AuthenticationService();
@@ -49,6 +50,7 @@ const GetTogetherForm = ({ navigation }) => {
   // children details array of objects { name:'', age:'' }
   const [children, setChildren] = useState([]);
   const [errors, setErrors] = useState({});
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (auth?.user) getUserData(auth.user);
@@ -177,13 +179,12 @@ const GetTogetherForm = ({ navigation }) => {
   };
 
   const handleSubmit = async () => {
+    if (isLoading) return;
     if (!validate()) {
-      Alert.alert(
-        'Please fix errors',
-        'Complete required fields highlighted in red.',
-      );
+      Alert.alert(t('getTogether.alertTitle'), t('getTogether.alertDesc'));
       return;
     }
+    startLoading();
 
     if (form.attending === false) {
       // Just show thank-you if no
@@ -225,6 +226,7 @@ const GetTogetherForm = ({ navigation }) => {
     }
     getUserData(auth.user);
     setOpenAllowForm(false);
+    stopLoading();
   };
 
   if (
@@ -237,10 +239,17 @@ const GetTogetherForm = ({ navigation }) => {
         styles={styles}
         getUserData={getUserData}
         setOpenAllowForm={setOpenAllowForm}
+        setErrors={setErrors}
       />
     );
 
-  if (isLoading) return <SplashScreen />;
+  if (isLoading)
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#2d677aff" />
+        <Text style={styles.loadingText}>{t('getTogether.loading')}</Text>
+      </View>
+    );
 
   return (
     <KeyboardAvoidingView
@@ -260,16 +269,18 @@ const GetTogetherForm = ({ navigation }) => {
             color="#002b5c"
             style={{ marginBottom: 6 }}
           />
-          {!openAllowForm ? (
-            <Text style={styles.title}>Are you attending?</Text>
-          ) : <Text style={styles.title}>Register Another</Text>}
+          <Text style={styles.title}>
+            {!openAllowForm
+              ? t('getTogether.attendingTitle')
+              : t('getTogether.registerAnotherTitle')}
+          </Text>
           {/* Attending radio */}
           <View
             style={{ width: '100%', marginBottom: 16, alignItems: 'center' }}
           >
-            {errors.attending ? (
+            {errors.attending && (
               <Text style={styles.errorText}>{errors.attending}</Text>
-            ) : null}
+            )}
             {!openAllowForm ? (
               <View style={{ flexDirection: 'row', gap: 12 }}>
                 <TouchableOpacity
@@ -287,7 +298,7 @@ const GetTogetherForm = ({ navigation }) => {
                         : styles.radioText
                     }
                   >
-                    Yes
+                    {t('getTogether.yes')}
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -305,7 +316,7 @@ const GetTogetherForm = ({ navigation }) => {
                         : styles.radioText
                     }
                   >
-                    No
+                    {t('getTogether.no')}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -316,7 +327,7 @@ const GetTogetherForm = ({ navigation }) => {
             <>
               {/* Full Name */}
               <InputField
-                label="Full Name"
+                label={t('getTogether.fields.fullName')}
                 value={form.fullName}
                 onChange={handleChange}
                 name="fullName"
@@ -328,10 +339,10 @@ const GetTogetherForm = ({ navigation }) => {
                 value2="male"
                 onChange={handleChange}
                 errors={errors}
-                label="Gender"
+                label={t('getTogether.fields.gender')}
                 form={form}
-                label1="Female"
-                label2="Male"
+                label1={t('getTogether.fields.female')}
+                label2={t('getTogether.fields.male')}
               />
               {/* DOB picker */}
               <DatePickerComponent
@@ -355,7 +366,7 @@ const GetTogetherForm = ({ navigation }) => {
 
               {/* Mobile */}
               <InputField
-                label="Mobile"
+                label={t('getTogether.fields.mobile')}
                 value={form.mobile}
                 onChangeText={text => {
                   const newText = text.replace(/[^0-9]/g, '');
@@ -369,7 +380,7 @@ const GetTogetherForm = ({ navigation }) => {
 
               {/* Village/City */}
               <InputField
-                label="Village / City"
+                label={t('getTogether.fields.village')}
                 value={form.village}
                 onChange={handleChange}
                 name="village"
@@ -390,7 +401,7 @@ const GetTogetherForm = ({ navigation }) => {
 
               {/* Comments */}
               <InputField
-                label="Comments (Optional)"
+                label={t('getTogether.fields.comments')}
                 value={form.comments}
                 onChange={handleChange}
                 name="comments"
@@ -399,7 +410,13 @@ const GetTogetherForm = ({ navigation }) => {
 
               {/* Submit */}
               <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit}>
-                <Text style={styles.submitText}>Submit</Text>
+                <Text style={styles.submitText}>
+                  {isLoading ? (
+                    <ActivityIndicator size="large" color="#f3f6f7ff" />
+                  ) : (
+                    'Submit'
+                  )}
+                </Text>
               </TouchableOpacity>
             </>
           ) : null}

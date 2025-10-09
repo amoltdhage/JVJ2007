@@ -5,9 +5,10 @@ const CountdownTimer = () => {
   const [timeLeft, setTimeLeft] = useState({});
   const [isLive, setIsLive] = useState(false);
   const fadeAnim = useRef(new Animated.Value(1)).current;
+  const [isEnded, setIsEnded] = useState(false);
 
-  const calculateTimeLeft = () => {
-    const targetDate = new Date('2025-10-25T10:00:00');
+  const calculateTimeLeft = time => {
+    const targetDate = new Date(time);
     const difference = +targetDate - +new Date();
     if (difference > 0) {
       return {
@@ -27,17 +28,31 @@ const CountdownTimer = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      const time = calculateTimeLeft();
-      setTimeLeft(time);
-      const isTimeUp = Object.values(time).every((val) => val === 0);
-      setIsLive(isTimeUp);
+      if (!isLive) {
+        const time = calculateTimeLeft('2025-10-25T10:00:00');
+        setTimeLeft(time);
+        const isTimeUp = Object.values(time).every(val => val === 0);
+        setIsLive(isTimeUp);
 
-      fadeAnim.setValue(0.3);
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 400,
-        useNativeDriver: true,
-      }).start();
+        fadeAnim.setValue(0.3);
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 400,
+          useNativeDriver: true,
+        }).start();
+      } else {
+        const time = calculateTimeLeft('2025-10-25T16:30:00');
+        setTimeLeft(time);
+        const isTimeUp = Object.values(time).every(val => val === 0);
+        setIsEnded(isTimeUp);
+
+        fadeAnim.setValue(0.3);
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 400,
+          useNativeDriver: true,
+        }).start();
+      }
     }, 1000);
 
     return () => clearInterval(interval);
@@ -45,9 +60,19 @@ const CountdownTimer = () => {
 
   return (
     <View style={styles.container}>
-      {isLive ? (
+      {isEnded ? (
+        <>
+          <Text
+            style={[styles.timeText, styles.liveText, { color: '#ef4242ff' }]}
+          >
+            Event ended-कार्यक्रम संपला!
+          </Text>
+        </>
+      ) : isLive ? (
         <Text style={[styles.timeText, styles.liveText]}>
-          🎉 The Get-Together is LIVE now!
+          🎉 Get Together is LIVE now!
+          {'\n'}
+          🎉 गेट-टुगेदर सुरु आहे!
         </Text>
       ) : (
         <>
@@ -58,7 +83,11 @@ const CountdownTimer = () => {
               timeLeft.days === 0 ? styles.redText : styles.yellowText,
             ]}
           >
-            ⏳ {timeLeft.days ?? '--'}d : {timeLeft.hours ?? '--'}h : {timeLeft.minutes ?? '--'}m : {timeLeft.seconds ?? '--'}s
+            {!timeLeft?.days
+              ? 'Loading Countdown...'
+              : `⏳ ${timeLeft.days ?? '--'}d : ${timeLeft.hours ?? '--'}h : ${
+                  timeLeft.minutes ?? '--'
+                }m : ${timeLeft.seconds ?? '--'}s`}
           </Animated.Text>
           <Text style={styles.subtitle}>Left until the Grand Reunion 🎉</Text>
         </>
@@ -77,22 +106,22 @@ const styles = StyleSheet.create({
   timeText: {
     fontSize: 22,
     fontWeight: 'bold',
-    textAlign:"center"
+    textAlign: 'center',
   },
   yellowText: {
     color: '#FFD700',
-    textAlign:"center"
+    textAlign: 'center',
   },
   redText: {
     color: '#FF3B30',
-    textAlign:"center"
+    textAlign: 'center',
   },
   subtitle: {
     fontSize: 12,
     color: '#333',
     marginTop: 5,
     color: '#FFD700',
-    textAlign:"center"
+    textAlign: 'center',
   },
   liveText: {
     color: '#34C759',

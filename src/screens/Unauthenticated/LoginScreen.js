@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -7,16 +7,20 @@ import {
   StyleSheet,
   ScrollView,
   StatusBar,
-  KeyboardAvoidingView,
-  Platform,
   ActivityIndicator,
+  Keyboard,
+  Animated,
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
+import DropDownPicker from 'react-native-dropdown-picker';
+import { useTranslation } from 'react-i18next';
+import '../../i18n/i18n.js'; // import i18n setup
 import AuthenticationService from '../../Services/authservice';
 import { useLoading } from '../../../LoadingContext';
 
 const LoginScreen = ({ navigation }) => {
+  const { t, i18n } = useTranslation();
   const { isLoading } = useLoading();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,10 +28,16 @@ const LoginScreen = ({ navigation }) => {
   const [errors, setErrors] = useState({});
   const { LoginService } = AuthenticationService();
 
+  const [open, setOpen] = useState(false);
+  const [language, setLanguage] = useState(i18n.language);
+  const [items, setItems] = useState([
+    { label: 'मराठी', value: 'mr' },
+    { label: 'English', value: 'en' },
+  ]);
+
   const validate = () => {
     let valid = true;
     const newErrors = {};
-
     if (!email.trim()) {
       newErrors.email = 'Email is required';
       valid = false;
@@ -49,31 +59,77 @@ const LoginScreen = ({ navigation }) => {
     }
   };
 
+  const handleLanguageChange = lang => {
+    setLanguage(lang);
+    i18n.changeLanguage(lang);
+  };
+
+  const [keyboardHeight] = useState(new Animated.Value(0));
+
+  useEffect(() => {
+    const showSub = Keyboard.addListener('keyboardDidShow', e => {
+      Animated.timing(keyboardHeight, {
+        toValue: e.endCoordinates.height,
+        duration: 250,
+        useNativeDriver: false,
+      }).start();
+    });
+
+    const hideSub = Keyboard.addListener('keyboardDidHide', () => {
+      Animated.timing(keyboardHeight, {
+        toValue: 0,
+        duration: 250,
+        useNativeDriver: false,
+      }).start();
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={{ flex: 1 }}
-    >
+    <Animated.View style={{ flex: 1, paddingBottom: keyboardHeight }}>
       <ScrollView contentContainerStyle={styles.container}>
         <StatusBar barStyle="light-content" />
+        <Text style={[styles.title, { marginTop: 25 }]}>
+          {t('login.title')}
+        </Text>
+        <Text style={styles.title2}>{t('login.batch')}</Text>
 
-        <Text style={styles.title}>JVJ Reconnect</Text>
-        <Text style={styles.title2}>2007 Batch</Text>
-        <MaterialIcon
-          name="person-outline"
-          size={60}
-          color="#00b4db"
-          style={{ marginBottom: 10 }}
-        />
+        <MaterialIcon name="person-outline" size={60} color="#00b4db" />
 
-        <Text style={styles.title}>Login</Text>
+        <Text style={styles.smallText}>{t('login.warning')}</Text>
+
+        {/* Language Dropdown */}
+        <View style={styles.languageSection}>
+          <Text style={styles.languageLabel}>Select Language / भाषा निवडा</Text>
+          <DropDownPicker
+            open={open}
+            value={language}
+            items={items}
+            setOpen={setOpen}
+            setValue={setLanguage}
+            setItems={setItems}
+            onChangeValue={handleLanguageChange}
+            style={styles.dropdown}
+            dropDownContainerStyle={styles.dropdownList}
+            textStyle={{ color: '#00b4db' }}
+            zIndex={1000}
+            zIndexInverse={3000}
+            arrowIconStyle={{ tintColor: '#00b4db' }}
+          />
+        </View>
+
+        <Text style={styles.title}>{t('login.login')}</Text>
 
         {/* Email Field */}
         <View style={styles.inputWrapper}>
           <View style={styles.inputContainer}>
             <MaterialIcon name="email" size={22} style={styles.icon} />
             <TextInput
-              placeholder="Email Address"
+              placeholder={t('login.emailPlaceholder')}
               placeholderTextColor="#999"
               style={styles.input}
               value={email}
@@ -92,7 +148,7 @@ const LoginScreen = ({ navigation }) => {
           <View style={styles.inputContainer}>
             <MaterialIcon name="lock" size={22} style={styles.icon} />
             <TextInput
-              placeholder="Password"
+              placeholder={t('login.passwordPlaceholder')}
               placeholderTextColor="#999"
               style={styles.input}
               secureTextEntry={secureText}
@@ -124,30 +180,30 @@ const LoginScreen = ({ navigation }) => {
             {isLoading ? (
               <ActivityIndicator size="large" color="#f3f6f7ff" />
             ) : (
-              <Text style={styles.buttonText}>Login</Text>
+              <Text style={styles.buttonText}>{t('login.login')}</Text>
             )}
           </LinearGradient>
         </TouchableOpacity>
 
-        {/* SignUp Link */}
-        <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+        <View style={styles.inlineTextContainer}>
           <Text style={styles.loginText}>
-            Don't have an account?{' '}
-            <Text style={{ color: '#00b4db', fontWeight: 'bold' }}>
-              Sign Up
-            </Text>
+            {t('login.forgotPassword')}
+            <TouchableOpacity onPress={() => navigation.navigate('ResetPassword')}>
+              <Text style={styles.linkText}> {t('login.reset')}</Text>
+            </TouchableOpacity>
           </Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('ResetPassword')}>
+        </View>
+
+        <View style={styles.inlineTextContainer}>
           <Text style={styles.loginText}>
-            Forgot your password?{' '}
-            <Text style={{ color: '#00b4db', fontWeight: 'bold' }}>
-              Reset
-            </Text>
+            {t('login.noAccount')}
+            <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+              <Text style={styles.linkText}> {t('login.signUp')}</Text>
+            </TouchableOpacity>
           </Text>
-        </TouchableOpacity>
+        </View>
       </ScrollView>
-    </KeyboardAvoidingView>
+    </Animated.View>
   );
 };
 
@@ -160,25 +216,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 30,
     paddingHorizontal: 20,
+    width: '100%',
   },
   title: {
     fontSize: 28,
     color: '#00b4db',
     fontWeight: 'bold',
-    // marginBottom: 25,
     textAlign: 'center',
   },
   title2: {
     fontSize: 28,
     color: '#00b4db',
     fontWeight: 'bold',
-    marginBottom: 25,
+    marginBottom: 20,
     textAlign: 'center',
   },
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 10,
+  smallText: {
+    color: '#f1a6a6ff',
+    fontSize: 15,
     textAlign: 'center',
   },
   inputWrapper: {
@@ -227,8 +282,53 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   loginText: {
+    width: '100%',
     color: '#aaa',
-    marginTop: 10,
     fontSize: 14,
+    textAlign: 'center',
+  },
+  inlineTextContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    marginTop: 10,
+  },
+  linkText: {
+    color: '#00b4db',
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginBottom: -4,
+    marginLeft: 8,
+  },
+
+  languageSection: {
+    width: '100%',
+    marginTop: 20,
+    marginBottom: 15,
+    alignItems: 'center',
+  },
+  languageLabel: {
+    color: '#00b4db',
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 6,
+    textAlign: 'left',
+    width: '100%',
+  },
+
+  dropdownContainer: {
+    width: '100%',
+    marginBottom: 15,
+    marginTop: 15,
+    zIndex: 10,
+  },
+  dropdown: {
+    backgroundColor: '#1e1e1e',
+    borderColor: '#00b4db',
+  },
+  dropdownList: {
+    backgroundColor: '#1e1e1e',
+    borderColor: '#00b4db',
   },
 });

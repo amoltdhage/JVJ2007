@@ -159,13 +159,13 @@ export const ProfileStyles = StyleSheet.create({
     alignItems: 'center',
   },
   expandedImage: {
-    width: '90%',
-    height: '80%',
-    borderRadius: 10,
+    width: 250,
+    height: 250,
+    borderRadius: 200,
   },
   closeButton: {
     position: 'absolute',
-    top: 40,
+    top: 65,
     right: 20,
     zIndex: 2,
   },

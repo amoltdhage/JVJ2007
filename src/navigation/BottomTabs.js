@@ -7,6 +7,7 @@ import GroupChatScreen from '../screens/Authenticated/GroupChatScreen';
 import UsersListScreen from '../screens/Authenticated/UsersListScreen';
 import { useSelector } from 'react-redux';
 import { fetchCollection } from '../Services/firestoreServices';
+import { useTranslation } from 'react-i18next';
 
 const Tab = createBottomTabNavigator();
 
@@ -25,12 +26,12 @@ export default function BottomTabs() {
 
   return (
     <Tab.Navigator
-      initialRouteName="HomeStack"
+      initialRouteName="Home"
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, size }) => {
           let iconName;
 
-          if (route.name === 'HomeStack') iconName = 'home';
+          if (route.name === 'Home') iconName = 'home';
           else if (route.name === 'Attendees') iconName = 'people';
           else if (route.name === 'Chat') iconName = 'chat';
           else if (route.name === 'Profile') iconName = 'person';
@@ -60,7 +61,7 @@ export default function BottomTabs() {
         headerShown: false,
       })}
     >
-      <Tab.Screen name="HomeStack" component={HomeStackScreen} />
+      <Tab.Screen name="Home" component={HomeStackScreen} />
       <Tab.Screen name="Chat" component={GroupChatScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>

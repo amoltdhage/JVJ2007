@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet } from 'react-native';
 
 export const GetTogetherFormStyles = StyleSheet.create({
   container: {
@@ -86,7 +86,8 @@ export const GetTogetherFormStyles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 10
+    paddingVertical: 10,
+    width:'100%'
   },
   memoryCard: {
     backgroundColor: '#004080',
@@ -105,14 +106,20 @@ export const GetTogetherFormStyles = StyleSheet.create({
     fontSize: 18,
     color: '#fff',
     marginTop: 6,
+    textAlign: 'center',
+    width:'100%'
   },
   detailBox: {
     marginTop: 12,
     alignItems: 'center',
+    textAlign: 'center',
+    width:'100%'
   },
   detail: {
     color: '#99ccff',
     fontSize: 14,
+    textAlign: 'center',
+    width:'100%'
   },
   regBox: {
     backgroundColor: '#002b5c',
@@ -135,6 +142,7 @@ export const GetTogetherFormStyles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     marginTop: 4,
+    textAlign: 'center'
   },
   pdfButton: {
     backgroundColor: '#00b4db',
@@ -153,5 +161,19 @@ export const GetTogetherFormStyles = StyleSheet.create({
     fontWeight: '500',
     marginBottom: 4,
     color: '#333',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#e5ddd5',
+  },
+  loadingText: {
+    marginTop: 10,
+    color: '#2d677aff',
+    fontSize: 16,
+    width: '100%',
+    textAlign: 'center',
+    justifyContent: 'center',
   },
 });
