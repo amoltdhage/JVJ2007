@@ -218,6 +218,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     width: '100%',
   },
+   waringText: {
+    fontSize: 14,        // smaller text size
+    color: '#e81a1aff',       // gray color
+    textAlign: 'center', // center-aligned text
+    marginTop: 8, 
+    fontWeight: 'bold',       // space above
+  },
   title: {
     fontSize: 28,
     color: '#00b4db',
