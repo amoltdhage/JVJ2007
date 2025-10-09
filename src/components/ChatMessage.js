@@ -28,5 +28,6 @@ const styles = StyleSheet.create({
   },
   text: {
     color: "#fff",
+    width: "100%"
   },
 });

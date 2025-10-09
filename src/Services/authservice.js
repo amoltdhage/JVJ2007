@@ -6,7 +6,7 @@ import {
 } from '../Redux/Actions/AuthAction/LoginAction';
 import { addCollection, fetchCollection } from './firestoreServices';
 import { useLoading } from '../../LoadingContext';
-import { Alert } from 'react-native';
+import { Alert, Text } from 'react-native';
 import toast from './ToasterService';
 import { useNavigation } from '@react-navigation/native';
 
@@ -41,18 +41,46 @@ export default function AuthenticationService() {
       };
       await addCollection('users', uid, responseData);
       await userCredential.user.sendEmailVerification();
+      // Alert.alert(
+      //   'Signup Successful - साइनअप यशस्वी झाला आहे',
+      //   `A verification email has been sent to your email address. Please verify your email before logging in.\n` +
+      //     `लॉगिन करण्यापूर्वी कृपया तुमचा ईमेल पडताळा.\n\n` +
+      //     `1. तुमच्या ईमेल पत्त्यावर एक पडताळणी (Verification) ईमेल पाठवण्यात आला आहे.\n
+      //   कृपया त्या ईमेलमधील लिंकवर क्लिक करून तुमचं खाते (Account) सत्यापित करा.\n\n` +
+      //     `2. जर ईमेल इनबॉक्समध्ये दिसत नसेल, तर Gmail मधील Spam फोल्डर तपासा.\n
+      //   तिथे तुम्हाला “noreply - Verify email for JVJ-Reconnect” अशा शीर्षकाचा ईमेल दिसेल.\n
+      //   त्या ईमेलमधील निळ्या रंगाच्या लिंकवर क्लिक करा आणि तुमचं Gmail खाते पडताळा (Verify).\n\n` +
+      //     `3. एकदा पडताळणी पूर्ण झाल्यावर, तुमच्या ॲपमध्ये परत जा, लॉगिन करा, आणि ॲप वापरण्यास सुरुवात करा.\n\n`,
+      //   [
+      //     {
+      //       text: 'OK',
+      //       onPress: () => {
+      //         navigation.navigate('login');
+      //       },
+      //     },
+      //   ],
+      // );
+
       Alert.alert(
-        'Signup Successful',
-        'A verification email has been sent to your email address. Please verify your email before logging in.',
+        'Signup Successful\nसाइनअप यशस्वी!',
+        `A verification email has been sent.\n` +
+          `तुमच्या ईमेलवर पडताळणीसाठी ईमेल पाठवलेला आहे.\n\n` +
+          `1. Check your inbox or spam folder.\n` +
+          `इनबॉक्स किंवा Spam फोल्डर तपासा.\n\n` +
+          `2. Look for an email titled:\n` +
+          `"noreply - Verify email for JVJ-Reconnect"\n\n` +
+          `3. Click the link in that email to verify your account.\n` +
+          `त्या ईमेलमधील लिंकवर क्लिक करा.\n\n` +
+          `4. After verification, return to the app and log in.\n` +
+          `पडताळणी पूर्ण झाल्यावर ॲपमध्ये येऊन लॉगिन करा.`,
         [
           {
             text: 'OK',
-            onPress: () => {
-              navigation.navigate('login');
-            },
+            onPress: () => navigation.navigate('login'),
           },
         ],
       );
+
       // dispatch(loginAction(uid));
       return { success: true, uid };
     } catch (error) {
@@ -96,8 +124,18 @@ export default function AuthenticationService() {
       if (!userCredential?.user?.emailVerified) {
         await auth().signOut();
         Alert.alert(
-          'Email Not Verified',
-          'Please verify your email address before logging in',
+          'Email Not Verified - ईमेल पडताळणी नाही',
+          `Please verify your email before logging in.\n` +
+            `लॉगिन करण्यापूर्वी कृपया तुमचा ईमेल पडताळा.\n\n` +
+            `1. We've sent a verification email titled:\n` +
+            `"noreply - Verify email for JVJ-Reconnect"\n` +
+            `तुमच्या ईमेलवर वरील नावाचा ईमेल पाठवलेला आहे.\n\n` +
+            `2. Check your inbox or Spam folder.\n` +
+            `इनबॉक्स किंवा Spam फोल्डरमध्ये तो ईमेल तपासा.\n\n` +
+            `3. Click the link in the email to verify your account.\n` +
+            `त्या ईमेलमधील लिंकवर क्लिक करून खाते पडताळा.\n\n` +
+            `4. After verification, open the app and log in.\n` +
+            `एकदा पडताळणी पूर्ण झाल्यावर ॲप उघडा आणि लॉगिन करा.`,
         );
         stopLoading();
         return;
@@ -106,7 +144,6 @@ export default function AuthenticationService() {
       const uid = userCredential.user.uid;
 
       const userDoc = await fetchCollection('users', uid);
-
       if (userDoc) {
         dispatch(loginAction(userDoc.uid));
         return { success: true, data: userDoc };
@@ -128,7 +165,6 @@ export default function AuthenticationService() {
       } else {
         toast.error(error.message, 3000);
       }
-      console.log('error: ', error, error.code);
       return { success: false, error: error.message };
     } finally {
       stopLoading();
@@ -189,7 +225,7 @@ export default function AuthenticationService() {
     try {
       await auth().signOut();
       dispatch(logoutAction());
-      if(message) toast.success(message, 3000);
+      if (message) toast.success(message, 3000);
     } catch (error) {
       console.error('Sign out error:', error);
     } finally {

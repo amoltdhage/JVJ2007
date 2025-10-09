@@ -87,6 +87,7 @@ export const GetTogetherFormStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 10,
+    width:'100%'
   },
   memoryCard: {
     backgroundColor: '#004080',
@@ -105,14 +106,20 @@ export const GetTogetherFormStyles = StyleSheet.create({
     fontSize: 18,
     color: '#fff',
     marginTop: 6,
+    textAlign: 'center',
+    width:'100%'
   },
   detailBox: {
     marginTop: 12,
     alignItems: 'center',
+    textAlign: 'center',
+    width:'100%'
   },
   detail: {
     color: '#99ccff',
     fontSize: 14,
+    textAlign: 'center',
+    width:'100%'
   },
   regBox: {
     backgroundColor: '#002b5c',
@@ -135,6 +142,7 @@ export const GetTogetherFormStyles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     marginTop: 4,
+    textAlign: 'center'
   },
   pdfButton: {
     backgroundColor: '#00b4db',

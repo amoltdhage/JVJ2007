@@ -1,18 +1,25 @@
-// src/screens/Authenticated/About.js
 import React from 'react';
-import { ScrollView, Text, StyleSheet, Image, View, Dimensions } from 'react-native';
+import {
+  ScrollView,
+  Text,
+  StyleSheet,
+  Image,
+  View,
+  Dimensions,
+} from 'react-native';
 import Header from '../../components/Header';
+import { useTranslation } from 'react-i18next';
 
 const { width } = Dimensions.get('window');
 
 export default function AboutScreen() {
+  const {t} = useTranslation();
   return (
     <View style={styles.container}>
-      <Header title="About" />
+      <Header title="About Us" />
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {/* Unified Video-Style Section */}
-        <View style={styles.videoSection}>
+        <View style={styles.card}>
           {/* Logo */}
           <Image
             source={require('../../assets/images/Janta-Vidyalaya-Jamod-2007-Reunion.png')}
@@ -21,25 +28,37 @@ export default function AboutScreen() {
           />
 
           {/* Title */}
-          <Text style={styles.title}>About JVJ 2007 Reconnect</Text>
+          <Text style={styles.title}>{t("about.appTitle")}</Text>
+
+          {/* Subtitle */}
+          <Text style={styles.subtitle}>{t("about.subtitle")}</Text>
 
           {/* Description */}
-          <Text style={styles.text}>
-            This app is <Text style={styles.highlight}>designed and developed</Text> for the{' '}
-            <Text style={styles.highlight}>JVJ 2007 10th Batch Get-Together</Text>. The event is on{' '}
-            <Text style={styles.highlight}>Saturday, 25th October 2025</Text> from{' '}
-            <Text style={styles.highlight}>10:00 AM to 4:30 PM</Text> at{' '}
-            <Text style={styles.highlight}>Janta Vidyalaya, Jamod School</Text>.
+          {/* <Text style={styles.paragraph}>
+            This app is{' '}
+            <Text style={styles.paragraph}>designed and developed</Text> for the{' '}
+            <Text style={styles.paragraph}>JVJ 2007 10th Batch Reunion</Text>.
+          </Text> */}
+          <Text style={styles.paragraph}>{t("about.description.intro")}</Text>
+
+          <Text style={styles.paragraph}>
+            <Text style={styles.bold}>{t("about.description.eventDetails")}</Text>{' '}
+            {/* 📅 <Text style={styles.bold}>Date:</Text> Saturday, 25th October
+            2025{'\n'}
+            🕙 <Text style={styles.bold}>Time:</Text> 10:00 AM to 4:30 PM{'\n'}
+            🏫 <Text style={styles.bold}>Venue:</Text> Janta Vidyalaya, Jamod */}
           </Text>
 
-          <Text style={styles.text}>
-            All 10th batchmates are invited to reconnect and celebrate. Our teachers, school staff,
-            and retired teachers are also invited as special guests.
+          <Text style={styles.paragraph}>
+            {t("about.description.invite")}
+            {/* All 10th batchmates are warmly invited to reconnect, celebrate,{'\n'} 
+            and relive our school memories with our beloved teachers and staff. */}
           </Text>
 
-          <Text style={styles.text}>
-            This app helps everyone stay informed about the event and the gathering, so we can all
-            come together to relive our school memories.
+          <Text style={styles.paragraph}>
+            {t("about.description.purpose")}
+            {/* This app keeps you informed about the event schedule, attendees, and
+            updates so that we all stay connected. */}
           </Text>
         </View>
       </ScrollView>
@@ -50,53 +69,57 @@ export default function AboutScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF0F5', // soft page background
+    backgroundColor: '#f9f9fc',
   },
   scrollContainer: {
-    padding: 20,
+    paddingVertical: 30,
+    paddingHorizontal: 20,
     alignItems: 'center',
   },
-
-  // Card styling
-  videoSection: {
-    width: '95%',
-    backgroundColor: '#002b5c', // deep navy blue
-    borderRadius: 20,
-    padding: 25,
-    alignItems: 'center',
+  card: {
+    width: '100%',
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    padding: 24,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    elevation: 8,
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 6,
   },
-
-  // Logo displayed simply
   logo: {
-    width: width * 0.5,
-    height: width * 0.5,
-    resizeMode: 'contain',
+    width: width * 0.45,
+    height: width * 0.45,
     marginBottom: 20,
+    alignSelf: 'center',
   },
-
   title: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: '#ffffff',
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#002b5c',
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#555',
     textAlign: 'center',
     marginBottom: 20,
+    marginTop: 4,
   },
-
-  text: {
-    fontSize: 16,
-    color: '#ffffff',
-    textAlign: 'center',
+  paragraph: {
+    fontSize: 15,
+    color: '#333',
     lineHeight: 24,
-    marginBottom: 15,
+    marginBottom: 16,
+    textAlign: 'center',
+    width: "100%"
   },
-
   highlight: {
-    fontWeight: 'bold',
-    color: '#d1e0ff', // lighter highlight for dark background
+    color: '#1D3557',
+    fontWeight: '600',
+  },
+  bold: {
+    fontWeight: '600',
+    width: "100%"
   },
 });

@@ -30,6 +30,7 @@ export default function ApprovalCertificate({ navigation }) {
       <Header
         title="Approval Certification"
         onBack={() => navigation.goBack()}
+        hideDropdown={true}
       />
 
       <View style={styles.content}>

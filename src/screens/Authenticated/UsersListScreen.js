@@ -459,7 +459,7 @@ const UsersListScreen = ({ navigation }) => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <Header title="Attendees" />
+        <Header title="Attendees" hideDropdown={true} />
         <View style={styles.center}>
           <ActivityIndicator size="large" color="#002b5c" />
           <Text style={styles.loadingText}>Loading attendees...</Text>
@@ -470,7 +470,7 @@ const UsersListScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Header title="Attendees" />
+      <Header title="Attendees" hideDropdown={true}/>
 
       {/* TEMPORARY: Always show buttons for testing */}
       {userDetail?.is_admin ? (

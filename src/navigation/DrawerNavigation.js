@@ -21,7 +21,6 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import ExpenseScreen from '../screens/Authenticated/ExpenseScreen';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-
 const Drawer = createDrawerNavigator();
 const { width } = Dimensions.get('window');
 
@@ -31,7 +30,7 @@ export default function DrawerNav() {
   const { logout } = AuthenticationService();
 
   useEffect(() => {
-    if (userId && !userDetail) getUserDetail(userId);
+    if (userId) getUserDetail(userId);
   }, [userId]);
 
   const getUserDetail = async id => {
@@ -140,15 +139,19 @@ export default function DrawerNav() {
           <DrawerItem
             label={() => <DrawerLabel label="Contact Us" />}
             icon={({ size }) => (
-              <MaterialCommunityIcons name="card-account-phone" size={size} color="white" />
+              <MaterialCommunityIcons
+                name="card-account-phone"
+                size={size}
+                color="white"
+              />
             )}
             onPress={() => navigation.navigate('ContactUs')}
           />
 
           <DrawerItem
-            label={() => <DrawerLabel label="Logout" />}
+            label={() => <DrawerLabel label="Logout" color="#fc6868ff" />}
             icon={({ size }) => (
-              <MaterialIcons name="logout" size={size} color="white" />
+              <MaterialIcons name="logout" size={size} color="#fc6868ff" />
               // <AntDesign name="poweroff" size={size} color="white" />
             )}
             onPress={() => handleLogout(navigation)}
@@ -172,15 +175,15 @@ export default function DrawerNav() {
             numberOfLines={2}
             ellipsizeMode="tail"
           >
-            Developed by: Amol Dhage & Nishant J
+            Developed by: Amol Dhage
           </Text>
         </View>
       </View>
     );
   };
 
-  const DrawerLabel = ({ label }) => (
-    <Text style={styles.labelText} numberOfLines={1} ellipsizeMode="tail">
+  const DrawerLabel = ({ label, color }) => (
+    <Text style={[styles.labelText, color && {color: color}]} numberOfLines={1} ellipsizeMode="tail">
       {label}
     </Text>
   );

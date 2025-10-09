@@ -7,6 +7,7 @@ import GroupChatScreen from '../screens/Authenticated/GroupChatScreen';
 import UsersListScreen from '../screens/Authenticated/UsersListScreen';
 import { useSelector } from 'react-redux';
 import { fetchCollection } from '../Services/firestoreServices';
+import { useTranslation } from 'react-i18next';
 
 const Tab = createBottomTabNavigator();
 

@@ -113,10 +113,14 @@ export default function GroupChatScreen() {
   const messages = useGroupMessages(groupId) || [];
   const flatListRef = useRef(null);
   const editInputRef = useRef(null);
+  const inputRef = useRef(null);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [itemData, setItemData] = useState(null);
   const [messagesWithSections, setMessagesWithSections] = useState([]);
+
+  const [inputHeight, setInputHeight] = useState(40);
+  const [editInputHeight, setEditInputHeight] = useState(40);
 
   // Store all users for profile images
   const [allUsers, setAllUsers] = useState({});
@@ -371,7 +375,7 @@ export default function GroupChatScreen() {
   if (loading) {
     return (
       <>
-        <Header title="Group chat" />
+        <Header title="Group chat" hideDropdown={true} />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#2d677aff" />
           <Text style={styles.loadingText}>Loading messages...</Text>
@@ -382,7 +386,7 @@ export default function GroupChatScreen() {
 
   return (
     <>
-      <Header title="Group chat" />
+      <Header title="Group chat" hideDropdown={true} />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
@@ -415,13 +419,26 @@ export default function GroupChatScreen() {
             <View style={styles.editInputContainer}>
               <TextInput
                 ref={editInputRef}
-                style={styles.editInput}
+                style={[
+                  styles.editInput,
+                  {
+                    height: Math.min(editInputHeight, 100),
+                    textAlignVertical: 'top',
+                  },
+                ]}
                 value={editText}
                 onChangeText={setEditText}
                 placeholder="Edit your message..."
-                placeholderTextColor={'gray'}
+                placeholderTextColor="gray"
+                multiline
+                onContentSizeChange={e =>
+                  setEditInputHeight(e.nativeEvent.contentSize.height)
+                }
+                scrollEnabled={editInputHeight >= 100}
+                returnKeyType="default"
               />
-              <TouchableOpacity
+
+              {/* <TouchableOpacity
                 onPress={handleEdit}
                 style={styles.editSendButton}
               >
@@ -432,17 +449,53 @@ export default function GroupChatScreen() {
                 style={styles.editCancelButton}
               >
                 <MaterialIcons name="cancel" size={25} color="#fff" />
-              </TouchableOpacity>
+              </TouchableOpacity> */}
+
+              <View style={styles.editButtonRow}>
+                <TouchableOpacity
+                  onPress={handleEdit}
+                  style={styles.editSendButton}
+                >
+                  <MaterialIcons name="send" size={22} color="#fff" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={cancelEdit}
+                  style={styles.editCancelButton}
+                >
+                  <MaterialIcons name="cancel" size={22} color="#fff" />
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         ) : (
           <View style={styles.inputContainer}>
-            <TextInput
+            {/* <TextInput
               style={styles.input}
               value={text}
               onChangeText={setText}
               placeholder="Type a message..."
               placeholderTextColor={'gray'}
+            /> */}
+
+            <TextInput
+              ref={inputRef}
+              style={[
+                styles.input,
+                {
+                  height: Math.min(inputHeight, 100),
+                  textAlignVertical: 'top',
+                },
+              ]}
+              value={text}
+              onChangeText={setText}
+              placeholder="Type a message..."
+              placeholderTextColor="gray"
+              multiline
+              onContentSizeChange={e =>
+                setInputHeight(e.nativeEvent.contentSize.height)
+              }
+              scrollEnabled={inputHeight >= 100}
+              returnKeyType="default"
             />
             <TouchableOpacity onPress={handleSend} style={styles.sendButton}>
               <MaterialIcons name="send" size={20} color="#fff" />
@@ -597,7 +650,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f0f0',
     borderTopWidth: 1,
     borderTopColor: '#ddd',
-    alignItems: 'center',
+    alignItems: 'flex-end',
   },
   input: {
     flex: 1,
@@ -624,7 +677,14 @@ const styles = StyleSheet.create({
     borderTopColor: '#ffd54f',
   },
   editLabel: { fontSize: 12, color: '#666', marginBottom: 6 },
-  editInputContainer: { flexDirection: 'row', alignItems: 'center' },
+  editInputContainer: { flexDirection: 'row', alignItems: 'flex-end' },
+
+  editButtonRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    // marginTop: 8,
+  },
+
   editInput: {
     flex: 1,
     backgroundColor: '#fff',

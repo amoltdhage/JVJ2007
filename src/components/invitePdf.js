@@ -153,7 +153,7 @@ const formattedDateTime = `${datePart} at ${timePart}`;
   <div class="container">
     <div class="header">
       <h2>${EVENT_INFO.titleBig} ${form?.isTeacher ? "(Teacher)" : ""}</h2>
-      <div class="subtitle">${EVENT_INFO.subtitle}</div>
+      <div class="subtitle">${EVENT_INFO.subtitle} - Event Pass </div>
     </div>
 
     <div class="section">

@@ -14,8 +14,11 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useLoading } from '../../../LoadingContext';
 import AuthenticationService from '../../Services/authservice';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
+import DropDownPicker from 'react-native-dropdown-picker';
 
 export default function ResetPassword() {
+  const { t, i18n } = useTranslation();
   const { sendPasswordResetEmail } = AuthenticationService();
   const [form, setForm] = useState({ email: '' });
   const navigation = useNavigation();
@@ -23,6 +26,18 @@ export default function ResetPassword() {
   const { isLoading } = useLoading();
 
   const [errors, setErrors] = useState({});
+
+  const [open, setOpen] = useState(false);
+  const [language, setLanguage] = useState(i18n.language);
+  const [items, setItems] = useState([
+    { label: 'मराठी', value: 'mr' },
+    { label: 'English', value: 'en' },
+  ]);
+
+  const handleLanguageChange = lang => {
+    setLanguage(lang);
+    i18n.changeLanguage(lang);
+  };
 
   const handleChange = (name, value) => {
     setForm({ ...form, [name]: value });
@@ -60,13 +75,33 @@ export default function ResetPassword() {
         color="#00b4db"
         style={{ marginBottom: 10 }}
       />
-      <Text style={styles.title}>Reset Password</Text>
+      <Text style={styles.title}>{t('resetPassword')}</Text>
+
+      {/* Language Dropdown */}
+      <View style={styles.languageSection}>
+        <Text style={styles.languageLabel}>Select Language / भाषा निवडा</Text>
+        <DropDownPicker
+          open={open}
+          value={language}
+          items={items}
+          setOpen={setOpen}
+          setValue={setLanguage}
+          setItems={setItems}
+          onChangeValue={handleLanguageChange}
+          style={styles.dropdown}
+          dropDownContainerStyle={styles.dropdownList}
+          textStyle={{ color: '#00b4db' }}
+          zIndex={1000}
+          zIndexInverse={3000}
+          arrowIconStyle={{ tintColor: '#00b4db' }}
+        />
+      </View>
 
       <View style={styles.inputWrapper}>
         <View style={styles.inputContainer}>
           <MaterialIcon name="email" size={22} style={styles.icon} />
           <TextInput
-            placeholder="Email Address"
+            placeholder={t('signup.email')}
             style={styles.input}
             placeholderTextColor="#999"
             value={form?.['email']}
@@ -86,7 +121,7 @@ export default function ResetPassword() {
           {isLoading ? (
             <ActivityIndicator size="large" color="#f3f6f7ff" />
           ) : (
-            <Text style={styles.buttonText}>Reset password</Text>
+            <Text style={styles.buttonText}>{t('resetPassword')}</Text>
           )}
         </LinearGradient>
       </TouchableOpacity>
@@ -94,9 +129,9 @@ export default function ResetPassword() {
       {/* Already have account */}
       <View style={styles.inlineTextContainer}>
         <Text style={styles.loginText}>
-          Password remembered?
+          {t('rememberedPassword')}
           <TouchableOpacity onPress={() => navigation.navigate('login')}>
-            <Text style={styles.linkText}>Login</Text>
+            <Text style={styles.linkText}> {t('signup.login')}</Text>
           </TouchableOpacity>
         </Text>
       </View>
@@ -183,5 +218,34 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: -4,
     marginLeft: 8,
+  },
+
+  languageSection: {
+    width: '100%',
+    marginBottom: 15,
+    alignItems: 'center',
+  },
+  languageLabel: {
+    color: '#00b4db',
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 6,
+    textAlign: 'left',
+    width: '100%',
+  },
+
+  dropdownContainer: {
+    width: '100%',
+    marginBottom: 15,
+    marginTop: 15,
+    zIndex: 10,
+  },
+  dropdown: {
+    backgroundColor: '#1e1e1e',
+    borderColor: '#00b4db',
+  },
+  dropdownList: {
+    backgroundColor: '#1e1e1e',
+    borderColor: '#00b4db',
   },
 });

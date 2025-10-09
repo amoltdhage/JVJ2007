@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View } from 'react-native';
 import DatePicker from 'react-native-date-picker';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 
 export default function DatePickerComponent({ styles, form, onChange, errors }) {
   const [dobPickerOpen, setDobPickerOpen] = useState(false);
+  const { t } = useTranslation();
   return (
     <View style={styles.inputWrapper}>
-      <Text style={styles.label}>Date of birth</Text>
+      <Text style={styles.label}>{t("getTogether.dob")}</Text>
       <TouchableOpacity
         style={styles.inputContainer}
         onPress={() => setDobPickerOpen(true)}

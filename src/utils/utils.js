@@ -11,5 +11,5 @@ export const EVENT_INFO = {
   subtitle: 'Get Together',
   dateLine: '📅 25th October 2025, Saturday',
   timeLine: '⏰ 10:00 AM - 4:30 PM',
-  placeLine: '📍 Janta Vidyalaya, Jamod',
+  placeLine:'📍 Janta Vidyalaya, Jamod',
 };

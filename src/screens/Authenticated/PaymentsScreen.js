@@ -145,115 +145,140 @@ const PaymentDetailsScreen = () => {
     0,
   );
 
+  // const handleDownloadPDF = async () => {
+  //   let pdfPath = null;
+
+  //   const htmlContent = await generatePaymentsHTML(payments, totalAmount);
+
+  //   // Generate PDF from HTML
+  //   const generatePDF = async () => {
+  //     try {
+  //       const file = await RNHTMLtoPDF.convert({
+  //         html: htmlContent,
+  //         fileName: 'payment-collection',
+  //         base64: false,
+  //       });
+  //       pdfPath = file.filePath;
+  //       return file.filePath;
+  //     } catch (error) {
+  //       Alert.alert('Error', 'Could not generate PDF');
+  //     }
+  //   };
+
+  //   // View PDF
+  //   const handleViewPDF = async () => {
+  //     try {
+  //       let path = pdfPath || (await generatePDF());
+  //       await FileViewer.open(path, { showOpenWithDialog: true });
+  //     } catch (error) {
+  //       Alert.alert('Error', 'Could not open PDF');
+  //     }
+  //   };
+  //   await handleViewPDF();
+  // };
+
   const handleDownloadPDF = async () => {
-    let pdfPath = null;
+    try {
+      const htmlContent = await generatePaymentsHTML(payments, totalAmount);
 
-    const htmlContent = await generatePaymentsHTML(payments, totalAmount);
+      const file = await RNHTMLtoPDF.convert({
+        html: htmlContent,
+        fileName: 'payment-collection',
+        base64: false,
+      });
 
-    // Generate PDF from HTML
-    const generatePDF = async () => {
-      try {
-        const file = await RNHTMLtoPDF.convert({
-          html: htmlContent,
-          fileName: 'payment-collection',
-          base64: false,
-        });
-        pdfPath = file.filePath;
-        return file.filePath;
-      } catch (error) {
-        Alert.alert('Error', 'Could not generate PDF');
-      }
-    };
-
-    // View PDF
-    const handleViewPDF = async () => {
-      try {
-        let path = pdfPath || (await generatePDF());
-        await FileViewer.open(path, { showOpenWithDialog: true });
-      } catch (error) {
-        Alert.alert('Error', 'Could not open PDF');
-      }
-    };
-    await handleViewPDF();
+      const pdfPath = file.filePath;
+      await FileViewer.open(pdfPath, { showOpenWithDialog: true });
+    } catch (error) {
+      console.log(error);
+      Alert.alert('Error', 'Could not generate or open PDF');
+    }
   };
 
-  const renderItem = ({ item }) => (
-    <View
-      style={[
-        styles.cardContainer,
+  const renderItem = ({ item }) => {
+    const checkCondition =
+      !userDetail?.is_admin &&
+      !userDetail?.isCashier &&
+      (item?.status !== 'Paid' || item?.received !== 'Received');
+    return !checkCondition ? (
+      <View
+        style={[
+          styles.cardContainer,
+          {
+            backgroundColor: item.rowIndex % 2 === 0 ? '#ffffff' : '#f9f9f9',
+          },
+        ]}
+      >
+        <Text style={styles.fieldText}>
+          <Text style={styles.fieldLabel}>Payee: </Text>
+          {item.payee}
+        </Text>
+
+        <Text style={styles.fieldText}>
+          <Text style={styles.fieldLabel}>Amount: </Text>{' '}
+          <Text
+            style={{
+              color: item.status === 'Paid' ? '#1E90FF' : '#E53935',
+              fontWeight: '600',
+            }}
+          >
+            ₹{commaNumber(item.amount)}
+          </Text>
+        </Text>
+
+        <Text style={styles.fieldText}>
+          <Text style={styles.fieldLabel}>Status: </Text>
+          <Text
+            style={{
+              color: item.status === 'Paid' ? '#4CAF50' : '#E53935',
+              fontWeight: '600',
+            }}
+          >
+            {item.status}
+          </Text>
+        </Text>
+
+        <Text style={styles.fieldText}>
+          <Text style={styles.fieldLabel}>Receipt Status: </Text>
+          <Text
+            style={{
+              color: item.received === 'Received' ? '#750581ff' : '#B0B0B0',
+              fontWeight: '600',
+            }}
+          >
+            {item.received || 'Not Received'}
+          </Text>
+        </Text>
+
         {
-          backgroundColor: item.rowIndex % 2 === 0 ? '#ffffff' : '#f9f9f9',
-        },
-      ]}
-    >
-      <Text style={styles.fieldText}>
-        <Text style={styles.fieldLabel}>Payee: </Text>
-        {item.payee}
-      </Text>
+          // userDetail?.is_admin ||
+          userDetail?.isCashier && (
+            <View style={styles.actionsRow}>
+              <TouchableOpacity
+                onPress={() => openModal(item)}
+                style={styles.iconButton}
+              >
+                <FontAwesome name="edit" size={22} color="#1E90FF" />
+                {/* <Text style={styles.iconLabel}>Edit</Text> */}
+              </TouchableOpacity>
 
-      <Text style={styles.fieldText}>
-        <Text style={styles.fieldLabel}>Amount: </Text>{' '}
-        <Text
-          style={{
-            color: item.status === 'Paid' ? '#1E90FF' : '#E53935',
-            fontWeight: '600',
-          }}
-        >
-          ₹{commaNumber(item.amount)}
-        </Text>
-      </Text>
-
-      <Text style={styles.fieldText}>
-        <Text style={styles.fieldLabel}>Status: </Text>
-        <Text
-          style={{
-            color: item.status === 'Paid' ? '#4CAF50' : '#E53935',
-            fontWeight: '600',
-          }}
-        >
-          {item.status}
-        </Text>
-      </Text>
-
-      <Text style={styles.fieldText}>
-        <Text style={styles.fieldLabel}>Receipt Status: </Text>
-        <Text
-          style={{
-            color: item.received === 'Received' ? '#750581ff' : '#B0B0B0',
-            fontWeight: '600',
-          }}
-        >
-          {item.received || 'Not Received'}
-        </Text>
-      </Text>
-
-      {(
-        // userDetail?.is_admin || 
-        userDetail?.isCashier) && (
-        <View style={styles.actionsRow}>
-          <TouchableOpacity
-            onPress={() => openModal(item)}
-            style={styles.iconButton}
-          >
-            <FontAwesome name="edit" size={22} color="#1E90FF" />
-            {/* <Text style={styles.iconLabel}>Edit</Text> */}
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => handleDeletePayment(item.id)}
-            style={styles.iconButton}
-          >
-            <FontAwesome name="trash" size={22} color="#E53935" />
-            {/* <Text style={styles.iconLabel}>Delete</Text> */}
-          </TouchableOpacity>
-        </View>
-      )}
-    </View>
-  );
+              <TouchableOpacity
+                onPress={() => handleDeletePayment(item.id)}
+                style={styles.iconButton}
+              >
+                <FontAwesome name="trash" size={22} color="#E53935" />
+                {/* <Text style={styles.iconLabel}>Delete</Text> */}
+              </TouchableOpacity>
+            </View>
+          )
+        }
+      </View>
+    ) : null;
+  };
 
   return (
     <View style={styles.container}>
-      <Header title="Payment Collection" />
+      <Header title="Payment Collection" hideDropdown={true} />
       {userDetail?.is_admin || userDetail?.isCashier ? (
         <>
           <View style={styles.totalContainer}>
@@ -287,7 +312,18 @@ const PaymentDetailsScreen = () => {
 
       <View style={{ flex: 1 }}>
         <FlatList
-          data={payments}
+          data={
+            payments?.length
+              ? payments.filter(
+                  p =>
+                    !(
+                      !userDetail?.is_admin &&
+                      !userDetail?.isCashier &&
+                      (p?.status !== 'Paid' || p?.received !== 'Received')
+                    ),
+                )
+              : []
+          }
           keyExtractor={item => item.id}
           renderItem={renderItem}
           contentContainerStyle={{ paddingBottom: 80 }}

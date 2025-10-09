@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -10,13 +10,18 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  Animated,
+  Keyboard,
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
 import { useLoading } from '../../../LoadingContext';
 import AuthenticationService from '../../Services/authservice';
+import DropDownPicker from 'react-native-dropdown-picker';
+import { useTranslation } from 'react-i18next';
 
 const SignUpScreen = ({ navigation }) => {
+  const { t, i18n } = useTranslation();
   const [form, setForm] = useState({
     firstName: '',
     lastName: '',
@@ -33,9 +38,21 @@ const SignUpScreen = ({ navigation }) => {
   const [secureText, setSecureText] = useState(true);
   const [secureConfirmText, setSecureConfirmText] = useState(true);
 
+  const [open, setOpen] = useState(false);
+  const [language, setLanguage] = useState(i18n.language);
+  const [items, setItems] = useState([
+    { label: 'मराठी', value: 'mr' },
+    { label: 'English', value: 'en' },
+  ]);
+
   const handleChange = (name, value) => {
     setForm({ ...form, [name]: value });
     setErrors({ ...errors, [name]: '' }); // clear error as user types
+  };
+
+  const handleLanguageChange = lang => {
+    setLanguage(lang);
+    i18n.changeLanguage(lang);
   };
 
   const validate = () => {
@@ -87,7 +104,7 @@ const SignUpScreen = ({ navigation }) => {
     if (validate()) {
       const randomNum = Math.floor(100000 + Math.random() * 900000); // 6-digit random number
       const reversedNum = String(randomNum).split('').reverse().join(''); // reverse the digits
-      
+
       const requestBody = {
         firstName: form.firstName?.trim(),
         lastName: form.lastName?.trim(),
@@ -101,12 +118,38 @@ const SignUpScreen = ({ navigation }) => {
     }
   };
 
+  const [keyboardHeight] = useState(new Animated.Value(0));
+
+  useEffect(() => {
+    const showSub = Keyboard.addListener('keyboardDidShow', e => {
+      Animated.timing(keyboardHeight, {
+        toValue: e.endCoordinates.height,
+        duration: 250,
+        useNativeDriver: false,
+      }).start();
+    });
+
+    const hideSub = Keyboard.addListener('keyboardDidHide', () => {
+      Animated.timing(keyboardHeight, {
+        toValue: 0,
+        duration: 250,
+        useNativeDriver: false,
+      }).start();
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : -30}
-      style={{ flex: 1 }}
-    >
+    // <KeyboardAvoidingView
+    //   behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    //   keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : -30}
+    //   style={{ flex: 1 }}
+    // >
+    <Animated.View style={{ flex: 1, paddingBottom: keyboardHeight }}>
       <ScrollView contentContainerStyle={styles.container}>
         <StatusBar barStyle="light-content" />
         <MaterialIcon
@@ -115,17 +158,37 @@ const SignUpScreen = ({ navigation }) => {
           color="#00b4db"
           style={{ marginBottom: 10 }}
         />
-        <Text style={styles.title}>Create Account</Text>
+        <Text style={styles.title}>{t('signup.title')}</Text>
+
+        {/* Language Dropdown */}
+        <View style={styles.languageSection}>
+          <Text style={styles.languageLabel}>Select Language / भाषा निवडा</Text>
+          <DropDownPicker
+            open={open}
+            value={language}
+            items={items}
+            setOpen={setOpen}
+            setValue={setLanguage}
+            setItems={setItems}
+            onChangeValue={handleLanguageChange}
+            style={styles.dropdown}
+            dropDownContainerStyle={styles.dropdownList}
+            textStyle={{ color: '#00b4db' }}
+            zIndex={1000}
+            zIndexInverse={3000}
+            arrowIconStyle={{ tintColor: '#00b4db' }}
+          />
+        </View>
 
         {[
-          { name: 'firstName', placeholder: 'First Name', icon: 'person' },
+          { name: 'firstName', placeholder: t('signup.firstName'), icon: 'person' },
           {
             name: 'lastName',
-            placeholder: 'Last Name',
+            placeholder: t('signup.lastName'),
             icon: 'person-outline',
           },
-          { name: 'email', placeholder: 'Email Address', icon: 'email' },
-          { name: 'mobile', placeholder: 'Mobile Number', icon: 'phone' },
+          { name: 'email', placeholder: t('signup.email'), icon: 'email' },
+          { name: 'mobile', placeholder: t('signup.mobile'), icon: 'phone' },
         ].map((field, index) => (
           <View key={index} style={styles.inputWrapper}>
             <View style={styles.inputContainer}>
@@ -162,7 +225,7 @@ const SignUpScreen = ({ navigation }) => {
           <View style={styles.inputContainer}>
             <MaterialIcon name="lock" size={22} style={styles.icon} />
             <TextInput
-              placeholder="Password"
+              placeholder={t("signup.password")}
               secureTextEntry={secureText}
               style={styles.input}
               placeholderTextColor="#999"
@@ -188,7 +251,7 @@ const SignUpScreen = ({ navigation }) => {
           <View style={styles.inputContainer}>
             <MaterialIcon name="lock-outline" size={22} style={styles.icon} />
             <TextInput
-              placeholder="Confirm Password"
+              placeholder={t("signup.confirmPassword")}
               secureTextEntry={secureConfirmText}
               style={styles.input}
               placeholderTextColor="#999"
@@ -220,7 +283,7 @@ const SignUpScreen = ({ navigation }) => {
             {isLoading ? (
               <ActivityIndicator size="large" color="#f3f6f7ff" />
             ) : (
-              <Text style={styles.buttonText}>Sign Up</Text>
+              <Text style={styles.buttonText}>{t("signup.button")}</Text>
             )}
           </LinearGradient>
         </TouchableOpacity>
@@ -234,14 +297,15 @@ const SignUpScreen = ({ navigation }) => {
         </TouchableOpacity> */}
         <View style={styles.inlineTextContainer}>
           <Text style={styles.loginText}>
-            Already have an account?
+            {t("signup.haveAccount")}
             <TouchableOpacity onPress={() => navigation.navigate('login')}>
-              <Text style={styles.linkText}>Login</Text>
+              <Text style={styles.linkText}> {t("signup.login")}</Text>
             </TouchableOpacity>
           </Text>
         </View>
       </ScrollView>
-    </KeyboardAvoidingView>
+      {/* </KeyboardAvoidingView> */}
+    </Animated.View>
   );
 };
 
@@ -322,13 +386,43 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flexWrap: 'wrap',
-    marginTop: 10,
+    marginTop: 5,
+    marginBottom: 30
   },
   linkText: {
     color: '#00b4db',
     fontWeight: 'bold',
     fontSize: 16,
     marginBottom: -4,
-    marginLeft: 10
+    marginLeft: 10,
+  },
+
+  languageSection: {
+    width: '100%',
+    marginBottom: 15,
+    alignItems: 'center',
+  },
+  languageLabel: {
+    color: '#00b4db',
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 6,
+    textAlign: 'left',
+    width: '100%',
+  },
+
+  dropdownContainer: {
+    width: '100%',
+    marginBottom: 15,
+    marginTop: 15,
+    zIndex: 10,
+  },
+  dropdown: {
+    backgroundColor: '#1e1e1e',
+    borderColor: '#00b4db',
+  },
+  dropdownList: {
+    backgroundColor: '#1e1e1e',
+    borderColor: '#00b4db',
   },
 });

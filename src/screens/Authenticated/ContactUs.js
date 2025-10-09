@@ -10,8 +10,11 @@ import {
   Platform,
 } from 'react-native';
 import Header from '../../components/Header';
+import { useTranslation } from 'react-i18next';
 
 const ContactUs = () => {
+  const { t } = useTranslation();
+
   // Handlers
   const handleEmail = email => {
     Linking.openURL(`mailto:${email}`);
@@ -29,7 +32,7 @@ const ContactUs = () => {
         if (supported) {
           Linking.openURL(appURL);
         } else {
-          Linking.openURL(webURL); // fallback to WhatsApp Web
+          Linking.openURL(webURL);
         }
       })
       .catch(err => console.log(err));
@@ -47,113 +50,84 @@ const ContactUs = () => {
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {/* Intro Section */}
-        <Text style={styles.title}>Get in Touch</Text>
-        <Text style={styles.description}>
-          Have questions or want to connect with us? Reach out anytime through
-          email or join our official WhatsApp group for updates and discussions.
-        </Text>
+        <Text style={styles.title}>{t('contactUs.introTitle')}</Text>
+        <Text style={styles.description}>{t('contactUs.introDesc')}</Text>
 
-        {/* Official Section */}
+        {/* Official Support */}
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Official Support</Text>
+          <Text style={styles.sectionTitle}>{t('contactUs.officialSupportTitle')}</Text>
 
-          {/* Email Button with short label */}
           <TouchableOpacity
             style={styles.button}
             onPress={() =>
               handleEmail('janta.vidyalaya.jamod.official@gmail.com')
             }
           >
-            <Text style={styles.buttonText}>📧 Click here to email</Text>
+            <Text style={styles.buttonText}>{t('contactUs.emailButton')}</Text>
           </TouchableOpacity>
 
-          {/* Call Button */}
           <TouchableOpacity
             style={styles.button}
             onPress={() => handleCall('9890332831')}
           >
-            <Text style={styles.buttonText}>📞 9890332831</Text>
+            <Text style={styles.buttonText}>{t('contactUs.callButton')}</Text>
           </TouchableOpacity>
 
-          {/* WhatsApp Button */}
           <TouchableOpacity
             style={styles.button}
             onPress={() => handleWhatsApp('9890332831')}
           >
-            <Text style={styles.buttonText}>💬 WhatsApp Chat</Text>
+            <Text style={styles.buttonText}>{t('contactUs.whatsappButton')}</Text>
           </TouchableOpacity>
         </View>
 
-        {/* WhatsApp Group Section */}
- {/* WhatsApp Group Section */}
-<View style={[styles.card, { alignItems: "center" }]}>
-  <Text style={styles.sectionTitle}>Our WhatsApp Group</Text>
-  <TouchableOpacity
-    style={[styles.button, { backgroundColor: "#34b764ff" }]} // WhatsApp green
-    onPress={handleWhatsAppGroup}
-  >
-    <Text style={styles.buttonText}>💬 Chat on Our WhatsApp Group</Text>
-  </TouchableOpacity>
-</View>
+        {/* WhatsApp Group */}
+        <View style={[styles.card, { alignItems: 'ledt' }]}>
+          <Text style={styles.sectionTitle}>{t('contactUs.whatsappGroupTitle')}</Text>
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: '#34b764ff' }]}
+            onPress={handleWhatsAppGroup}
+          >
+            <Text style={styles.buttonText}>{t('contactUs.whatsappGroupButton')}</Text>
+          </TouchableOpacity>
+        </View>
 
+        {/* Developers */}
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>{t('contactUs.developersTitle')}</Text>
 
+          <Text style={styles.infoText}>{t('contactUs.developer1Name')}</Text>
+          <Text style={styles.roleText}>{t('contactUs.developer1Role')}</Text>
+          <TouchableOpacity
+            style={styles.buttonSmall}
+            onPress={() => handleCall('9890332831')}
+          >
+            <Text style={styles.buttonText}>{t('contactUs.developer1Call')}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.buttonSmall}
+            onPress={() => handleWhatsApp('9890332831')}
+          >
+            <Text style={styles.buttonText}>{t('contactUs.developer1WhatsApp')}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.buttonSmall}
+            onPress={() => handleEmail('amoltdhage@gmail.com')}
+          >
+            <Text style={styles.buttonText}>{t('contactUs.developer1Email')}</Text>
+          </TouchableOpacity>
 
-        {/* Developers Section */}
-       {/* Developers Section */}
-<View style={styles.card}>
-  <Text style={styles.sectionTitle}>Developers</Text>
+          <View style={{ height: 20 }} />
 
-  {/* Amol Dhage */}
-  <Text style={styles.infoText}>👨‍💻 Amol Dhage</Text>
-  <Text style={styles.roleText}>
-    iOS Developer | Mobile App Software Engineer
-  </Text>
-  <TouchableOpacity
-    style={styles.buttonSmall}
-    onPress={() => handleCall('9890332831')}
-  >
-    <Text style={styles.buttonText}>📞 9890332831</Text>
-  </TouchableOpacity>
-  <TouchableOpacity
-    style={styles.buttonSmall}
-    onPress={() => handleWhatsApp('9890332831')}
-  >
-    <Text style={styles.buttonText}>💬 WhatsApp Chat</Text>
-  </TouchableOpacity>
-  <TouchableOpacity
-    style={styles.buttonSmall}
-    onPress={() => handleEmail('amoltdhage@gmail.com')}
-  >
-    <Text style={styles.buttonText}>📧 Email: amoltdhage@gmail.com</Text>
-  </TouchableOpacity>
-  {/* Spacer between developers */}
-  <View style={{ height: 20 }} />
-
-  {/* Nishant Jain */}
-  <Text style={styles.infoText}>👨‍💻 Nishant Jain</Text>
-  <Text style={styles.roleText}>
-    Software Developer | Database Developer
-  </Text>
-  <TouchableOpacity
-    style={styles.buttonSmall}
-    onPress={() => handleCall('9352257062')}
-  >
-    <Text style={styles.buttonText}>📞 9352257062</Text>
-  </TouchableOpacity>
-  <TouchableOpacity
-    style={styles.buttonSmall}
-    onPress={() => handleWhatsApp('9352257062')}
-  >
-    <Text style={styles.buttonText}>💬 WhatsApp Chat</Text>
-  </TouchableOpacity>
-    <TouchableOpacity
-    style={styles.buttonSmall}
-    onPress={() => handleEmail('nishantjain951@gmail.com')}
-  >
-    <Text style={styles.buttonText}>📧 Email: nishantjain951@gmail.com</Text>
-  </TouchableOpacity>
-</View>
-
+          <Text style={styles.infoText}>{t('contactUs.developer2Name')}</Text>
+          <Text style={styles.roleText}>{t('contactUs.developer2Role')}</Text>
+          <TouchableOpacity
+            style={styles.buttonSmall}
+            onPress={() => handleEmail('nishantjain951@gmail.com')}
+          >
+            <Text style={styles.buttonText}>{t('contactUs.developer2Email')}</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </View>
   );
@@ -211,7 +185,7 @@ const styles = StyleSheet.create({
   },
   roleText: {
     fontSize: 13,
-    color: '#080a22ff', // deep navy blue
+    color: '#080a22ff',
     fontWeight: '400',
     fontFamily: Platform.OS === 'ios' ? 'Helvetica Neue' : 'sans-serif-medium',
     letterSpacing: 0.5,

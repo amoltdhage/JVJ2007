@@ -2,8 +2,10 @@ import React from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import Header from '../../components/Header';
 import { EVENT_INFO } from '../../utils/utils';
+import { useTranslation } from 'react-i18next';
 
 export default function NotAttendingComponent({ resetForm, styles }) {
+  const { t } = useTranslation(); 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Header title={EVENT_INFO.subtitle} showBack />
@@ -16,7 +18,7 @@ export default function NotAttendingComponent({ resetForm, styles }) {
             <Text style={styles.detail}>{EVENT_INFO.timeLine}</Text>
             <Text style={styles.detail}>{EVENT_INFO.placeLine}</Text>
           </View>
-          <View style={{ marginTop: 24, alignItems: 'center' }}>
+          <View style={{ marginTop: 24 }}>
             <Text
               style={{
                 fontSize: 16,
@@ -25,7 +27,7 @@ export default function NotAttendingComponent({ resetForm, styles }) {
                 textAlign: 'center',
               }}
             >
-              Thank you for your response! We’ll miss you at the event.
+             { t("missYouMessage")}
             </Text>
             <TouchableOpacity
               style={[
@@ -35,7 +37,18 @@ export default function NotAttendingComponent({ resetForm, styles }) {
               onPress={resetForm}
             >
               <Text style={{ color: '#002b5c', fontWeight: '700' }}>
-                Go Back
+                {t("goBackToForm")}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.pdfButton,
+                { backgroundColor: '#f53737ff', marginTop: 30 },
+              ]}
+              onPress={resetForm}
+            >
+              <Text style={{ color: '#fff', fontWeight: '700' }}>
+                {t("close")}
               </Text>
             </TouchableOpacity>
           </View>

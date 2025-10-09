@@ -1,22 +1,26 @@
-import commaNumber from "comma-number";
+import commaNumber from 'comma-number';
 
-export const generatePaymentsHTML = (payments, totalAmount, type = "payment") => {
-    // Helper function for formatting date & time
-const formatDateTime = () => {
-  const now = new Date();
-  const day = String(now.getDate()).padStart(2, '0');
-  const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-based
-  const year = now.getFullYear();
+export const generatePaymentsHTML = (
+  payments,
+  totalAmount,
+  type = 'payment',
+) => {
+  // Helper function for formatting date & time
+  const formatDateTime = () => {
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+    const year = now.getFullYear();
 
-  let hours = now.getHours();
-  const minutes = String(now.getMinutes()).padStart(2, '0');
-  const ampm = hours >= 12 ? 'PM' : 'AM';
-  hours = hours % 12;
-  hours = hours ? hours : 12; // the hour '0' should be '12'
-  const strHours = String(hours).padStart(2, '0');
+    let hours = now.getHours();
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // the hour '0' should be '12'
+    const strHours = String(hours).padStart(2, '0');
 
-  return `${day}/${month}/${year} at ${strHours}:${minutes}${ampm}`;
-};
+    return `${day}/${month}/${year} at ${strHours}:${minutes}${ampm}`;
+  };
 
   return `
 <!DOCTYPE html>
@@ -25,6 +29,10 @@ const formatDateTime = () => {
 <meta charset="utf-8" />
 <title>Payment Details</title>
 <style>
+  @page {
+    background-color: #daecf9;
+    margin: 15px;
+  }
   body {
     font-family: Arial, sans-serif;
     background-color: #daecf9;
@@ -73,11 +81,17 @@ const formatDateTime = () => {
     border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    page-break-inside: auto;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
   }
 
   th, td {
     padding: 10px 8px;
-    text-align: center; /* Center align all cells */
+    text-align: center;
     border-bottom: 1px solid #ddd;
   }
 
@@ -115,39 +129,52 @@ const formatDateTime = () => {
 </style>
 </head>
 <body>
-
-  <h1>${type === "expense" ? "Expense" : "Collection"} Details</h1>
+  <h1>${type === 'expense' ? 'Expense' : 'Collection'} Details</h1>
   <h2>JVJ 2007 - 10th Batch Get Together - 2025</h2>
   <div class="total-summary">
-    <div class="new-total-summary">Total Amount&nbsp;:&nbsp;<span>₹${commaNumber(totalAmount)}</span></div>
+    <div class="new-total-summary">Total Amount&nbsp;:&nbsp;<span>₹${commaNumber(
+      totalAmount,
+    )}</span></div>
   </div>
 
   <table>
     <thead>
       <tr>
-        <th style="width:35%;">${type === "expense" ? "Expense" : "Payee"}</th>
-        <th style="width:20%">Amount</th>
-        <th style="width:20%">Status</th>
-        ${type !== "expense" ? <th style="width:25%">Receipt Status</th> : ""}
+        <th style="width:10%;">Sr No.</th>
+        <th style="width:35%;">${type === 'expense' ? 'Expense' : 'Payee'}</th>
+        <th style="width:15%">Amount</th>
+        <th style="width:15%">Status</th>
+        ${type !== 'expense' ? `<th style="width:25%">Receipt Status</th>` : ''}
       </tr>
     </thead>
     <tbody>
       ${payments
         .map(
-          (item) => `
+          (item, index) => `
           <tr>
-            <td>${item?.[type === "expense" ? "expense" : "payee"]}</td>
-            <td class="${item.status === 'Paid' ? 'paid' : 'pending'}">₹${commaNumber(item.amount)}</td>
-            <td class="${item.status === 'Paid' ? 'paid' : 'pending'}">${item.status}</td>
-            ${type !== "expense" ? <td class="${item.received === 'Received' ? 'received' : 'not-received'}">${item.received || 'Not Received'}</td> : ""}
+            <td>${index + 1}</td>
+            <td>${item?.[type === 'expense' ? 'expense' : 'payee']}</td>
+            <td class="${
+              item.status === 'Paid' ? 'paid' : 'pending'
+            }">₹${commaNumber(item.amount)}</td>
+            <td class="${item.status === 'Paid' ? 'paid' : 'pending'}">${
+            item.status
+          }
+          </td>
+          ${
+            type !== 'expense'
+              ? `<td class="${
+                  item.received === 'Received' ? 'received' : 'not-received'
+                }">${item.received || 'Not Received'}</td>`
+              : ''
+          }
           </tr>
-        `
+        `,
         )
-        .join("")}
+        .join('')}
     </tbody>
   </table>
   <footer>Generated on ${formatDateTime()}</footer>
-
 </body>
 </html>
 `;

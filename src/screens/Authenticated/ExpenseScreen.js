@@ -156,108 +156,144 @@ export default function ExpenseScreen() {
 
   // Calculate total amount
   const totalAmount = payments.reduce(
-    (sum, item) => sum + (item.amount || 0),
+    (sum, item) =>
+      sum +
+      ((!userDetail?.is_admin &&
+      !userDetail?.isCashier &&
+      item?.status !== 'Paid'
+        ? 0
+        : item.amount) || 0),
     0,
   );
 
+  // const handleDownloadPDF = async () => {
+  //   let pdfPath = null;
+
+  // const htmlContent = await generatePaymentsHTML(
+  //   payments,
+  //   totalAmount,
+  //   'expense',
+  // );
+
+  //   // Generate PDF from HTML
+  //   const generatePDF = async () => {
+  //     try {
+  //       const file = await RNHTMLtoPDF.convert({
+  //         html: htmlContent,
+  //         fileName: 'payment-collection',
+  //         base64: false,
+  //       });
+  //       pdfPath = file.filePath;
+  //       return file.filePath;
+  //     } catch (error) {
+  //       Alert.alert('Error', 'Could not generate PDF');
+  //     }
+  //   };
+
+  //   // View PDF
+  //   const handleViewPDF = async () => {
+  //     try {
+  //       let path = pdfPath || (await generatePDF());
+  //       await FileViewer.open(path, { showOpenWithDialog: true });
+  //     } catch (error) {
+  //       Alert.alert('Error', 'Could not open PDF');
+  //     }
+  //   };
+  //   await handleViewPDF();
+  // };
+
   const handleDownloadPDF = async () => {
-    let pdfPath = null;
+    try {
+      const htmlContent = await generatePaymentsHTML(
+        payments,
+        totalAmount,
+        'expense',
+      );
 
-    const htmlContent = await generatePaymentsHTML(
-      payments,
-      totalAmount,
-      'expense',
-    );
+      const file = await RNHTMLtoPDF.convert({
+        html: htmlContent,
+        fileName: 'expense-data',
+        base64: false,
+      });
 
-    // Generate PDF from HTML
-    const generatePDF = async () => {
-      try {
-        const file = await RNHTMLtoPDF.convert({
-          html: htmlContent,
-          fileName: 'payment-collection',
-          base64: false,
-        });
-        pdfPath = file.filePath;
-        return file.filePath;
-      } catch (error) {
-        Alert.alert('Error', 'Could not generate PDF');
-      }
-    };
-
-    // View PDF
-    const handleViewPDF = async () => {
-      try {
-        let path = pdfPath || (await generatePDF());
-        await FileViewer.open(path, { showOpenWithDialog: true });
-      } catch (error) {
-        Alert.alert('Error', 'Could not open PDF');
-      }
-    };
-    await handleViewPDF();
+      const pdfPath = file.filePath;
+      await FileViewer.open(pdfPath, { showOpenWithDialog: true });
+    } catch (error) {
+      console.log(error);
+      Alert.alert('Error', 'Could not generate or open PDF');
+    }
   };
 
-  const renderItem = ({ item }) => (
-    <View
-      style={[
-        styles.cardContainer,
+  const renderItem = ({ item }) => {
+    const checkCondition =
+      !userDetail?.is_admin &&
+      !userDetail?.isCashier &&
+      item?.status !== 'Paid';
+    return !checkCondition ? (
+      <View
+        style={[
+          styles.cardContainer,
+          {
+            backgroundColor: item.rowIndex % 2 === 0 ? '#ffffff' : '#f9f9f9',
+          },
+        ]}
+      >
+        <Text style={styles.fieldText}>
+          <Text style={styles.fieldLabel}>Expense: </Text>
+          {item.expense}
+        </Text>
+
+        <Text style={styles.fieldText}>
+          <Text style={styles.fieldLabel}>Amount: </Text>{' '}
+          <Text
+            style={{
+              color: item.status === 'Paid' ? '#1E90FF' : '#E53935',
+              fontWeight: '600',
+            }}
+          >
+            ₹{commaNumber(item.amount)}
+          </Text>
+        </Text>
+
+        <Text style={styles.fieldText}>
+          <Text style={styles.fieldLabel}>Status: </Text>
+          <Text
+            style={{
+              color: item.status === 'Paid' ? '#4CAF50' : '#E53935',
+              fontWeight: '600',
+            }}
+          >
+            {item.status}
+          </Text>
+        </Text>
+
         {
-          backgroundColor: item.rowIndex % 2 === 0 ? '#ffffff' : '#f9f9f9',
-        },
-      ]}
-    >
-      <Text style={styles.fieldText}>
-        <Text style={styles.fieldLabel}>Expense: </Text>
-        {item.expense}
-      </Text>
+          // userDetail?.is_admin ||
+          userDetail?.isCashier && (
+            <View style={styles.actionsRow}>
+              <TouchableOpacity
+                onPress={() => openModal(item)}
+                style={styles.iconButton}
+              >
+                <FontAwesome name="edit" size={22} color="#1E90FF" />
+              </TouchableOpacity>
 
-      <Text style={styles.fieldText}>
-        <Text style={styles.fieldLabel}>Amount: </Text>{' '}
-        <Text
-          style={{
-            color: item.status === 'Paid' ? '#1E90FF' : '#E53935',
-            fontWeight: '600',
-          }}
-        >
-          ₹{commaNumber(item.amount)}
-        </Text>
-      </Text>
-
-      <Text style={styles.fieldText}>
-        <Text style={styles.fieldLabel}>Status: </Text>
-        <Text
-          style={{
-            color: item.status === 'Paid' ? '#4CAF50' : '#E53935',
-            fontWeight: '600',
-          }}
-        >
-          {item.status}
-        </Text>
-      </Text>
-
-      {// userDetail?.is_admin ||
-      userDetail?.isCashier && (
-        <View style={styles.actionsRow}>
-          <TouchableOpacity
-            onPress={() => openModal(item)}
-            style={styles.iconButton}
-          >
-            <FontAwesome name="edit" size={22} color="#1E90FF" />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => handleDeletePayment(item.id)}
-            style={styles.iconButton}
-          >
-            <FontAwesome name="trash" size={22} color="#E53935" />
-          </TouchableOpacity>
-        </View>
-      )}
-    </View>
-  );
+              <TouchableOpacity
+                onPress={() => handleDeletePayment(item.id)}
+                style={styles.iconButton}
+              >
+                <FontAwesome name="trash" size={22} color="#E53935" />
+              </TouchableOpacity>
+            </View>
+          )
+        }
+      </View>
+    ) : null;
+  };
 
   return (
     <View style={styles.container}>
-      <Header title="Expenses" />
+      <Header title="Expenses" hideDropdown={true} />
       <View style={styles.totalContainer}>
         <View style={styles.totalBox}>
           <Text style={styles.totalLabel}>
@@ -284,7 +320,7 @@ export default function ExpenseScreen() {
 
       <View style={{ flex: 1 }}>
         <FlatList
-          data={payments}
+          data={payments?.length ? payments.filter(p => !(!userDetail?.is_admin && !userDetail?.isCashier && p.status !== 'Paid')) : []}
           keyExtractor={item => item.id}
           renderItem={renderItem}
           contentContainerStyle={{ paddingBottom: 80 }}
