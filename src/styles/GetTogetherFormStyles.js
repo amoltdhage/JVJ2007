@@ -16,7 +16,7 @@ export const GetTogetherFormStyles = StyleSheet.create({
     fontSize: 24,
     color: '#002b5c',
     fontWeight: '700',
-    marginBottom: 16,
+    marginBottom: 15,
   },
   inputWrapper: {
     width: '100%',
