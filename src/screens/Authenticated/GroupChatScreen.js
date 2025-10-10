@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
-  KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
   Image,
@@ -387,11 +386,11 @@ export default function GroupChatScreen() {
   return (
     <>
       <Header title="Group chat" hideDropdown={true} />
-      <KeyboardAvoidingView
+      {/* <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
         style={{ flex: 1 }}
-      >
+      > */}
         <TouchableOpacity
           activeOpacity={1}
           style={{ flex: 1 }}
@@ -502,7 +501,7 @@ export default function GroupChatScreen() {
             </TouchableOpacity>
           </View>
         )}
-      </KeyboardAvoidingView>
+      {/* </KeyboardAvoidingView> */}
 
       {/* Profile Image Modal with Close Button */}
       <Modal

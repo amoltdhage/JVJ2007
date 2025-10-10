@@ -78,7 +78,7 @@ export default function AuthenticationService() {
             text: 'OK',
             onPress: () => navigation.navigate('login'),
           },
-        ]
+        ],
       );
 
       // dispatch(loginAction(uid));

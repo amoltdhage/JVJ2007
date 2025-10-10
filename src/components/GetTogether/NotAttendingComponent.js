@@ -3,8 +3,10 @@ import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import Header from '../../components/Header';
 import { EVENT_INFO } from '../../utils/utils';
 import { useTranslation } from 'react-i18next';
+import { useNavigation } from '@react-navigation/native';
 
 export default function NotAttendingComponent({ resetForm, styles }) {
+  const navigation = useNavigation();
   const { t } = useTranslation(); 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -45,7 +47,7 @@ export default function NotAttendingComponent({ resetForm, styles }) {
                 styles.pdfButton,
                 { backgroundColor: '#f53737ff', marginTop: 30 },
               ]}
-              onPress={resetForm}
+              onPress={() => navigation.navigate("Home")}
             >
               <Text style={{ color: '#fff', fontWeight: '700' }}>
                 {t("close")}

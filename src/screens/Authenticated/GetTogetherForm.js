@@ -252,15 +252,17 @@ const GetTogetherForm = () => {
     );
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={{ flex: 1 }}
-    >
-      <Header title="Get-Together Form" showBack />
+    // <KeyboardAvoidingView
+    //   behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    //   style={{ flex: 1 }}
+    // >
+    <>
+    <Header title="Get-Together Form" showBack />
       <ScrollView
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
+        scrollEnabled={true}
       >
         <View style={styles.inner}>
           <MaterialIcon
@@ -414,7 +416,7 @@ const GetTogetherForm = () => {
                   {isLoading ? (
                     <ActivityIndicator size="large" color="#f3f6f7ff" />
                   ) : (
-                    'Submit'
+                    t("getTogether.submit")
                   )}
                 </Text>
               </TouchableOpacity>
@@ -422,7 +424,8 @@ const GetTogetherForm = () => {
           ) : null}
         </View>
       </ScrollView>
-    </KeyboardAvoidingView>
+    </>
+    // </KeyboardAvoidingView>
   );
 };
 
